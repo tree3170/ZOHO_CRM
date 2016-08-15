@@ -1,0 +1,296 @@
+{
+	"SalesOrders": {
+		"section": [{
+			"dv": "销售订单信息",
+			"FL": [{
+				"dv": "销售订单所有者",
+				"customfield": "false",
+				"maxlength": "120",
+				"isreadonly": "false",
+				"label": "Sales Order Owner",
+				"type": "Lookup",
+				"req": "false"
+			},
+			{
+				"dv": "主题",
+				"customfield": "false",
+				"maxlength": "120",
+				"isreadonly": "false",
+				"label": "Subject",
+				"type": "Text",
+				"req": "true"
+			},
+			{
+				"dv": "商机名",
+				"customfield": "false",
+				"maxlength": "120",
+				"isreadonly": "false",
+				"label": "Potential Name",
+				"type": "Lookup",
+				"req": "false"
+			},
+			{
+				"dv": "客户编号",
+				"customfield": "false",
+				"maxlength": "120",
+				"isreadonly": "false",
+				"label": "Customer No",
+				"type": "Text",
+				"req": "false"
+			},
+			{
+				"dv": "采购订单",
+				"customfield": "false",
+				"maxlength": "120",
+				"isreadonly": "false",
+				"label": "Purchase Order",
+				"type": "Text",
+				"req": "false"
+			},
+			{
+				"dv": "报价名称",
+				"customfield": "false",
+				"maxlength": "120",
+				"isreadonly": "false",
+				"label": "Quote Name",
+				"type": "Lookup",
+				"req": "false"
+			},
+			{
+				"dv": "到期日期",
+				"customfield": "false",
+				"maxlength": "120",
+				"isreadonly": "false",
+				"label": "Due Date",
+				"type": "Date",
+				"req": "false"
+			},
+			{
+				"dv": "待解决",
+				"customfield": "false",
+				"maxlength": "120",
+				"isreadonly": "false",
+				"label": "Pending",
+				"type": "Text",
+				"req": "false"
+			},
+			{
+				"dv": "联系人名",
+				"customfield": "false",
+				"maxlength": "120",
+				"isreadonly": "false",
+				"label": "Contact Name",
+				"type": "Lookup",
+				"req": "false"
+			},
+			{
+				"val": ["平邮",
+				"挂号",
+				"EMS快递",
+				"联邦快递",
+				"UPS快递"],
+				"dv": "运输",
+				"customfield": "false",
+				"maxlength": "120",
+				"isreadonly": "false",
+				"label": "Carrier",
+				"type": "Pick List",
+				"req": "false"
+			},
+			{
+				"dv": "消费税",
+				"customfield": "false",
+				"maxlength": "16",
+				"isreadonly": "false",
+				"fval": "￥0.00",
+				"label": "Excise Duty",
+				"type": "Currency",
+				"req": "false"
+			},
+			{
+				"dv": "销售佣金",
+				"customfield": "false",
+				"maxlength": "16",
+				"isreadonly": "false",
+				"fval": "￥0.00",
+				"label": "Sales Commission",
+				"type": "Currency",
+				"req": "false"
+			},
+			{
+				"val": ["创建",
+				"批准",
+				"交付",
+				"取消"],
+				"dv": "状态",
+				"customfield": "false",
+				"maxlength": "120",
+				"isreadonly": "false",
+				"label": "Status",
+				"type": "Pick List",
+				"req": "false"
+			},
+			{
+				"dv": "客户名",
+				"customfield": "false",
+				"maxlength": "100",
+				"isreadonly": "false",
+				"label": "Account Name",
+				"type": "Lookup",
+				"req": "true"
+			},
+			{
+				"dv": "创建者",
+				"customfield": "false",
+				"maxlength": "25",
+				"isreadonly": "false",
+				"label": "Created By",
+				"type": "OwnerLookup",
+				"req": "false"
+			},
+			{
+				"dv": "修改者",
+				"customfield": "false",
+				"maxlength": "25",
+				"isreadonly": "false",
+				"label": "Modified By",
+				"type": "OwnerLookup",
+				"req": "false"
+			}],
+			"name": "Sales Order Information"
+		},
+		{
+			"dv": "地址信息",
+			"FL": [{
+				"dv": "开单地址-街道",
+				"customfield": "false",
+				"maxlength": "250",
+				"isreadonly": "false",
+				"label": "Billing Street",
+				"type": "Text",
+				"req": "false"
+			},
+			{
+				"dv": "发货地址-街道",
+				"customfield": "false",
+				"maxlength": "250",
+				"isreadonly": "false",
+				"label": "Shipping Street",
+				"type": "Text",
+				"req": "false"
+			},
+			{
+				"dv": "开单地址-城市",
+				"customfield": "false",
+				"maxlength": "30",
+				"isreadonly": "false",
+				"label": "Billing City",
+				"type": "Text",
+				"req": "false"
+			},
+			{
+				"dv": "发货地址-城市",
+				"customfield": "false",
+				"maxlength": "30",
+				"isreadonly": "false",
+				"label": "Shipping City",
+				"type": "Text",
+				"req": "false"
+			},
+			{
+				"dv": "开单地址-省/市",
+				"customfield": "false",
+				"maxlength": "30",
+				"isreadonly": "false",
+				"label": "Billing State",
+				"type": "Text",
+				"req": "false"
+			},
+			{
+				"dv": "发货地址-省/市",
+				"customfield": "false",
+				"maxlength": "30",
+				"isreadonly": "false",
+				"label": "Shipping State",
+				"type": "Text",
+				"req": "false"
+			},
+			{
+				"dv": "开单地址-邮编",
+				"customfield": "false",
+				"maxlength": "30",
+				"isreadonly": "false",
+				"label": "Billing Code",
+				"type": "Text",
+				"req": "false"
+			},
+			{
+				"dv": "发货地址-邮编",
+				"customfield": "false",
+				"maxlength": "30",
+				"isreadonly": "false",
+				"label": "Shipping Code",
+				"type": "Text",
+				"req": "false"
+			},
+			{
+				"dv": "开单地址-国家/地区",
+				"customfield": "false",
+				"maxlength": "30",
+				"isreadonly": "false",
+				"label": "Billing Country",
+				"type": "Text",
+				"req": "false"
+			},
+			{
+				"dv": "发货地址-国家/地区",
+				"customfield": "false",
+				"maxlength": "30",
+				"isreadonly": "false",
+				"label": "Shipping Country",
+				"type": "Text",
+				"req": "false"
+			}],
+			"name": "Address Information"
+		},
+		{
+			"dv": "产品明细",
+			"FL": {
+				"dv": "产品明细",
+				"customfield": "false",
+				"maxlength": "1000",
+				"isreadonly": "false",
+				"label": "Product Details",
+				"type": "Text",
+				"req": "true"
+			},
+			"name": "Product Details"
+		},
+		{
+			"dv": "条款及条件",
+			"FL": {
+				"dv": "条款及条件",
+				"customfield": "false",
+				"maxlength": "32000",
+				"isreadonly": "false",
+				"label": "Terms and Conditions",
+				"type": "TextArea",
+				"req": "false"
+			},
+			"name": "Terms and Conditions"
+		},
+		{
+			"dv": "描述",
+			"FL": {
+				"dv": "描述",
+				"customfield": "false",
+				"maxlength": "32000",
+				"isreadonly": "false",
+				"label": "Description",
+				"type": "TextArea",
+				"req": "false"
+			},
+			"name": "Description Information"
+		}]
+	}
+}

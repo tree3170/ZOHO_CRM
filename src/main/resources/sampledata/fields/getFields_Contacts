@@ -1,0 +1,364 @@
+{
+	"Contacts": {
+		"section": [{
+			"dv": "联系人信息",
+			"FL": [{
+				"dv": "联系人所有者",
+				"customfield": "false",
+				"maxlength": "120",
+				"isreadonly": "false",
+				"label": "Contact Owner",
+				"type": "Lookup",
+				"req": "false"
+			},
+			{
+				"val": ["-None-",
+				"广告",
+				"推销电话",
+				"员工介绍",
+				"外部介绍",
+				"在线商场",
+				"合作伙伴",
+				"公开媒介",
+				"销售邮件",
+				"合作伙伴研讨会",
+				"研讨会-内部",
+				"交易会",
+				"Web下载",
+				"Web调研",
+				"Web服务支持",
+				"Web邮件",
+				"Chat"],
+				"dv": "线索来源",
+				"customfield": "false",
+				"maxlength": "120",
+				"isreadonly": "false",
+				"label": "Lead Source",
+				"type": "Pick List",
+				"req": "false"
+			},
+			{
+				"dv": "名",
+				"customfield": "false",
+				"maxlength": "40",
+				"isreadonly": "false",
+				"label": "First Name",
+				"type": "Text",
+				"req": "false"
+			},
+			{
+				"dv": "姓",
+				"customfield": "false",
+				"maxlength": "80",
+				"isreadonly": "false",
+				"label": "Last Name",
+				"type": "Text",
+				"req": "true"
+			},
+			{
+				"dv": "客户名",
+				"customfield": "false",
+				"maxlength": "100",
+				"isreadonly": "false",
+				"label": "Account Name",
+				"type": "Lookup",
+				"req": "false"
+			},
+			{
+				"dv": "供货商名称",
+				"customfield": "false",
+				"maxlength": "120",
+				"isreadonly": "false",
+				"label": "Vendor Name",
+				"type": "Lookup",
+				"req": "false"
+			},
+			{
+				"dv": "邮箱",
+				"customfield": "false",
+				"maxlength": "100",
+				"isreadonly": "false",
+				"label": "Email",
+				"type": "Email",
+				"req": "false"
+			},
+			{
+				"dv": "职位",
+				"customfield": "false",
+				"maxlength": "100",
+				"isreadonly": "false",
+				"label": "Title",
+				"type": "Text",
+				"req": "false"
+			},
+			{
+				"dv": "部门",
+				"customfield": "false",
+				"maxlength": "50",
+				"isreadonly": "false",
+				"label": "Department",
+				"type": "Text",
+				"req": "false"
+			},
+			{
+				"dv": "电话",
+				"customfield": "false",
+				"maxlength": "50",
+				"isreadonly": "false",
+				"label": "Phone",
+				"type": "Phone",
+				"req": "false"
+			},
+			{
+				"dv": "住宅电话",
+				"customfield": "false",
+				"maxlength": "30",
+				"isreadonly": "false",
+				"label": "Home Phone",
+				"type": "Phone",
+				"req": "false"
+			},
+			{
+				"dv": "其它电话",
+				"customfield": "false",
+				"maxlength": "30",
+				"isreadonly": "false",
+				"label": "Other Phone",
+				"type": "Phone",
+				"req": "false"
+			},
+			{
+				"dv": "传真",
+				"customfield": "false",
+				"maxlength": "30",
+				"isreadonly": "false",
+				"label": "Fax",
+				"type": "Text",
+				"req": "false"
+			},
+			{
+				"dv": "手机",
+				"customfield": "false",
+				"maxlength": "30",
+				"isreadonly": "false",
+				"label": "Mobile",
+				"type": "Phone",
+				"req": "false"
+			},
+			{
+				"dv": "生日",
+				"customfield": "false",
+				"maxlength": "20",
+				"isreadonly": "false",
+				"label": "Date of Birth",
+				"type": "Date",
+				"req": "false"
+			},
+			{
+				"dv": "助理",
+				"customfield": "false",
+				"maxlength": "50",
+				"isreadonly": "false",
+				"label": "Assistant",
+				"type": "Text",
+				"req": "false"
+			},
+			{
+				"dv": "助理电话",
+				"customfield": "false",
+				"maxlength": "30",
+				"isreadonly": "false",
+				"label": "Asst Phone",
+				"type": "Phone",
+				"req": "false"
+			},
+			{
+				"dv": "汇报对象",
+				"customfield": "false",
+				"maxlength": "50",
+				"isreadonly": "false",
+				"label": "Reports To",
+				"type": "Text",
+				"req": "false"
+			},
+			{
+				"dv": "不发营销邮件",
+				"customfield": "false",
+				"maxlength": "50",
+				"isreadonly": "false",
+				"label": "Email Opt Out",
+				"type": "Boolean",
+				"enabled": "false",
+				"req": "false"
+			},
+			{
+				"dv": "Skype ID",
+				"customfield": "false",
+				"maxlength": "50",
+				"isreadonly": "false",
+				"label": "Skype ID",
+				"type": "Text",
+				"req": "false"
+			},
+			{
+				"dv": "创建者",
+				"customfield": "false",
+				"maxlength": "25",
+				"isreadonly": "false",
+				"label": "Created By",
+				"type": "OwnerLookup",
+				"req": "false"
+			},
+			{
+				"dv": "修改者",
+				"customfield": "false",
+				"maxlength": "25",
+				"isreadonly": "false",
+				"label": "Modified By",
+				"type": "OwnerLookup",
+				"req": "false"
+			},
+			{
+				"val": ["-None-",
+				"先生",
+				"夫人",
+				"女士",
+				"博士",
+				"教授"],
+				"dv": "称呼",
+				"customfield": "false",
+				"maxlength": "25",
+				"isreadonly": "false",
+				"label": "Salutation",
+				"type": "Pick List",
+				"req": "false"
+			},
+			{
+				"dv": "最近操作时间",
+				"customfield": "false",
+				"maxlength": "25",
+				"isreadonly": "false",
+				"label": "Last Activity Time",
+				"type": "DateTime",
+				"req": "false"
+			},
+			{
+				"dv": "备用邮箱",
+				"customfield": "false",
+				"maxlength": "100",
+				"isreadonly": "false",
+				"label": "Secondary Email",
+				"type": "Email",
+				"req": "false"
+			}],
+			"name": "Contact Information"
+		},
+		{
+			"dv": "地址信息",
+			"FL": [{
+				"dv": "邮寄地址-街道",
+				"customfield": "false",
+				"maxlength": "250",
+				"isreadonly": "false",
+				"label": "Mailing Street",
+				"type": "Text",
+				"req": "false"
+			},
+			{
+				"dv": "其它街道",
+				"customfield": "false",
+				"maxlength": "250",
+				"isreadonly": "false",
+				"label": "Other Street",
+				"type": "Text",
+				"req": "false"
+			},
+			{
+				"dv": "邮寄地址-城市",
+				"customfield": "false",
+				"maxlength": "30",
+				"isreadonly": "false",
+				"label": "Mailing City",
+				"type": "Text",
+				"req": "false"
+			},
+			{
+				"dv": "其它城市",
+				"customfield": "false",
+				"maxlength": "30",
+				"isreadonly": "false",
+				"label": "Other City",
+				"type": "Text",
+				"req": "false"
+			},
+			{
+				"dv": "邮寄地址-省/市",
+				"customfield": "false",
+				"maxlength": "30",
+				"isreadonly": "false",
+				"label": "Mailing State",
+				"type": "Text",
+				"req": "false"
+			},
+			{
+				"dv": "其它省/市",
+				"customfield": "false",
+				"maxlength": "30",
+				"isreadonly": "false",
+				"label": "Other State",
+				"type": "Text",
+				"req": "false"
+			},
+			{
+				"dv": "邮寄地址-邮编",
+				"customfield": "false",
+				"maxlength": "30",
+				"isreadonly": "false",
+				"label": "Mailing Zip",
+				"type": "Text",
+				"req": "false"
+			},
+			{
+				"dv": "其它邮编",
+				"customfield": "false",
+				"maxlength": "30",
+				"isreadonly": "false",
+				"label": "Other Zip",
+				"type": "Text",
+				"req": "false"
+			},
+			{
+				"dv": "邮政地址-国家/地区",
+				"customfield": "false",
+				"maxlength": "30",
+				"isreadonly": "false",
+				"label": "Mailing Country",
+				"type": "Text",
+				"req": "false"
+			},
+			{
+				"dv": "其它国家/地区",
+				"customfield": "false",
+				"maxlength": "30",
+				"isreadonly": "false",
+				"label": "Other Country",
+				"type": "Text",
+				"req": "false"
+			}],
+			"name": "Address Information"
+		},
+		{
+			"dv": "描述",
+			"FL": {
+				"dv": "描述",
+				"customfield": "false",
+				"maxlength": "32000",
+				"isreadonly": "false",
+				"label": "Description",
+				"type": "TextArea",
+				"req": "false"
+			},
+			"name": "Description Information"
+		}]
+	}
+}

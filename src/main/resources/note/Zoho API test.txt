@@ -1,0 +1,88 @@
+一、#################账号信息############################
+China:
+xuxueshen345588@126.com/crm123  Firefox--> 93cef462d05ae66323797559e309f0ca
+tree317035791@163.com/zaq12wsx  Chrome--> f19d6f4ad3d2a491ef52f83a7a68bf04
+
+Oversea:
+tree3170@gmail.com/tree@2016  -->AUTHTOKEN=ae11f7443adee8de0f503803ffeb9df5
+elvis@matrixgroup.com.hk/matrixgiftu 360Chrome-->c099971d8c67e713d815c6043c8cccba
+
+API link：https://www.zoho.com.cn/crm/help/api/
+############################################
+
+二、
+1.账号tree317035791@163.com/zaq12wsx  chrome
+2.生成AuthToken：
+https://accounts.zoho.com.cn/apiauthtoken/nb/create?SCOPE=ZohoCRM/crmapi&EMAIL_ID=tree317035791@163.com&PASSWORD=zaq12wsx&DISPLAY_NAME=tree3170
+https://accounts.zoho.com/apiauthtoken/nb/create?SCOPE=ZohoCRM/crmapi&EMAIL_ID=tree317035791@163.com&PASSWORD=zaq12wsx
+https://accounts.zoho.com.cn/apiauthtoken/nb/create?SCOPE=ZohoCRM/crmapi&EMAIL_ID=tree317035791@163.com&PASSWORD=zaq12wsx
+#
+#Sun Aug 14 20:53:11 CST 2016
+AUTHTOKEN=9c50c348b9593c78ff5f998ffa0ce117
+RESULT=TRUE
+51db382e1eb939f54bc9f76e7060427a
+2459ba840b7708c68b0239c13dfc0403
+
+2.获取线索所有数据
+leads:线索
+https://crm.zoho.com.cn/crm/private/json/Leads/getRecords?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi
+Accounts：客户
+https://crm.zoho.com.cn/crm/private/json/Accounts/getRecords?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi
+Contacts：联系人
+https://crm.zoho.com.cn/crm/private/json/Contacts/getRecords?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi
+Products:产品
+https://crm.zoho.com.cn/crm/private/json/Products/getRecords?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi
+SalesOrders：销售订单 --》商机，客户，产品
+https://crm.zoho.com.cn/crm/private/json/SalesOrders/getRecords?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi
+Quotes：Quotation报价   --》客户、产品
+https://crm.zoho.com.cn/crm/private/json/Quotes/getRecords?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi
+Invoices--》客户，销售订单，产品，报价（报价如何联系的）
+https://crm.zoho.com.cn/crm/private/json/Invoices/getRecords?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi
+
+3.获取fields
+https://crm.zoho.com.cn/crm/private/json/Leads/getFields?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi
+https://crm.zoho.com.cn/crm/private/json/Contacts/getFields?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi
+https://crm.zoho.com.cn/crm/private/json/Accounts/getFields?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi
+https://crm.zoho.com.cn/crm/private/json/Products/getFields?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi
+https://crm.zoho.com.cn/crm/private/json/SalesOrders/getFields?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi
+https://crm.zoho.com.cn/crm/private/json/Quotes/getFields?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi
+https://crm.zoho.com.cn/crm/private/json/Invoices/getFields?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi
+
+
+三、
+https://www.zoho.com.cn/crm/help/api/api-methods.html
+API 方法
+方法名称 	目的
+getMyRecords 	获取API请求中指定的身份验证令牌的所有者的数据   
+getRecords 	获取API请求中指定的所有用户的数据   --get module recors and check 
+getRecordById 	通过记录ID获取个别记录    --get erp insert/update data and find the erp date and update
+getCVRecords 	获取ZohoCRM的自定义视图数据
+insertRecords 	将记录插入到所需的ZohoCRM模块     --insert from erp data
+updateRecords 	更新或修改ZohoCRM的记录           ---update from erp data
+getSearchRecords 	通过对选定列的表达式搜索记录
+getSearchRecordsByPDC 	根据预先定义的列搜索值
+deleteRecords 	删除所选的记录                    --DELETE from CRM
+convertLead 	将线索转换为商机、客户和联系人
+getRelatedRecords 	获得主模块的相关记录
+getFields 	获取模块中可用字段的详细信息          --get all fields
+updateRelatedRecords  	更新与另一条记录相关的记录
+getUsers 	获取机构用户列表
+uploadFile 	添加附件到记录
+downloadFile 	下载记录附件
+deleteFile 	删除记录附件
+uploadPhoto 	添加照片到某个联系人或线索
+downloadPhoto 	下载某个联系人或线索的照片
+deletePhoto 	删除某个联系人或线索的照片
+
+
+四。一些问题
+确定CRM版本，确定开工日期，确定交货日期，确定金额，
+1.drop down   --》 key  value
+2.根据什么主键去判断两条数据是否有修改，如何判断是CRM中的改变还是在ERP中改变有冲突情况？
+get all indexs from ERP and CRM : ERPIndexs / CRMIndexs
+insert--> get ERPIndexs and for loop index exists in CRMIndexs or not , if no , insert, if yes check need update or not 
+update  -->by modify date  change or not 
+delete--> get CRMIndexs and for loop index exists in ERPIndexs or not , if no , delete, if yes  do not handle
+PS:如果数据量巨大的话，处理时间长甚至超过5min，该如何处理？
+3.date类型如何表示？
+4.qutation是如何联系Invoice或者产品的？
