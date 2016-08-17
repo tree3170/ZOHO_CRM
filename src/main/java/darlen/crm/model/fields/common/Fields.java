@@ -6,7 +6,7 @@
  *    注意： 本内容仅限于XXX公司内部使用，禁止转发
  * ** ** ** ** ** ** ** **** ** ** ** ** ** ** **** ** ** ** ** ** ** **
  * */
-package darlen.crm.model;
+package darlen.crm.model.fields.common;
 
 /**
  * darlen.crm.model

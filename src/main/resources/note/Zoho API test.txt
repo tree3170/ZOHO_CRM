@@ -86,4 +86,7 @@ delete--> get CRMIndexs and for loop index exists in ERPIndexs or not , if no , 
 PS:如果数据量巨大的话，处理时间长甚至超过5min，该如何处理？
 3.date类型如何表示？
 4.qutation是如何联系Invoice或者产品的？
-5.需要问ZOHO相关的中英文字段问题，是不是字段都是中文，比如客户中"dv": "客户所有者",
+
+五需要问Zoho相关技术问题
+5.需要问ZOHO相关的中英文字段问题，哪个字段才是fieldname，如果自定义字段如果支持国际化，
+是不是字段都是中文，比如客户中"dv": "客户所有者",  label ： lead owner
