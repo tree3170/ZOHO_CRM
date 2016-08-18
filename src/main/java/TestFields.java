@@ -51,9 +51,9 @@ public class TestFields {
         for(int i = 0; i < functions.size(); i++){
             String function = functions.get(i);
             //TODO：：：2. get current function jsonstr, 暂时hardcode
-            String funcJsonString = CommonUtils.getJsonStringByFileName(CommonUtils.getFileNamePath("", "testjson.json"));
+            String funcJsonString = CommonUtils.getJsonStringByPathAndName("", "testjson.json");
             //3.解析整个function的json字符串到JSONObject对象
-            JSONObject wholeObj = JSON.parseObject(funcJsonString);;
+            JSONObject wholeObj = JSON.parseObject(funcJsonString);
             //4.获取某个function部分的JSONObject对象
             JSONObject functionObj =  wholeObj.getJSONObject(function);
             //5.获取某个function下面的section对应的json到JSONObject对象

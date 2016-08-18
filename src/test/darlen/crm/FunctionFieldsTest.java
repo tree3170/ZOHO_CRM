@@ -1,31 +1,37 @@
 /** ** ** ** ** ** ** **** ** ** ** ** ** ** **** ** ** ** ** ** ** **
  *    ProjectName ZOHO_CRM
- *    File Name   TestFields.java 
+ *    File Name   FunctionFields.java 
  * ** ** ** ** ** ** ** **** ** ** ** ** ** ** **** ** ** ** ** ** ** **
  *    Copyright (c) 2016 Darlen . All Rights Reserved. 
  *    注意： 本内容仅限于XXX公司内部使用，禁止转发
  * ** ** ** ** ** ** ** **** ** ** ** ** ** ** **** ** ** ** ** ** ** **
  * */
-package java.darlen.crm;
+package darlen.crm;
+
+import darlen.crm.util.CommonUtils;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * java.darlen.crm
- * Description：ZOHO_CRM:这是一个测试Fields的一些方法
- * Created on  2016/08/16 08：23
+ * darlen.crm
+ * Description：ZOHO_CRM
+ * Created on  2016/08/18 08：14
  * -------------------------------------------------------------------------
  * 版本     修改时间        作者         修改内容 
- * 1.0.0        08：23   Darlen              create
+ * 1.0.0        08：14   Darlen              create
  * -------------------------------------------------------------------------
  *
  * @author Darlen liu
  */
-public class TestFields {
+public class FunctionFieldsTest {
     public static void main(String[] args) {
-        TestFields tf = new TestFields();
-        tf.testClassPath();
+        Map<String,String> funcJsonMap = new HashMap();
+        funcJsonMap.put("leads","sampledata/fields/getFields_leads.json");
+        CommonUtils.getFunctionsFields(funcJsonMap);
+
     }
 
-    public void testClassPath(){
-        System.out.println(this.getClass().getResource(""));
-    }
+
+
 }
