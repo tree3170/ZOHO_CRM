@@ -252,7 +252,7 @@
 		},
 		{
 			"dv": "描述",
-			"FL": {
+			"FL": [{
 				"dv": "描述",
 				"customfield": "false",
 				"maxlength": "32000",
@@ -260,7 +260,7 @@
 				"label": "Description",
 				"type": "TextArea",
 				"req": "false"
-			},
+			}],
 			"name": "Description Information"
 		}]
 	}

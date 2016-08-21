@@ -9,6 +9,7 @@
 package darlen.crm;
 
 import darlen.crm.util.CommonUtils;
+import org.apache.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,10 +26,22 @@ import java.util.Map;
  * @author Darlen liu
  */
 public class FunctionFieldsTest {
-    public static void main(String[] args) {
+    private static Logger logger = Logger.getLogger(FunctionFieldsTest.class);
+    public static void main(String[] args) throws Exception{
         Map<String,String> funcJsonMap = new HashMap();
-        funcJsonMap.put("leads","sampledata/fields/getFields_leads.json");
-        CommonUtils.getFunctionsFields(funcJsonMap);
+        funcJsonMap.put("Leads", "sampledata/fields/getFields_Leads.json");
+        funcJsonMap.put("Accounts", "sampledata/fields/getFields_Accounts.json");
+        funcJsonMap.put("Invoices", "sampledata/fields/getFields_Invoices.json");
+        funcJsonMap.put("Contacts", "sampledata/fields/getFields_Contacts.json");
+        funcJsonMap.put("Products", "sampledata/fields/getFields_Products.json");
+        funcJsonMap.put("Quotes","sampledata/fields/getFields_Quotes.json");
+        funcJsonMap.put("SalesOrders","sampledata/fields/getFields_SO.json");
+        try{
+           CommonUtils.getFunctionsFields(funcJsonMap);
+        }catch (Exception e){
+            logger.error("test:::",e);
+           // throw e;
+        }
 
     }
 

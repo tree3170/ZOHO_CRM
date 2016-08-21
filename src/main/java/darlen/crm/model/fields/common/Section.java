@@ -1,27 +1,29 @@
 /** ** ** ** ** ** ** **** ** ** ** ** ** ** **** ** ** ** ** ** ** **
  *    ProjectName ZOHO_CRM
- *    File Name   Fields.java 
+ *    File Name   CommonSection.java 
  * ** ** ** ** ** ** ** **** ** ** ** ** ** ** **** ** ** ** ** ** ** **
  *    Copyright (c) 2016 Darlen . All Rights Reserved. 
  *    注意： 本内容仅限于XXX公司内部使用，禁止转发
  * ** ** ** ** ** ** ** **** ** ** ** ** ** ** **** ** ** ** ** ** ** **
  * */
-package darlen.crm.model;
+package darlen.crm.model.fields.common;
+
+import darlen.crm.model.*;
 
 import java.util.List;
 
 /**
- * darlen.crm.model
- * Description：ZOHO_CRM
- * Created on  2016/08/17 08：22
+ * darlen.crm.model.common
+ * Description：ZOHO_CRM,显示section下的所有元素
+ * Created on  2016/08/17 23：01
  * -------------------------------------------------------------------------
  * 版本     修改时间        作者         修改内容 
- * 1.0.0        08：22   Darlen              create
+ * 1.0.0        23：01   Darlen              create
  * -------------------------------------------------------------------------
  *
  * @author Darlen liu
  */
-public class SectionFields {
+public class Section {
     private String dv;
     private List<Fields> fl;
     private String name;
