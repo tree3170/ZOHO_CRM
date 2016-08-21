@@ -26,6 +26,7 @@ RESULT=TRUE
 2.获取线索所有数据
 leads:线索
 https://crm.zoho.com.cn/crm/private/json/Leads/getRecords?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi
+https://crm.zoho.com.cn/crm/private/xml/Leads/getRecords?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi
 Accounts：客户
 https://crm.zoho.com.cn/crm/private/json/Accounts/getRecords?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi
 Contacts：联系人
@@ -78,6 +79,7 @@ deletePhoto 	删除某个联系人或线索的照片
 四。一些问题
 确定CRM版本，确定开工日期，确定交货日期，确定金额，
 1.drop down   --》 key  value
+response:
 2.根据什么主键去判断两条数据是否有修改，如何判断是CRM中的改变还是在ERP中改变有冲突情况？
 get all indexs from ERP and CRM : ERPIndexs / CRMIndexs
 insert--> get ERPIndexs and for loop index exists in CRMIndexs or not , if no , insert, if yes check need update or not 
@@ -92,3 +94,4 @@ PS:如果数据量巨大的话，处理时间长甚至超过5min，该如何处�
 五需要问Zoho相关技术问题
 1.需要问ZOHO相关的中英文字段问题，哪个字段才是fieldname，如果自定义字段如果支持国际化，
 是不是字段都是中文，比如客户中"dv": "客户所有者",  label ： lead owner
+Response: label是数据库中的字段；dv代表div是页面上显示的字段
