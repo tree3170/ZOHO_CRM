@@ -1,0 +1,5 @@
+20160822:
+1.写一个基于Json解析Leads and Invoice的result实例【pending】
+2.写一个基于XML解析Leads and Invoice的result实例【tod do】
+
+invoice=报价+产品+客户（Accounts）+联系人（Contacts）

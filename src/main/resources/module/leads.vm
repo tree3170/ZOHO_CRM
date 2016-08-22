@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<salelist>
+#foreach( $pet in $petList )
+	##if pet.name is not null or empty string
+	#if($pet.name)
+            <pet>
+                <name><![CDATA[$pet.name]]</name>
+                <price><![CDATA[$pet.price]]</price>
+            </pet>
+	#end
+#end
+</salelist>

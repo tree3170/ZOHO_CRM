@@ -47,20 +47,24 @@ public class TestGetLeadsRds {
      * API 使用范围
      */
     private static String SCOPE ="crmapi";
+    private static String DB_URL ="";
+    private static String DB_USERNAME ="";
+    private static String DB_PWD ="";
+    private static String DB_DRIVER_NAME ="";
     public static void main(String a[])
     {
-//        getLeadsById("85333000000072001");
+        readProperties();
+        getLeadsById("85333000000072001");
 //        getAllLeadsRds();
 //        updateRecords();
-//        readProperties();
-        testjdbc();
+//        testjdbc();
     }
 
     public static void testjdbc(){
-        String driverName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";  //加载JDBC驱动
-        String dbURL = "jdbc:sqlserver://localhost:1433; DatabaseName=test";  //连接服务器和数据库test
-        String userName = "sa";  //默认用户名
-        String userPwd = "zaq1@WSX";  //密码
+        String driverName = DB_DRIVER_NAME;//"com.microsoft.sqlserver.jdbc.SQLServerDriver";  //加载JDBC驱动
+        String dbURL = DB_URL;//"jdbc:sqlserver://localhost:1433; DatabaseName=test";  //连接服务器和数据库test
+        String userName = DB_USERNAME;//"sa";  //默认用户名
+        String userPwd = DB_PWD;//"zaq1@WSX";  //密码
         Connection dbConn;
 
         try {
@@ -81,6 +85,11 @@ public class TestGetLeadsRds {
             NEWFORMAT_1 = prop.getProperty("NEWFORMAT_1");
             NEWFORMAT_2 = prop.getProperty("NEWFORMAT_2");
             SCOPE = prop.getProperty("SCOPE");
+            prop.load(TestGetLeadsRds.class.getResourceAsStream("/secure/db.properties"));
+            DB_URL = prop.getProperty("DB_URL");
+            DB_PWD = prop.getProperty("DB_PWD");
+            DB_USERNAME = prop.getProperty("DB_USERNAME");
+            DB_DRIVER_NAME = prop.getProperty("DB_DRIVER_NAME");
         } catch(IOException e) {
             e.printStackTrace();
         }
@@ -88,18 +97,19 @@ public class TestGetLeadsRds {
     public static void updateRecords(){
         try {
 //            String authtoken = "f19d6f4ad3d2a491ef52f83a7a68bf04";
-            String scope = "crmapi";
-            String newFormat = "1";
+            String scope = SCOPE;//"crmapi";
+            String newFormat = NEWFORMAT_1;//"1";
 
             String targetURL = "https://crm.zoho.com.cn/crm/private/xml/Leads/updateRecords";
-            String xmlData = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><Leads><row no=\"1\"><FL val=\"LEADID\">85333000000072001</FL><FL val=\"SMOWNERID\">85333000000071039</FL><FL val=\"Lead Owner\"><![CDATA[qq qq]]></FL><FL val=\"Company\"><![CDATA[qq's company2]]></FL><FL val=\"First Name\"><![CDATA[qq's first name]]></FL><FL val=\"Last Name\"><![CDATA[qq's last name]]></FL><FL val=\"No of Employees\"><![CDATA[0]]></FL><FL val=\"Annual Revenue\"><![CDATA[0]]></FL><FL val=\"Email Opt Out\"><![CDATA[false]]></FL><FL val=\"SMCREATORID\">85333000000071039</FL><FL val=\"Created By\"><![CDATA[qq qq]]></FL><FL val=\"MODIFIEDBY\">85333000000071001</FL><FL val=\"Modified By\"><![CDATA[tree3170]]></FL><FL val=\"Created Time\"><![CDATA[2016-07-13 23:58:11]]></FL><FL val=\"Modified Time\"><![CDATA[2016-08-21 15:25:07]]></FL><FL val=\"Salutation\"><![CDATA[先生]]></FL><FL val=\"Last Activity Time\"><![CDATA[2016-08-21 15:25:07]]></FL></row></Leads>";
+//            String xmlData = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><Leads><row no=\"1\"><FL val=\"LEADID\">85333000000072001</FL><FL val=\"SMOWNERID\">85333000000071039</FL><FL val=\"Lead Owner\"><![CDATA[qq qq]]></FL><FL val=\"Company\"><![CDATA[qq's company2]]></FL><FL val=\"First Name\"><![CDATA[qq's first name]]></FL><FL val=\"Last Name\"><![CDATA[qq's last name]]></FL><FL val=\"No of Employees\"><![CDATA[0]]></FL><FL val=\"Annual Revenue\"><![CDATA[0]]></FL><FL val=\"Email Opt Out\"><![CDATA[false]]></FL><FL val=\"SMCREATORID\">85333000000071039</FL><FL val=\"Created By\"><![CDATA[qq qq]]></FL><FL val=\"MODIFIEDBY\">85333000000071001</FL><FL val=\"Modified By\"><![CDATA[tree3170]]></FL><FL val=\"Created Time\"><![CDATA[2016-07-13 23:58:11]]></FL><FL val=\"Modified Time\"><![CDATA[2016-08-21 15:25:07]]></FL><FL val=\"Salutation\"><![CDATA[先生]]></FL><FL val=\"Last Activity Time\"><![CDATA[2016-08-21 15:25:07]]></FL></row></Leads>";
+            String xmlData = "<Leads><row no=\"1\"><FL val=\"Lead Owner\"><![CDATA[qq qq]]></FL><FL val=\"Company\"><![CDATA[qq's company2]]></FL><FL val=\"First Name\"><![CDATA[qq's first name]]></FL><FL val=\"Last Name\"><![CDATA[qq's last name]]></FL><FL val=\"No of Employees\"><![CDATA[0]]></FL><FL val=\"Annual Revenue\"><![CDATA[0]]></FL><FL val=\"Email Opt Out\"><![CDATA[false]]></FL><FL val=\"SMCREATORID\">85333000000071039</FL><FL val=\"Created By\"><![CDATA[qq qq]]></FL><FL val=\"MODIFIEDBY\">85333000000071001</FL><FL val=\"Modified By\"><![CDATA[tree3170]]></FL><FL val=\"Created Time\"><![CDATA[2016-07-13 23:58:11]]></FL><FL val=\"Modified Time\"><![CDATA[2016-08-21 15:25:07]]></FL><FL val=\"Salutation\"><![CDATA[先生]]></FL><FL val=\"Last Activity Time\"><![CDATA[2016-08-21 15:25:07]]></FL></row></Leads>";
             String paramname = "content";
             PostMethod post = new PostMethod(targetURL);
             post.setParameter("authtoken",AUTHTOKEN);
             post.setParameter("scope",scope);
             post.setParameter("newFormat",newFormat);
             post.setParameter("id","85333000000072001");
-            post.setParameter("xmlData",newFormat);
+            post.setParameter("xmlData",xmlData);
             HttpClient httpclient = new HttpClient();
             PrintWriter myout = null;
 
@@ -118,6 +128,10 @@ public class TestGetLeadsRds {
                 //-----------------------Get response as a string ----------------
                 String postResp = post.getResponseBodyAsString();
                 System.out.println("postResp=======>"+postResp);
+                /**
+                 * sample response=======><?xml version="1.0" encoding="UTF-8" ?>
+                 <response uri="/crm/private/xml/Leads/updateRecords"><result><message>Record(s) updated successfully</message><recorddetail><FL val="Id">85333000000072001</FL><FL val="Created Time">2016-07-13 23:58:11</FL><FL val="Modified Time">2016-08-22 21:36:36</FL><FL val="Created By"><![CDATA[qq qq]]></FL><FL val="Modified By"><![CDATA[tree3170]]></FL></recorddetail></result></response>
+                 */
             }catch(Exception e){
                 e.printStackTrace();
             } finally{
