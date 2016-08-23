@@ -1,9 +1,160 @@
-{
-	"response": {
-		"nodata": {
-			"code": "4422",
-			"message": "There is no data to show"
-		},
-		"uri": "/crm/private/json/Invoices/getRecords"
-	}
-}
+{"response": {
+    "result": {
+        "Invoices": {
+            "row": {
+                "no": "1",
+                "FL": [
+                    {
+                        "val": "INVOICEID",
+                        "content": "85333000000089067"
+                    },
+                    {
+                        "val": "SMOWNERID",
+                        "content": "85333000000071001"
+                    },
+                    {
+                        "val": "Invoice Owner",
+                        "content": "tree3170"
+                    },
+                    {
+                        "val": "Invoice Number",
+                        "content": "85333000000089069"
+                    },
+                    {
+                        "val": "Subject",
+                        "content": "三一重工合同"
+                    },
+                    {
+                        "val": "SALESORDERID",
+                        "content": "85333000000089051"
+                    },
+                    {
+                        "val": "Sales Order",
+                        "content": "三一重工合同"
+                    },
+                    {
+                        "val": "Invoice Date",
+                        "content": "2016-08-23"
+                    },
+                    {
+                        "val": "Status",
+                        "content": "创建"
+                    },
+                    {
+                        "val": "ACCOUNTID",
+                        "content": "85333000000089007"
+                    },
+                    {
+                        "val": "Account Name",
+                        "content": "三一重工"
+                    },
+                    {
+                        "val": "CONTACTID",
+                        "content": "85333000000089041"
+                    },
+                    {
+                        "val": "Contact Name",
+                        "content": "Deman wu"
+                    },
+                    {
+                        "val": "SMCREATORID",
+                        "content": "85333000000071001"
+                    },
+                    {
+                        "val": "Created By",
+                        "content": "tree3170"
+                    },
+                    {
+                        "val": "MODIFIEDBY",
+                        "content": "85333000000071001"
+                    },
+                    {
+                        "val": "Modified By",
+                        "content": "tree3170"
+                    },
+                    {
+                        "val": "Created Time",
+                        "content": "2016-08-23 00:11:58"
+                    },
+                    {
+                        "val": "Modified Time",
+                        "content": "2016-08-23 00:11:58"
+                    },
+                    {
+                        "val": "Sub Total",
+                        "content": "72220"
+                    },
+                    {
+                        "val": "Discount",
+                        "content": "0"
+                    },
+                    {
+                        "val": "Tax",
+                        "content": "0"
+                    },
+                    {
+                        "val": "Adjustment",
+                        "content": "0"
+                    },
+                    {
+                        "val": "Grand Total",
+                        "content": "72220"
+                    },
+                    {
+                        "val": "Product Details",
+                        "product": {
+                            "no": "1",
+                            "FL": [
+                                {
+                                    "val": "Product Id",
+                                    "content": "85333000000089011"
+                                },
+                                {
+                                    "val": "Product Name",
+                                    "content": "服务器"
+                                },
+                                {
+                                    "val": "Unit Price",
+                                    "content": "7222.0"
+                                },
+                                {
+                                    "val": "Quantity",
+                                    "content": "10.0"
+                                },
+                                {
+                                    "val": "Quantity in Stock",
+                                    "content": "10.0"
+                                },
+                                {
+                                    "val": "Total",
+                                    "content": "72220.0"
+                                },
+                                {
+                                    "val": "Discount",
+                                    "content": "0.0"
+                                },
+                                {
+                                    "val": "Total After Discount",
+                                    "content": "72220.0"
+                                },
+                                {
+                                    "val": "List Price",
+                                    "content": "7222.0"
+                                },
+                                {
+                                    "val": "Net Total",
+                                    "content": "72220.0"
+                                },
+                                {
+                                    "val": "Tax",
+                                    "content": "0.0"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "uri": "/crm/private/json/Invoices/getRecords"
+}}

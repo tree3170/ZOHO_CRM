@@ -1,9 +1,183 @@
-{
-	"response": {
-		"nodata": {
-			"code": "4422",
-			"message": "There is no data to show"
-		},
-		"uri": "/crm/private/json/Products/getRecords"
-	}
-}
+{"response": {
+    "result": {
+        "Products": {
+            "row": [
+                {
+                    "no": "1",
+                    "FL": [
+                        {
+                            "val": "PRODUCTID",
+                            "content": "85333000000089063"
+                        },
+                        {
+                            "val": "SMOWNERID",
+                            "content": "85333000000071001"
+                        },
+                        {
+                            "val": "Product Owner",
+                            "content": "tree3170"
+                        },
+                        {
+                            "val": "Product Name",
+                            "content": "挖土机"
+                        },
+                        {
+                            "val": "Product Active",
+                            "content": "true"
+                        },
+                        {
+                            "val": "Product Category",
+                            "content": "硬件"
+                        },
+                        {
+                            "val": "SMCREATORID",
+                            "content": "85333000000071001"
+                        },
+                        {
+                            "val": "Created By",
+                            "content": "tree3170"
+                        },
+                        {
+                            "val": "MODIFIEDBY",
+                            "content": "85333000000071001"
+                        },
+                        {
+                            "val": "Modified By",
+                            "content": "tree3170"
+                        },
+                        {
+                            "val": "Created Time",
+                            "content": "2016-08-23 00:10:51"
+                        },
+                        {
+                            "val": "Modified Time",
+                            "content": "2016-08-23 00:10:51"
+                        },
+                        {
+                            "val": "Unit Price",
+                            "content": "5000"
+                        },
+                        {
+                            "val": "Commission Rate",
+                            "content": "0"
+                        },
+                        {
+                            "val": "Usage Unit",
+                            "content": "一打"
+                        },
+                        {
+                            "val": "Qty Ordered",
+                            "content": "20"
+                        },
+                        {
+                            "val": "Qty in Stock",
+                            "content": "30"
+                        },
+                        {
+                            "val": "Reorder Level",
+                            "content": "5"
+                        },
+                        {
+                            "val": "Qty in Demand",
+                            "content": "80"
+                        },
+                        {
+                            "val": "Taxable",
+                            "content": "true"
+                        }
+                    ]
+                },
+                {
+                    "no": "2",
+                    "FL": [
+                        {
+                            "val": "PRODUCTID",
+                            "content": "85333000000089011"
+                        },
+                        {
+                            "val": "SMOWNERID",
+                            "content": "85333000000071001"
+                        },
+                        {
+                            "val": "Product Owner",
+                            "content": "tree3170"
+                        },
+                        {
+                            "val": "Product Name",
+                            "content": "服务器"
+                        },
+                        {
+                            "val": "Product Active",
+                            "content": "true"
+                        },
+                        {
+                            "val": "Manufacturer",
+                            "content": "西门子"
+                        },
+                        {
+                            "val": "Product Category",
+                            "content": "硬件"
+                        },
+                        {
+                            "val": "SMCREATORID",
+                            "content": "85333000000071001"
+                        },
+                        {
+                            "val": "Created By",
+                            "content": "tree3170"
+                        },
+                        {
+                            "val": "MODIFIEDBY",
+                            "content": "85333000000071001"
+                        },
+                        {
+                            "val": "Modified By",
+                            "content": "tree3170"
+                        },
+                        {
+                            "val": "Created Time",
+                            "content": "2016-08-22 23:59:20"
+                        },
+                        {
+                            "val": "Modified Time",
+                            "content": "2016-08-23 00:11:58"
+                        },
+                        {
+                            "val": "Unit Price",
+                            "content": "7222"
+                        },
+                        {
+                            "val": "Commission Rate",
+                            "content": "0"
+                        },
+                        {
+                            "val": "Usage Unit",
+                            "content": "每个"
+                        },
+                        {
+                            "val": "Qty Ordered",
+                            "content": "100"
+                        },
+                        {
+                            "val": "Qty in Stock",
+                            "content": "10"
+                        },
+                        {
+                            "val": "Reorder Level",
+                            "content": "10"
+                        },
+                        {
+                            "val": "Qty in Demand",
+                            "content": "131"
+                        },
+                        {
+                            "val": "Taxable",
+                            "content": "true"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "uri": "/crm/private/json/Products/getRecords"
+}}

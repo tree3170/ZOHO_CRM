@@ -1,0 +1,83 @@
+<response uri="/crm/private/xml/Invoices/getRecords">
+    <result>
+        <Invoices>
+            <row no="1">
+                <FL val="INVOICEID">85333000000089067</FL>
+                <FL val="SMOWNERID">85333000000071001</FL>
+                <FL val="Invoice Owner">
+                    <![CDATA[ tree3170 ]]>
+                </FL>
+                <FL val="Invoice Number">
+                    <![CDATA[ 85333000000089069 ]]>
+                </FL>
+                <FL val="Subject">
+                    <![CDATA[ 三一重工合同 ]]>
+                </FL>
+                <FL val="SALESORDERID">85333000000089051</FL>
+                <FL val="Sales Order">
+                    <![CDATA[ 三一重工合同 ]]>
+                </FL>
+                <FL val="Invoice Date">
+                    <![CDATA[ 2016-08-23 ]]>
+                </FL>
+                <FL val="Status">
+                    <![CDATA[ 创建 ]]>
+                </FL>
+                <FL val="ACCOUNTID">85333000000089007</FL>
+                <FL val="Account Name">
+                    <![CDATA[ 三一重工 ]]>
+                </FL>
+                <FL val="CONTACTID">85333000000089041</FL>
+                <FL val="Contact Name">
+                    <![CDATA[ Deman wu ]]>
+                </FL>
+                <FL val="SMCREATORID">85333000000071001</FL>
+                <FL val="Created By">
+                    <![CDATA[ tree3170 ]]>
+                </FL>
+                <FL val="MODIFIEDBY">85333000000071001</FL>
+                <FL val="Modified By">
+                    <![CDATA[ tree3170 ]]>
+                </FL>
+                <FL val="Created Time">
+                    <![CDATA[ 2016-08-23 00:11:58 ]]>
+                </FL>
+                <FL val="Modified Time">
+                    <![CDATA[ 2016-08-23 00:11:58 ]]>
+                </FL>
+                <FL val="Sub Total">
+                    <![CDATA[ 72220 ]]>
+                </FL>
+                <FL val="Discount">
+                    <![CDATA[ 0 ]]>
+                </FL>
+                <FL val="Tax">
+                    <![CDATA[ 0 ]]>
+                </FL>
+                <FL val="Adjustment">
+                    <![CDATA[ 0 ]]>
+                </FL>
+                <FL val="Grand Total">
+                    <![CDATA[ 72220 ]]>
+                </FL>
+                <FL val="Product Details">
+                    <product no="1">
+                        <FL val="Product Id">85333000000089011</FL>
+                        <FL val="Product Name">
+                            <![CDATA[ 服务器 ]]>
+                        </FL>
+                        <FL val="Unit Price">7222.0</FL>
+                        <FL val="Quantity">10.0</FL>
+                        <FL val="Quantity in Stock">10.0</FL>
+                        <FL val="Total">72220.0</FL>
+                        <FL val="Discount">0.0</FL>
+                        <FL val="Total After Discount">72220.0</FL>
+                        <FL val="List Price">7222.0</FL>
+                        <FL val="Net Total">72220.0</FL>
+                        <FL val="Tax">0.0</FL>
+                    </product>
+                </FL>
+            </row>
+        </Invoices>
+    </result>
+</response>

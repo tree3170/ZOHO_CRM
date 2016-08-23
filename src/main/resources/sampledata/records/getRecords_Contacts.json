@@ -1,9 +1,131 @@
-{
-	"response": {
-		"nodata": {
-			"code": "4422",
-			"message": "There is no data to show"
-		},
-		"uri": "/crm/private/json/Contacts/getRecords"
-	}
-}
+{"response": {
+    "result": {
+        "Contacts": {
+            "row": [
+                {
+                    "no": "1",
+                    "FL": [
+                        {
+                            "val": "CONTACTID",
+                            "content": "85333000000089059"
+                        },
+                        {
+                            "val": "SMOWNERID",
+                            "content": "85333000000071001"
+                        },
+                        {
+                            "val": "Contact Owner",
+                            "content": "tree3170"
+                        },
+                        {
+                            "val": "First Name",
+                            "content": "Byron"
+                        },
+                        {
+                            "val": "Last Name",
+                            "content": "chu"
+                        },
+                        {
+                            "val": "Email Opt Out",
+                            "content": "false"
+                        },
+                        {
+                            "val": "SMCREATORID",
+                            "content": "85333000000071001"
+                        },
+                        {
+                            "val": "Created By",
+                            "content": "tree3170"
+                        },
+                        {
+                            "val": "MODIFIEDBY",
+                            "content": "85333000000071001"
+                        },
+                        {
+                            "val": "Modified By",
+                            "content": "tree3170"
+                        },
+                        {
+                            "val": "Created Time",
+                            "content": "2016-08-23 00:09:47"
+                        },
+                        {
+                            "val": "Modified Time",
+                            "content": "2016-08-23 00:09:47"
+                        },
+                        {
+                            "val": "Last Activity Time",
+                            "content": "2016-08-23 00:09:47"
+                        }
+                    ]
+                },
+                {
+                    "no": "2",
+                    "FL": [
+                        {
+                            "val": "CONTACTID",
+                            "content": "85333000000089041"
+                        },
+                        {
+                            "val": "SMOWNERID",
+                            "content": "85333000000071001"
+                        },
+                        {
+                            "val": "Contact Owner",
+                            "content": "tree3170"
+                        },
+                        {
+                            "val": "First Name",
+                            "content": "Deman"
+                        },
+                        {
+                            "val": "Last Name",
+                            "content": "wu"
+                        },
+                        {
+                            "val": "ACCOUNTID",
+                            "content": "85333000000089007"
+                        },
+                        {
+                            "val": "Account Name",
+                            "content": "三一重工"
+                        },
+                        {
+                            "val": "Email Opt Out",
+                            "content": "false"
+                        },
+                        {
+                            "val": "SMCREATORID",
+                            "content": "85333000000071001"
+                        },
+                        {
+                            "val": "Created By",
+                            "content": "tree3170"
+                        },
+                        {
+                            "val": "MODIFIEDBY",
+                            "content": "85333000000071001"
+                        },
+                        {
+                            "val": "Modified By",
+                            "content": "tree3170"
+                        },
+                        {
+                            "val": "Created Time",
+                            "content": "2016-08-23 00:07:52"
+                        },
+                        {
+                            "val": "Modified Time",
+                            "content": "2016-08-23 00:07:52"
+                        },
+                        {
+                            "val": "Last Activity Time",
+                            "content": "2016-08-23 00:07:52"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "uri": "/crm/private/json/Contacts/getRecords"
+}}

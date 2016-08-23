@@ -1,0 +1,132 @@
+<response uri="/crm/private/xml/Leads/getRecords">
+    <result>
+        <Leads>
+            <row no="1">
+                <FL val="LEADID">85333000000072001</FL>
+                <FL val="SMOWNERID">85333000000071039</FL>
+                <FL val="Lead Owner">
+                    <![CDATA[ qq qq ]]>
+                </FL>
+                <FL val="Company">
+                    <![CDATA[ qq's company2 ]]>
+                </FL>
+                <FL val="First Name">
+                    <![CDATA[ qq's first name ]]>
+                </FL>
+                <FL val="Last Name">
+                    <![CDATA[ qq's last name ]]>
+                </FL>
+                <FL val="No of Employees">
+                    <![CDATA[ 0 ]]>
+                </FL>
+                <FL val="Annual Revenue">
+                    <![CDATA[ 0 ]]>
+                </FL>
+                <FL val="Email Opt Out">
+                    <![CDATA[ false ]]>
+                </FL>
+                <FL val="SMCREATORID">85333000000071039</FL>
+                <FL val="Created By">
+                    <![CDATA[ qq qq ]]>
+                </FL>
+                <FL val="MODIFIEDBY">85333000000071001</FL>
+                <FL val="Modified By">
+                    <![CDATA[ tree3170 ]]>
+                </FL>
+                <FL val="Created Time">
+                    <![CDATA[ 2016-07-13 23:58:11 ]]>
+                </FL>
+                <FL val="Modified Time">
+                    <![CDATA[ 2016-08-22 21:36:36 ]]>
+                </FL>
+                <FL val="Salutation">
+                    <![CDATA[ ?? ]]>
+                </FL>
+                <FL val="Last Activity Time">
+                    <![CDATA[ 2016-08-21 15:25:07 ]]>
+                </FL>
+            </row>
+            <row no="2">
+                <FL val="LEADID">85333000000071127</FL>
+                <FL val="SMOWNERID">85333000000071039</FL>
+                <FL val="Lead Owner">
+                    <![CDATA[ qq qq ]]>
+                </FL>
+                <FL val="Company">
+                    <![CDATA[ qq' company ]]>
+                </FL>
+                <FL val="First Name">
+                    <![CDATA[ qq's first name ]]>
+                </FL>
+                <FL val="Last Name">
+                    <![CDATA[ qq's last name ]]>
+                </FL>
+                <FL val="No of Employees">
+                    <![CDATA[ 0 ]]>
+                </FL>
+                <FL val="Annual Revenue">
+                    <![CDATA[ 0 ]]>
+                </FL>
+                <FL val="Email Opt Out">
+                    <![CDATA[ false ]]>
+                </FL>
+                <FL val="SMCREATORID">85333000000071039</FL>
+                <FL val="Created By">
+                    <![CDATA[ qq qq ]]>
+                </FL>
+                <FL val="MODIFIEDBY">85333000000071001</FL>
+                <FL val="Modified By">
+                    <![CDATA[ tree3170 ]]>
+                </FL>
+                <FL val="Created Time">
+                    <![CDATA[ 2016-07-13 23:54:10 ]]>
+                </FL>
+                <FL val="Modified Time">
+                    <![CDATA[ 2016-08-22 21:47:42 ]]>
+                </FL>
+                <FL val="Last Activity Time">
+                    <![CDATA[ 2016-08-22 21:47:42 ]]>
+                </FL>
+            </row>
+            <row no="3">
+                <FL val="LEADID">85333000000071032</FL>
+                <FL val="SMOWNERID">85333000000071001</FL>
+                <FL val="Lead Owner">
+                    <![CDATA[ tree3170 ]]>
+                </FL>
+                <FL val="Company">
+                    <![CDATA[ tree's company ]]>
+                </FL>
+                <FL val="Last Name">
+                    <![CDATA[ tree3170 ]]>
+                </FL>
+                <FL val="No of Employees">
+                    <![CDATA[ 0 ]]>
+                </FL>
+                <FL val="Annual Revenue">
+                    <![CDATA[ 0 ]]>
+                </FL>
+                <FL val="Email Opt Out">
+                    <![CDATA[ false ]]>
+                </FL>
+                <FL val="SMCREATORID">85333000000071001</FL>
+                <FL val="Created By">
+                    <![CDATA[ tree3170 ]]>
+                </FL>
+                <FL val="MODIFIEDBY">85333000000071001</FL>
+                <FL val="Modified By">
+                    <![CDATA[ tree3170 ]]>
+                </FL>
+                <FL val="Created Time">
+                    <![CDATA[ 2016-07-13 23:47:54 ]]>
+                </FL>
+                <FL val="Modified Time">
+                    <![CDATA[ 2016-07-13 23:47:54 ]]>
+                </FL>
+                <FL val="Last Activity Time">
+                    <![CDATA[ 2016-07-13 23:47:54 ]]>
+                </FL>
+            </row>
+        </Leads>
+    </result>
+</response>
