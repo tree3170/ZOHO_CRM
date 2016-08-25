@@ -41,12 +41,18 @@ import java.util.List;
  */
 public class XmlParseUtil {
     public static Logger logger = Logger.getLogger(XmlParseUtil.class);
-    private static final String filePath = "sampledata/records/getRecords_Leads.xml";
+    private static final String leads_filePath = "sampledata/records/getRecords_Leads.xml";
+    private static final String so_filePath = "sampledata/records/getRecords_SO.xml";
 
     public static void main(String[] args) throws Exception {
         XmlParseUtil domParse = new XmlParseUtil();
-        Document document = domParse.getDocument(CommonUtils.getFileNamePath("",filePath));
-        domParse.parseDocument(document, Constants.ELEMENT_LEADS_KEY);
+        //for leads
+        /*Document document = domParse.getDocument(CommonUtils.getFileNamePath("",leads_filePath));
+        domParse.parseDocument(document, Constants.ELEMENT_LEADS_KEY);*/
+
+        //for SO
+        Document document = domParse.getDocument(CommonUtils.getFileNamePath("",so_filePath));
+        domParse.parseDocument(document, Constants.ELEMENT_SALESORDER_KEY);
        // domParse.createXML();
     }
 
@@ -110,12 +116,13 @@ public class XmlParseUtil {
                     int childSize = element.elements().size();
                     i=1;
                     attrVal = element.attributeValue("no");
-                    logger.debug("$第: "+attrVal+"条数据; 元素名字:::"+elementName+"; 属性 'no'的值:::"+attrVal+"; 有"+childSize+"个字段有值");
+                    logger.debug("$$$$第: "+attrVal+"条数据; 元素名字:::"+elementName+"; 属性 'no'的值:::"+attrVal+"; 有"+childSize+"个字段有值");
                 }else{
-                     logger.debug("#第: "+i+"个字段; 元素名字:::"+elementName+"; 属性 'val'的值:::"+attrVal+"; 文本内容:::"+text);
-                    //TODO ::: product detail
-                     ++i;
-
+                    //排除attribute value is product detail 和 element是product的数据
+                    if(!Constants.ELEMENT_ATTR_VAL_VALUE.equalsIgnoreCase(attrVal) && !Constants.ELEMENT_PRODUCT_KEY.equalsIgnoreCase(elementName)){
+                        logger.debug("#第: "+i+"个字段; 元素名字:::"+elementName+"; 属性 'val'的值:::"+attrVal+"; 文本内容:::"+text);
+                        ++i;
+                    }
                 }
             }
             traverElement(element,i,moduleKeys);

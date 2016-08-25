@@ -3,3 +3,8 @@
 2.写一个基于XML解析Leads and Invoice的result实例【tod do】
 
 invoice=报价+产品+客户（Accounts）+联系人（Contacts）
+
+20160825 晚，
+1. 学习markdown语法，争取每天能有一些东西和进度更新在我们的这个note的folder下，
+2. 明后两天尽量完成利用dom parse xml result--》Map--》parse 成 Object（Leads,SO）--》xml(如果为空则不parse到xml中，不包含ID)
+3.大后天建立起

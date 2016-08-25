@@ -23,8 +23,11 @@ public interface Constants {
     public static final String ELEMENT_INVOICES_KEY="Invoices";
     public static final String ELEMENT_PRODUCTS_KEY="Products";
     public static final String ELEMENT_QUOTES_KEY="Quotes";
-    public static final String ELEMENT_SALESORDER_KEY="Sales Order";
+    public static final String ELEMENT_SALESORDER_KEY="SalesOrders";
     public static final String ELEMENT_ATTR_NO_KEY="no";
     public static final String ELEMENT_ATTR_VAL_KEY="val";
+    /**for product details 字段的解析*/
+    public static final String ELEMENT_ATTR_VAL_VALUE="Product Details";
+    public static final String ELEMENT_PRODUCT_KEY="product";
     /**end */
 }
