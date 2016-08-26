@@ -27,7 +27,7 @@ public interface Constants {
     public static final String ELEMENT_ATTR_NO_KEY="no";
     public static final String ELEMENT_ATTR_VAL_KEY="val";
     /**for product details 字段的解析*/
-    public static final String ELEMENT_ATTR_VAL_VALUE="Product Details";
+    public static final String ELEMENT_ATTR_PRODDTL_VALUE="Product Details";
     public static final String ELEMENT_PRODUCT_KEY="product";
     /**end */
 }

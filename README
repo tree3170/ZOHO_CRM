@@ -1,1 +1,18 @@
-This file was created by IntelliJ IDEA 12.1.6 for binding GitHub repository
+## 目录：
+* [1.计划](plan.md)
+* [2.任务](task.md)
+* [3.知识点](暂缺)
+  * [1.XML与Object相互转换利用JAXB](jaxb.md)
+  * [2.velocity模板的使用](暂缺)
+
+
+
+## 参考在线MarkDowm编辑器
+* [markdown-editor](http://jbt.github.io/markdown-editor)
+* [mahua](http://mahua.jser.me/)
+* [mdeditor](https://www.zybuluo.com/mdeditor)
+
+## MarkDown语法参考
+* [Markdown 语法说明 (简体中文版)](http://www.appinn.com/markdown/index.html)
+* [Markdown 语法说明](http://wowubuntu.com/markdown/)
+* [markdown-syntax-zhtw](https://github.com/judasn/markdown-syntax-zhtw)

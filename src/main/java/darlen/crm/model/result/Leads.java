@@ -33,7 +33,7 @@ public class Leads {
     /**名*/
     private String First_Name;
     /**姓*/
-    private String Last Name;
+    private String Last_Name;
     /**职位*/
     private String Designation;
     private String Email;
@@ -45,46 +45,50 @@ public class Leads {
     private String Mobile;
     private String Website;
     /**线索来源*/
-    private String Lead Source;
+    private String Lead_Source;
     /**线索状态*/
-    private String Lead Status;
+    private String Lead_Status;
     /**行业*/
     private String Industry;
-    /**员工数*/
-    private String No of Employees;
-    /**年收入*/
-    private String Annual Revenue;
+    /**员工数No of Employees*/
+    private String No_of_Employees;
+    /**年收入Annual Revenue*/
+    private String Annual_Revenue;
     /**等级*/
     private String Rating;
     /**？*/
     private String CAMPAIGNID;
-    /**？*/
-    private String Campaign Source;
-    /**不发营销邮件*/
-    private String Email Opt Out;
-    private String Skype ID;
-    /**创建人id*/
+    /**？Campaign Source*/
+    private String Campaign_Source;
+    /**不发营销邮件Email Opt Out*/
+    private String Email_Opt_Out;
+    /**Skype ID*/
+    private String Skype_ID;
+    /**创建人id:SMCREATORID*/
     private String SMCREATORID;
-    /**创建人*/
-    private String Created By;
-    /**修改人id*/
+    /**创建人Created By*/
+    private String Created_By;
+    /**修改人id:MODIFIEDBY*/
     private String MODIFIEDBY;
-    private String Modified By;
-    private String Created Time;
-    private String Modified Time;
+    /**Modified_By*/
+    private String Modified_By;
+    /**Created Time*/
+    private String Created_Time;
+    /**Modified Time*/
+    private String Modified_Time;
 
     private String Street;
     private String City;
     /**省*/
     private String State;
-    /**邮编*/
-    private String Zip Code;
+    /**邮编Zip Code*/
+    private String Zip_Code;
     private String Country;
     private String Description;
-    /**备用邮件*/
-    private String Secondary Email;
-    /**与modified time有什么区别*/
-    private String Last Activity Time;
+    /**备用邮件 Secondary Email*/
+    private String Secondary_Email;
+    /**与modified time有什么区别:Last Activity Time*/
+    private String Last_Activity_Time;
 
 
 }

@@ -20,17 +20,34 @@ package darlen.crm.model.result;
  * @author Darlen liu
  */
 public class ProductDetails {
-    private String Product Id;
-    private String Product Name;
-    private String Unit Price;
+    /**产品IDProduct Id*/
+    private String Product_Id;
+    /**产品名字Product Name*/
+    private String Product_Name;
+    //TODO Confirm Unit Price and List Price 区别
+    /**定价 (￥)：单价Unit Price*/
+    private String Unit_Price;
+    /**List Price*/
+    private String List_Price;
+    /**数量Quantity*/
     private String Quantity;
-    private String Quantity in Stock;
-    private String Total;
+    /**库存量：Quantity in Stock*/
+    private String Quantity_in_Stock;
+
+    /**折扣 (￥)Discount*/
     private String Discount;
-    private String Total After Discount;
-    private String List Price;
-    private String Net Total;
+
+
+
+    /**累计Total After Discount*/
+    private String Total_After_Discount;
+    /**总计Total*/
+    private String Total;
+    /**小计Net Total*/
+    private String Net_Total;
+    /**税	Tax*/
     private String Tax;
-    private String Product Description;
+    /**Product Description*/
+    private String Product_Description;
 
 }

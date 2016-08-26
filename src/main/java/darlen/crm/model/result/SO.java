@@ -8,9 +8,11 @@
  * */
 package darlen.crm.model.result;
 
+import java.util.List;
+
 /**
  * darlen.crm.model.result
- * Description：ZOHO_CRM
+ * Description：ZOHO_CRM  SO=Quotation +Potential+Customer+product
  * Created on  2016/08/26 08：20
  * -------------------------------------------------------------------------
  * 版本     修改时间        作者         修改内容 
@@ -20,52 +22,96 @@ package darlen.crm.model.result;
  * @author Darlen liu
  */
 public class SO {
+    /**id*/
     private String SALESORDERID;
-    private String SO Number;
-    private String SO Number;
-    private String Subject;
-    private String POTENTIALID;
-    private String Potential Name;
-    private String Customer No;
-    private String Purchase Order;
-    private String QUOTEID;
-    private String Quote Name;
-    private String Due Date;
-    private String Pending;
-    private String CONTACTID;
-    private String Contact Name;
-    private String Carrier;
-    private String Excise Duty;
-    private String Sales Commission;
-    private String Status;
-    private String ACCOUNTID;
-    private String Account Name;
+    /**销售订单所有者SMOWNERID*/
     private String SMOWNERID;
-    private String Sales Order Owner;
-    private String SMCREATORID;
-    private String Created By;
-    private String MODIFIEDBY;
-    private String Modified By;
-    private String Created Time;
-    private String Modified Time;
-    private String Sub Total;
-    private String Discount;
-    private String Tax;
-    private String Adjustment;
-    private String Grand Total;
-    private String Billing Street;
-    private String Shipping Street;
-    private String Shipping Street;
-    private String Billing City;
-    private String Shipping City;
-    private String Billing State;
-    private String Shipping State;
-    private String Billing Code;
-    private String Shipping Code;
-    private String Billing Country;
-    private String Shipping Country;
-    private String Terms and Conditions;
-    private String Description;
+    /**销售订单所有者Sales Order Owner*/
+    private String Sales_Order_Owner;
+    /** 销售订单编号SO Number*/
+    private String SO_Number;
+    /**主题Subject:必填*/
+    private String Subject;
+    /**商机id ： POTENTIALID*/
+    private String POTENTIALID;
+    /**商机名Potential Name*/
+    private String Potential_Name;
+    /**客户编号Customer No*/
+    private String Customer_No;
+    /**采购订单Purchase Order*/
+    private String Purchase_Order;
+    /**报价名称QUOTEID*/
+    private String QUOTEID;
+    /**报价名称Quote Name*/
+    private String Quote_Name;
+    /**到期日期Due Date*/
+    private String Due_Date;
+    /**待解决Pending*/
+    private String Pending;
+    /**联系人IDCONTACTID*/
+    private String CONTACTID;
+    /**联系人名Contact Name*/
+    private String Contact_Name;
+    /**Carrier*/
+    private String Carrier;
+    /**消费税Excise Duty*/
+    private String Excise_Duty;
+    /**销售佣金Sales Commission*/
+    private String Sales_Commission;
+    /**状态Status*/
+    private String Status;
+    /**客户IDACCOUNTID*/
+    private String ACCOUNTID;
+    /**客户名Account Name*/
+    private String Account_Name;
 
-    private ProductDetails pds;
+
+    /**SMCREATORID*/
+    private String SMCREATORID;
+    /**Created By*/
+    private String Created_By;
+    /**MODIFIEDBY*/
+    private String MODIFIEDBY;
+    /**Modified By*/
+    private String Modified_By;
+    /**Created Time*/
+    private String Created_Time;
+    /**Modified Time*/
+    private String Modified_Time;
+    /**小计	     Sub Total*/
+    private String Sub_Total;
+    /**折扣	     Discount*/
+    private String Discount;
+    /**税	     Tax*/
+    private String Tax;
+    /**调整 Adjustment*/
+    private String Adjustment;
+    /**Grand Total*/
+    private String Grand_Total;
+    /**Billing Street*/
+    private String Billing_Street;
+    /**Shipping Street*/
+    private String Shipping_Street;
+    /**Billing City*/
+    private String Billing_City;
+    /**Shipping City*/
+    private String Shipping_City;
+    /**Billing State*/
+    private String Billing_State;
+    /** Shipping State*/
+    private String Shipping_State;
+    /**Billing Code*/
+    private String Billing_Code;
+    /**Shipping Code*/
+    private String Shipping_Code;
+    /**Billing Country*/
+    private String Billing_Country;
+    /**Shipping Country*/
+    private String Shipping_Country;
+    /**条款及条件Terms and Conditions*/
+    private String Terms_and_Conditions;
+    /**Description*/
+    private String Description;
+    /**pds*/
+    private List<ProductDetails> pds;
 }

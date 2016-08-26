@@ -104,7 +104,6 @@ public class XmlParseUtil {
     private void traverElement(org.dom4j.Element root,int i, String moduleKeys){
 //        logger.debug("#[DomParse], start traverElement... ");
         for(Iterator<org.dom4j.Element> iter = root.elementIterator();iter.hasNext();){
-
             org.dom4j.Element element = iter.next();
             String elementName = element.getName();
             String attrVal = element.attributeValue("val");
@@ -119,7 +118,7 @@ public class XmlParseUtil {
                     logger.debug("$$$$第: "+attrVal+"条数据; 元素名字:::"+elementName+"; 属性 'no'的值:::"+attrVal+"; 有"+childSize+"个字段有值");
                 }else{
                     //排除attribute value is product detail 和 element是product的数据
-                    if(!Constants.ELEMENT_ATTR_VAL_VALUE.equalsIgnoreCase(attrVal) && !Constants.ELEMENT_PRODUCT_KEY.equalsIgnoreCase(elementName)){
+                    if(!Constants.ELEMENT_ATTR_PRODDTL_VALUE.equalsIgnoreCase(attrVal) && !Constants.ELEMENT_PRODUCT_KEY.equalsIgnoreCase(elementName)){
                         logger.debug("#第: "+i+"个字段; 元素名字:::"+elementName+"; 属性 'val'的值:::"+attrVal+"; 文本内容:::"+text);
                         ++i;
                     }else{
