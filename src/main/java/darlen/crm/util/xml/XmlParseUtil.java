@@ -122,6 +122,8 @@ public class XmlParseUtil {
                     if(!Constants.ELEMENT_ATTR_VAL_VALUE.equalsIgnoreCase(attrVal) && !Constants.ELEMENT_PRODUCT_KEY.equalsIgnoreCase(elementName)){
                         logger.debug("#第: "+i+"个字段; 元素名字:::"+elementName+"; 属性 'val'的值:::"+attrVal+"; 文本内容:::"+text);
                         ++i;
+                    }else{
+                        //TODO 需要抽取Product detail为Object
                     }
                 }
             }

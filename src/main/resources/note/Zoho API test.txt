@@ -23,10 +23,14 @@ RESULT=TRUE
 51db382e1eb939f54bc9f76e7060427a
 2459ba840b7708c68b0239c13dfc0403
 
+
+newFormat
+
 2.获取线索所有数据
 leads:线索
 https://crm.zoho.com.cn/crm/private/json/Leads/getRecords?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi
 https://crm.zoho.com.cn/crm/private/xml/Leads/getRecords?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi
+https://crm.zoho.com.cn/crm/private/xml/Leads/getRecords?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi&newFormat=2
 Accounts：客户
 https://crm.zoho.com.cn/crm/private/json/Accounts/getRecords?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi
 Contacts：联系人
@@ -35,6 +39,7 @@ Products:产品
 https://crm.zoho.com.cn/crm/private/json/Products/getRecords?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi
 SalesOrders：销售订单 --》商机，客户，产品
 https://crm.zoho.com.cn/crm/private/json/SalesOrders/getRecords?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi
+https://crm.zoho.com.cn/crm/private/xml/SalesOrders/getRecords?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi&newFormat=2
 Quotes：Quotation报价   --》客户、产品
 https://crm.zoho.com.cn/crm/private/json/Quotes/getRecords?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi
 Invoices--》客户，销售订单，产品，报价（报价如何联系的）
