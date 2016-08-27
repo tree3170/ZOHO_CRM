@@ -20,4 +20,4 @@
 * [Segmentfault Markdown 编辑器语法指南](https://segmentfault.com/markdown)
 
 ## 学习图
-[学习方式图](/pic/My-Learning-Way.jpg)
+![学习方式图](/pic/My-Learning-Way.jpg)
