@@ -11,3 +11,7 @@
 * @XmlRootElement，将Java类或枚举类型映射到XML元素。
 * @XmlElement，将Java类的一个属性映射到与属性同名的一个XML元素。
 * @XmlAttribute，将Java类的一个属性映射到与属性同名的一个XML属性。
+
+## 问题
+* 1. &lt;问题
+* 2.

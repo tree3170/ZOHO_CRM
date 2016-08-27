@@ -4,6 +4,7 @@ import darlen.crm.jaxb_xml_object.t4.Role;
 import darlen.crm.jaxb_xml_object.t4.School;
 import darlen.crm.jaxb_xml_object.t4.Student;
 import darlen.crm.jaxb_xml_object.utils.JaxbUtil;
+import darlen.crm.util.CommonUtils;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -14,8 +15,6 @@ public class JaxbLeadsTest {
 
 	@Test
 	public void showMarshaller() {
-
-
         Response response = new Response();
         Result result = new Result();
         Leads leads = new Leads();
@@ -38,8 +37,8 @@ public class JaxbLeadsTest {
 	}
 
 	@Test
-	public void showUnMarshaller() {
-		String str = "<response uri=\"/crm/private/xml/Leads/getRecords\">\n" +
+	public void showUnMarshaller() throws Exception {
+		String leadsStr = "<response uri=\"/crm/private/xml/Leads/getRecords\">\n" +
                 "    <result>\n" +
                 "        <Leads>\n" +
                 "            <row no=\"1\">\n" +
@@ -54,8 +53,10 @@ public class JaxbLeadsTest {
                 "        </Leads>\n" +
                 "    </result>\n" +
                 "</response>";
-        Response response = JaxbUtil.converyToJavaBean(str, Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
-		System.out.println(str);
+
+        // leadsStr = CommonUtils.getJsonStringByPathAndName("","sampledata/records/getRecords_Leads.xml");
+        Response response = JaxbUtil.converyToJavaBean(leadsStr, Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
+		System.out.println(leadsStr);
 		System.out.println(response);
 	}
 	

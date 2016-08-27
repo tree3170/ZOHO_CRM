@@ -18,7 +18,7 @@ public class JaxbUtil {
 	 * JavaBean转换成xml
 	 * 默认编码UTF-8
 	 * @param obj
-	 * @param writer
+	 * @param obj
 	 * @return 
 	 */
 	public static String convertToXml(Object obj) {
@@ -38,6 +38,8 @@ public class JaxbUtil {
 			Marshaller marshaller = context.createMarshaller();
 			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 			marshaller.setProperty(Marshaller.JAXB_ENCODING, encoding);
+            //去掉默认生成的xml报头文<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+            marshaller.setProperty(Marshaller.JAXB_FRAGMENT,true);
 
 			StringWriter writer = new StringWriter();
 			marshaller.marshal(obj, writer);

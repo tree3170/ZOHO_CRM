@@ -7,7 +7,7 @@
 ## 20160827 早：
 * 1. 完成Q&A中的jaxb中value为空不设置到java对象中的问题
 * 2. 早上已经完成了对Leads的解析成Object，今天至少完成完成对SO的解析
-* 3. 白天在公司有多的时间完成对Jaxb的一些语法，历史来历等解读,具体解读方式参考![学习方式图](https://github.com/Darlen/ZOHO_CRM/tree/master/src/main/webapp/pic/My-Learning-Way.jpg)
+* 3. 白天在公司有多的时间完成对Jaxb的一些语法，历史来历等解读,具体解读方式参考!
 
 ## 20160826 晚
 * 1. 明天一定得完成xml to java bean的映射,使用jaxb2
