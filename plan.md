@@ -1,11 +1,18 @@
 
+##20160827 晚
+* 1. 明天白天利用jaxb生成的xml做一条增删改查的记录
+    【最主要是对生成的xml做校验，<strong>`如何取到值塞进对应属性`</strong>，难度5星】
+* 2. 搭建起spring mvc环境，搭建起druid环境【20160828-20160830】
+
 ## 20160827 早：
 * 1. 完成Q&A中的jaxb中value为空不设置到java对象中的问题
 * 2. 早上已经完成了对Leads的解析成Object，今天至少完成完成对SO的解析
-* 3. 白天在公司有多的时间完成对Jaxb的一些语法，历史来历等解读,具体解读方式参考/webapp/pic/My-Learning-Way.jpg
+* 3. 白天在公司有多的时间完成对Jaxb的一些语法，历史来历等解读,具体解读方式参考![学习方式图](/webapp/pic/My-Learning-Way.jpg)
 
 ## 20160826 晚
-* 1. 明天一定得完成xml to java bean的映射,使用jaxb2【20160827早：50%,已经实现了Leads的解析，接下来完成SO】
+* 1. 明天一定得完成xml to java bean的映射,使用jaxb2
+    【20160827早：50%,已经实现了Leads的解析，接下来完成SO】
+    【20160827晚：100%，完成SO解析，比较曲折关于对product detail转换为Java object】
 * 2. 下周得定义出整套Spring MVC方案，Quartz方案
 
 ## 20160825 晚，
