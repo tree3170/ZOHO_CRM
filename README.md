@@ -1,4 +1,4 @@
-## 目录：
+# 目录：
 * [1.计划](plan.md)
 * [2.任务](task.md)
 * [3.知识点](暂缺)
@@ -18,3 +18,6 @@
 * [Markdown 语法说明](http://wowubuntu.com/markdown/)
 * [markdown-syntax-zhtw](https://github.com/judasn/markdown-syntax-zhtw)
 * [Segmentfault Markdown 编辑器语法指南](https://segmentfault.com/markdown)
+
+## 学习图
+[学习方式图](/pic/My-Learning-Way.jpg)
