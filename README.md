@@ -13,6 +13,8 @@
 * [mdeditor](https://www.zybuluo.com/mdeditor)
 
 ## MarkDown语法参考
+* [ Markdown 语法实例](https://cnodejs.org/topic/50f6bc56df9e9fcc58745985)
 * [Markdown 语法说明 (简体中文版)](http://www.appinn.com/markdown/index.html)
 * [Markdown 语法说明](http://wowubuntu.com/markdown/)
 * [markdown-syntax-zhtw](https://github.com/judasn/markdown-syntax-zhtw)
+* [Segmentfault Markdown 编辑器语法指南](https://segmentfault.com/markdown)

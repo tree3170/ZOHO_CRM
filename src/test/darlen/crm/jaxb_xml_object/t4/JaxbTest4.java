@@ -38,7 +38,7 @@ public class JaxbTest4 {
 
 		String str = JaxbUtil.convertToXml(school);
 		System.out.println(str);
-        //System.out.println("123123"+JaxbUtil.converyToJavaBean(str,Student.class));
+        System.out.println("String to Object::: "+JaxbUtil.converyToJavaBean(str,School.class));
 	}
 
 	@Test
