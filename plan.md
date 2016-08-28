@@ -1,7 +1,16 @@
+##20160828
+* 1. 抽取公共的Post method（executePostMethod：map）和一些公共的Constants, 参考：LeadsRdsTest.java   【finish】
+* 2. 完成对Leads从db读取到java object，然后拿到并对比CRM中数据，
+1.拿到db record，解析出crm中的record，查看时间，如果db时间>record时间则update（db record映射到对象中，再通过jaxb转换为xml，post到CRM去更新数据）
+> db 数据如何和java object的mapping问题（）， 详细见LeadsRdsMockTest.java
+* 3. 晚，还没完成对从数据读取之后然后映射到xml上最后发送到ZOHO，明天早上继续完成。
+
 
 ##20160827 晚
 * 1. 明天白天利用jaxb生成的xml做一条增删改查的记录
-    【最主要是对生成的xml做校验，<strong>`如何取到值塞进对应属性`</strong>，难度5星】
+```
+    【最主要是对生成的xml做校验，<strong>`如何取到值塞进对应属性`</strong>，难度5星】，详细见LeadsRdsMockTest.java
+```
 * 2. 搭建起spring mvc环境，搭建起druid环境【20160828-20160830】
 
 ## 20160827 早：

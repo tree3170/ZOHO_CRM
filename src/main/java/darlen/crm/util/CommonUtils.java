@@ -13,13 +13,16 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import darlen.crm.model.fields.common.Fields;
 import darlen.crm.model.fields.common.Section;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.log4j.Logger;
 
+import java.io.File;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.*;
 
 /**
  * darlen.util
@@ -197,5 +200,103 @@ public class CommonUtils {
     }
     public static void parseFields(){
 
+    }
+
+    public static void setPostMethodParams(PostMethod post,Map<String,String> map){
+        String url = map.get(Constants.HTTP_POST_PARAM_TARGETURL)+"?";
+        for(Map.Entry<String,String> entry: map.entrySet()){
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if(!StringUtils.isEmptyString(value) && !Constants.HTTP_POST_PARAM_TARGETURL.equals(key)){
+                url += key+"="+value+"&";
+                post.setParameter(key, value);
+            }
+        }
+        logger.debug("发送的URL是:::"+url.substring(0,url.length()-1));
+        /*post.setParameter(Constants.HTTP_POST_PARAM_AUTHTOKEN, authToken);
+        post.setParameter(Constants.HTTP_POST_PARAM_SCOPE, scope);
+        post.setParameter(Constants.HTTP_POST_PARAM_NEW_FORMAT, format);
+        post.setParameter(Constants.HTTP_POST_PARAM_XMLDATA, xmlData);
+        post.getParams().setParameter(HttpMethodParams.HTTP_CONTENT_CHARSET, Constants.HTTP_POST_PARAM_UTF8);
+        if(!StringUtils.isEmptyString(id)) post.setParameter(Constants.HTTP_POST_PARAM_ID,id);*/
+    }
+
+    /**
+     * Execute post method
+     * @param map
+     */
+    public static void executePostMethod(Map<String,String> map){
+        PostMethod post = new PostMethod(map.get(Constants.HTTP_POST_PARAM_TARGETURL));
+        /*post.setParameter(Constants.HTTP_POST_PARAM_AUTHTOKEN, map.get(Constants.HTTP_POST_PARAM_AUTHTOKEN));
+        post.setParameter(Constants.HTTP_POST_PARAM_SCOPE, map.get(Constants.HTTP_POST_PARAM_SCOPE));
+        post.setParameter(Constants.HTTP_POST_PARAM_NEW_FORMAT, map.get(Constants.HTTP_POST_PARAM_NEW_FORMAT));
+        post.setParameter(Constants.HTTP_POST_PARAM_XMLDATA, map.get(Constants.HTTP_POST_PARAM_XMLDATA));
+        post.getParams().setParameter(HttpMethodParams.HTTP_CONTENT_CHARSET, Constants.HTTP_POST_PARAM_UTF8);
+
+        String id = map.get(Constants.HTTP_POST_PARAM_ID);
+        if(!StringUtils.isEmptyString(id)) post.setParameter(Constants.HTTP_POST_PARAM_ID,id);*/
+        setPostMethodParams(post,map);
+        HttpClient httpclient = new HttpClient();
+        PrintWriter myout = null;
+
+        try
+        {
+            long t1 = System.currentTimeMillis();
+            int result = httpclient.executeMethod(post);
+            System.out.println("HTTP Response status code: " + result);
+            System.out.println(">> Time taken " + (System.currentTimeMillis() - t1));
+
+            // writing the response to a file
+            myout = new PrintWriter(new File("response.xml"));
+            myout.print(post.getResponseBodyAsString());
+
+            //-----------------------Get response as a string ----------------
+            String postResp = post.getResponseBodyAsString();
+            System.out.println("postResp=======>"+postResp);
+            /**
+             * sample response=======><?xml version="1.0" encoding="UTF-8" ?>
+             <response uri="/crm/private/xml/Leads/updateRecords"><result><message>Record(s) updated successfully</message><recorddetail><FL val="Id">85333000000072001</FL><FL val="Created Time">2016-07-13 23:58:11</FL><FL val="Modified Time">2016-08-22 21:36:36</FL><FL val="Created By"><![CDATA[qq qq]]></FL><FL val="Modified By"><![CDATA[tree3170]]></FL></recorddetail></result></response>
+             */
+        }catch(Exception e){
+            e.printStackTrace();
+        } finally{
+            myout.close();
+            post.releaseConnection();
+        }
+    }
+
+    /**
+     * 读取properties 文件 根据相对路径
+     */
+    public static Properties readProperties(String relativePath){
+        Properties prop = new Properties();
+        try {
+            prop.load(CommonUtils.class.getResourceAsStream(relativePath));// "/secure/db.properties"
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+
+        //TODO 开发环境中禁止打印
+        String propValues = "打印properties的键值对：：：";
+        for(Object obj : prop.keySet()){
+            propValues += obj+"="+prop.get(obj)+"; ";
+        }
+        logger.debug(propValues);
+
+        return  prop;
+    }
+
+    /**
+     * 打印map
+     * @param map
+     * @param custMsg， 自定义打印前的message
+     */
+    public static void printMap(Map<String,String> map,String custMsg){
+        logger.debug("begin print map : "+custMsg);
+        String str = "";
+        for(Map.Entry<String,String> entry : map.entrySet()){
+            str += entry.getKey()+"="+entry.getValue()+"; ";
+        }
+        logger.debug(str);
     }
 }

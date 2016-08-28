@@ -854,8 +854,13 @@ public class StringUtils {
         return !isEmptyString(str);
     }
 
+    /**
+     * null/empty string / null 字符串都是空字符串
+     * @param str
+     * @return
+     */
     public static boolean isEmptyString(String str){
-        return str == null || str.length() ==0;
+        return str == null || str.trim().length() ==0 || "null".equalsIgnoreCase(str.trim());
     }
 
     public static String getDateString(Date date){

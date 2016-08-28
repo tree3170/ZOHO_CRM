@@ -1,5 +1,7 @@
 package darlen.crm.util;
 
+import org.apache.commons.httpclient.params.HttpMethodParams;
+
 /**
  * darlen.crm.util
  * Description：ZOHO_CRM
@@ -30,4 +32,24 @@ public interface Constants {
     public static final String ELEMENT_ATTR_PRODDTL_VALUE="Product Details";
     public static final String ELEMENT_PRODUCT_KEY="product";
     /**end */
+
+    /**POST METHOD PARAMS KEY*/
+    public static final String HTTP_POST_PARAM_AUTHTOKEN="authtoken";
+    public static final String HTTP_POST_PARAM_SCOPE="scope";
+    public static final String HTTP_POST_PARAM_NEW_FORMAT="newFormat";
+    public static final String HTTP_POST_PARAM_ID="id";
+    public static final String HTTP_POST_PARAM_XMLDATA="xmlData";
+    public static final String HTTP_POST_PARAM_UTF8="UTF-8";
+    public static final String HTTP_POST_PARAM_TARGETURL="TARGET_URL";
+    public static final String ZOHO_PROPS_NEWFORMAT_1="newFormat_1";
+    public static final String ZOHO_PROPS_NEWFORMAT_2="newFormat_2";
+    /** end */
+
+    /**CONNECT DB CONSTANTS*/
+    public static final String DB_CONNECT_DRIVER_NAME="DB_DRIVER_NAME";
+    public static final String DB_CONNECT_DB_URL="DB_URL";
+    public static final String DB_CONNECT_DB_USERNAME="DB_USERNAME";
+    public static final String DB_CONNECT_DB_PWD="DB_PWD";
+    /** end */
+
 }

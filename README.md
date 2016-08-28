@@ -4,6 +4,7 @@
 * [3.知识点](暂缺)
   * [1.XML与Object相互转换利用JAXB](jaxb.md)
   * [2.velocity模板的使用](暂缺)
+* [4.问答](Q&A.md)
 
 
 
@@ -18,6 +19,7 @@
 * [Markdown 语法说明](http://wowubuntu.com/markdown/)
 * [markdown-syntax-zhtw](https://github.com/judasn/markdown-syntax-zhtw)
 * [Segmentfault Markdown 编辑器语法指南](https://segmentfault.com/markdown)
+* [关于ReadMe的写法](https://github.com/guodongxiaren/README)
 
 ## 学习图
 ![学习方式图](/pic/My-Learning-Way.jpg)

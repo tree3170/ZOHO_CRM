@@ -25,34 +25,33 @@ import javax.xml.bind.annotation.*;
 @XmlType(propOrder = {})
 public class FL {
     @XmlAttribute(name="val")
-    private String val;
+    private String fieldName;
 
     //    @XmlElement(name="FL")
     @XmlValue
-    private String fl;
+    private String fieldValue;
 
-    public String getVal() {
-        return val;
+    public String getFieldName() {
+        return fieldName;
     }
 
-    public void setVal(String val) {
-        this.val = val;
+    public void setFieldName(String fieldName) {
+        this.fieldName = fieldName;
     }
 
-    public String getFl() {
-        return fl;
+    public String getFieldValue() {
+        return fieldValue;
     }
 
-    public void setFl(String fl) {
-        this.fl = fl;
+    public void setFieldValue(String fieldValue) {
+        this.fieldValue = fieldValue;
     }
-
 
     @Override
     public String toString() {
         return "FL{" +
-                "val='" + val + '\'' +
-                ", fl='" + fl.trim() + '\'' +
+                "fieldName='" + fieldName + '\'' +
+                ", fieldValue='" + fieldValue.trim() + '\'' +
                 '}';
     }
 }

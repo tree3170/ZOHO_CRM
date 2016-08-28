@@ -23,8 +23,10 @@ public class JaxbLeadsTest {
         row.setNo(1);
         List<FL> fls = new ArrayList<FL>();
         FL fl = new FL();
-        fl.setVal("LEADID");
-        fl.setFl("123123");
+//        fl.setVal("LEADID");
+//        fl.setFl("123123");
+        fl.setFieldName("LEADID");
+        fl.setFieldValue("Darlen");
         fls.add(fl);
         row.setFls(fls);
         rows.add(row);
@@ -54,10 +56,10 @@ public class JaxbLeadsTest {
                 "    </result>\n" +
                 "</response>";
 
-        // leadsStr = CommonUtils.getJsonStringByPathAndName("","sampledata/records/getRecords_Leads.xml");
+         leadsStr = CommonUtils.getJsonStringByPathAndName("","sampledata/records/getRecords_Leads.xml");
+        System.out.println("leadsStr:::"+leadsStr);
         Response response = JaxbUtil.converyToJavaBean(leadsStr, Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
-		System.out.println(leadsStr);
-		System.out.println(response);
+		System.out.println("response object:::"+response);
 	}
 	
 }
