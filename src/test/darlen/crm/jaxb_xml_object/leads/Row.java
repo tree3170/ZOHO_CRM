@@ -60,8 +60,8 @@ public class Row {
         return fls;
     }
 
-    public void setFls(List<FL> fl) {
-        this.fls = fl;
+    public void setFls(List<FL> fls) {
+        this.fls = fls;
     }
 
     @Override

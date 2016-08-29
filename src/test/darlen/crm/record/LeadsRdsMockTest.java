@@ -8,6 +8,11 @@
  * */
 package darlen.crm.record;
 
+import darlen.crm.jaxb_xml_object.leads.FL;
+import darlen.crm.jaxb_xml_object.leads.Response;
+import darlen.crm.jaxb_xml_object.leads.Result;
+import darlen.crm.jaxb_xml_object.leads.Row;
+import darlen.crm.jaxb_xml_object.utils.JaxbUtil;
 import darlen.crm.model.fields.common.Fields;
 import darlen.crm.model.result.Leads;
 import darlen.crm.util.CommonUtils;
@@ -21,9 +26,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * darlen.crm.record
@@ -51,7 +54,8 @@ public class LeadsRdsMockTest {
 //        getLeadsById("85333000000072001");
         Leads leads = getDBFields();
         Map dbMap = getFieldNameValueMap("darlen.crm.model.result.Leads",leads);
-        getCRMFieldMap(CommonUtils.readProperties("/mapping/dbRdLeadsFieldMapping.properties"),dbMap);
+        Map crmMap = getCRMFieldMap(CommonUtils.readProperties("/mapping/dbRdLeadsFieldMapping.properties"),dbMap);
+        assembelXML(getAllFLsByCRMMap(crmMap));
 
     }
 
@@ -164,10 +168,41 @@ public class LeadsRdsMockTest {
         return crmFieldMap;
     }
 
-    //4.遍历Map设值到list<FL>
+    //4.遍历crm Map,取出key和value并设值到FL中的fieldname和field value中，最后组成list<FL>
+    public static List<FL> getAllFLsByCRMMap(Map<String,String> crmMap){
+        List<FL> fls = new ArrayList<FL>();
 
+        for(Map.Entry<String,String> entry : crmMap.entrySet()){
+            String key = entry.getKey();
+            String value = entry.getValue();
+            FL fl = new FL();
+            fl.setFieldName(key);
+            fl.setFieldValue(value);
+            fls.add(fl);
+        }
+        return fls;
+    }
 
     //5.解析并组装成有效的xml，并发送到ZOHO
+    public static String assembelXML(List<FL> fls){
+        Response response = new Response();
+        Result result = new Result();
+        darlen.crm.jaxb_xml_object.leads.Leads leads = new darlen.crm.jaxb_xml_object.leads.Leads();
+        List<Row> rows = new ArrayList<Row>();
+        //TODO ：： 如果有多条row数据该如何处理
+        Row row = new Row();
+        row.setNo(1);
+        row.setFls(fls);
+        rows.add(row);
+        leads.setRows(rows);
+        result.setLeads(leads);
+        response.setResult(result);
+
+        String str = JaxbUtil.convertToXml(response);
+        System.out.println(str);
+       // System.out.println("String to Object::: "+JaxbUtil.converyToJavaBean(str,Response.class));
+        return str;
+    }
 
 
 }

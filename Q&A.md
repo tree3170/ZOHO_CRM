@@ -36,7 +36,7 @@
     Q:ZOHO技术人员（Andy）：关于zoho中文乱码问题，当我使用TestGetLeadsRds去update数据时，出现了中文乱码问题<FL val="Salutation"><![CDATA[先生]]>
     A: post.getParams().setParameter(HttpMethodParams.HTTP_CONTENT_CHARSET, Constants.HTTP_POST_PARAM_UTF8);
     Q:ZOHO咨询人员(许)：关于账户使用的人（15），客户（），联系人区别
-    A:
+    A: 客户和联系人是一对多的关系， 多个联系人可以对应一个客户，其实可以看作客户是一个公司，然后联系人是公司接洽的人员
     Q:Andy:Last Activity Time 与Modified time 有什么区别
     A:
     Q:测试关于系统字段能不能修改问题：modified time , modified by , created time ,create by

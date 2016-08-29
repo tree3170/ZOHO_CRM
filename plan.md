@@ -1,3 +1,11 @@
+
+
+## 20160829 早：
+* 20160828的作息推迟2天
+* 20160829-20160830 : 制作ERP和CRM的mapping excel和截图发给Ken
+
+
+
 ##20160828
 * 1. 抽取公共的Post method（executePostMethod：map）和一些公共的Constants, 参考：LeadsRdsTest.java   【finish】
 * 2. 完成对Leads从db读取到java object，然后拿到并对比CRM中数据，
