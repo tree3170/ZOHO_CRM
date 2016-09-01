@@ -291,10 +291,10 @@ public class CommonUtils {
      * @param map
      * @param custMsg， 自定义打印前的message
      */
-    public static void printMap(Map<String,String> map,String custMsg){
+    public static void printMap(Map<Object,Object> map,String custMsg){
         logger.debug("begin print map : "+custMsg);
         String str = "";
-        for(Map.Entry<String,String> entry : map.entrySet()){
+        for(Map.Entry<Object,Object> entry : map.entrySet()){
             str += entry.getKey()+"="+entry.getValue()+"; ";
         }
         logger.debug(str);

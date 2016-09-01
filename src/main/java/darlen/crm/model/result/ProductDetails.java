@@ -143,4 +143,22 @@ public class ProductDetails {
     public void setPd_Product_Description(String pd_Product_Description) {
         this.pd_Product_Description = pd_Product_Description;
     }
+
+    @Override
+    public String toString() {
+        return "ProductDetails{" +
+                "pd_Product_Id='" + pd_Product_Id + '\'' +
+                ", pd_Product_Name='" + pd_Product_Name + '\'' +
+                ", pd_Unit_Price='" + pd_Unit_Price + '\'' +
+                ", pd_List_Price='" + pd_List_Price + '\'' +
+                ", pd_Quantity='" + pd_Quantity + '\'' +
+                ", pd_Quantity_in_Stock='" + pd_Quantity_in_Stock + '\'' +
+                ", pd_Discount='" + pd_Discount + '\'' +
+                ", pd_Total_After_Discount='" + pd_Total_After_Discount + '\'' +
+                ", pd_Total='" + pd_Total + '\'' +
+                ", pd_Net_Total='" + pd_Net_Total + '\'' +
+                ", pd_Tax='" + pd_Tax + '\'' +
+                ", pd_Product_Description='" + pd_Product_Description + '\'' +
+                '}';
+    }
 }

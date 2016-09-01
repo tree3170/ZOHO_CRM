@@ -118,8 +118,8 @@ public class LeadsRdsMockTest {
      * @throws ClassNotFoundException
      * refer:http://blog.csdn.net/sd4000784/article/details/7448221
      */
-    public static Map<String,String> getFieldNameValueMap(String className,Leads dbFields) throws Exception {
-        Map<String,String> map = new HashMap();
+    public static Map<Object,Object> getFieldNameValueMap(String className,Leads dbFields) throws Exception {
+        Map<Object,Object> map = new HashMap();
         Class clazz = Class.forName(className);
         Object object = clazz.newInstance();
 
@@ -156,8 +156,8 @@ public class LeadsRdsMockTest {
     }
 
     //4.遍历Map和properties，如果key匹配，则拿proerties的value设入到Map的key中，组成有效的Map<CRM FieldName,CRM Field Value>设值到list<FL>
-    public static Map<String,String> getCRMFieldMap(Properties props,Map<String,String> dbFieldMap){
-        Map<String,String> crmFieldMap = new HashMap<String, String>();
+    public static Map<Object,Object> getCRMFieldMap(Properties props,Map<String,Object> dbFieldMap){
+        Map<Object,Object> crmFieldMap = new HashMap<Object, Object>();
 
         for(Map.Entry entry : props.entrySet()){
             if(dbFieldMap.containsKey(entry.getKey())){
