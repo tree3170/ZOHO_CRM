@@ -1,5 +1,17 @@
 # 这是一个记录关于平常遇到的问题的一个MarkDown
 
+##20160901 confrirm mapping from ken
+  ### 解决：
+  * 1.关于dropdown-->统一使用inputbox
+  * 2.新定义字段用英文
+  * 3.关于invoice和SO主题，因为ERP不提供，所以使用Invoice编号和SO编号代替
+  * 4.关于产品、发票、订单所有者，得使用lastEditBy(所有者就是发票、订单中的LatestEditBy(User表中的UserName))
+  * 5.关于每个功能的ID，做成一个隐藏字段
+  ###问题：
+  * 1.ERP在每个function中的ID，能不能做成一个readable的在CRM上？
+  * 2.发货单编号等，这个字段是否可以修改，如果不可以，那么我需要重新定义一个字段
+  * 3.查找类型的字段是否可以被API修改：经测试是可以用ID+Name修改的
+  * 4.关于发票和销售订单中的的产品部分有很大的问题，因为ZOHO这边关于产品在发票中的显示是不能自定义调整字段，
 
 
 ## 20160828(DB对象到Record对象直接的mapping关系解决)
