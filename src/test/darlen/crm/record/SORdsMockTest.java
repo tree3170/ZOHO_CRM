@@ -8,7 +8,8 @@
  * */
 package darlen.crm.record;
 
-import darlen.crm.jaxb_xml_object.leads.FL;
+import darlen.crm.jaxb_xml_object.SO.*;
+import darlen.crm.jaxb_xml_object.utils.JaxbUtil;
 import darlen.crm.model.result.ProductDetails;
 import darlen.crm.model.result.SO;
 import darlen.crm.util.CommonUtils;
@@ -39,20 +40,106 @@ import java.util.*;
  */
 public class SORdsMockTest {
     public static void main(String[] args) throws Exception{
+        //1. 先得到一个db的javaObject-->SO.java，包括null和非null的字段
         SO so = getDBSO();
+        //2. 得到db fieldName和 fieldValue 的map， 并且过滤为空的字段:
+        //2.1  注意对product detail字段的处理
         Map dbSoMap = getDBFieldNameValueMap("darlen.crm.model.result.SO", so);
+        //3. 遍历dbSoMap和properties（dbfieldname与crm fieldname mapping），如果dbfieldname在properties范围内，取出相应的crmfieldname和dbfieldvalue，并组装成最新的crmSOMap
+        //3.1 注意对product details的处理
         Map crmSOMap = getCRMFieldMap(CommonUtils.readProperties("/mapping/dbRdSOFieldMapping.properties"), dbSoMap);
-        //assembelXML(getAllFLsByCRMMap(crmSOMap));
-       // List<FL> fls = getCommonFLsByCRMMap(crmSOMap);
-       // Map pds = getProdDetlFLsByCRMMap(crmSOMap);
+        //4. 从crmSOMap中取出common的FL的list
+        List<FL> fls = getCommonFLsByCRMMap(crmSOMap);
+        //5. 从crmSOMap中取出关于product detail的map（no，fl的list）
+        Map<String,List<FL>> pdsFLs = getProdDetlFLsByCRMMap(crmSOMap);
+        //6.组装xml
+        assembleXML(fls,pdsFLs);
+    }
 
+
+    /**
+     * 组装完整的xml Reponse-->Result-->SO-->Rows
+     *
+     * @param pdsFLsMap
+     * @return
+     */
+    private static void assembleXML(List<FL> fls, Map<String, List<FL>> pdsFLsMap) {
+        Response response = new Response();
+        Result result = new Result();
+        darlen.crm.jaxb_xml_object.SO.SO so = new darlen.crm.jaxb_xml_object.SO.SO();
+        List<Row> rows = new ArrayList<Row>();//assembleRow(fls,pdsFLsMap);//new ArrayList<Row>();
+        Row row = assembleRow(fls,pdsFLsMap);
+        rows.add(row);
+        so.setRows(rows);
+        result.setSo(so);
+        response.setResult(result);
+        String str = JaxbUtil.convertToXml(response);
+        System.out.println(str);
     }
 
     /**
-     * Common FLs
-     * @param crmSOMap
+     * 组装row ： no + common fl list+ product detail
+     * 1. set row no
+     * 2. set common fls
+     * 3. set product detail --> no + list product 组成
+     * @param fls
+     * @param pdsFLsMap
      * @return
      */
+    private static Row assembleRow(List<FL> fls, Map<String, List<FL>> pdsFLsMap) {
+        Row row = new Row();
+        // 1. set row no
+        row.setNo(1);
+        //2. set common fls
+        row.setFls(fls);
+        //3. set product detail --> val + list product 组成
+        ProdDetails  pds = new ProdDetails();
+        pds.setVal("Product Details");
+        List<Product> products = assembleListProds(pdsFLsMap);
+        pds.setProducts(products);
+        row.setPds(pds);
+        return row;
+    }
+
+
+    /**
+     * 组装product detail xml : no+fl list
+     * 1. 组装no
+     * 2.组装product中的List FL
+     * @param pdsFLsMap
+     * @return
+     */
+    private static  List<Product> assembleListProds( Map<String, List<FL>> pdsFLsMap) {
+        List<Product> products = new ArrayList<Product>();
+
+        for(Map.Entry<String,List<FL>> entry : pdsFLsMap.entrySet()){
+            Product pd = new Product();
+            //1. 组装no
+            pd.setNo(entry.getKey());
+            //2. 组装product中的List FL
+            pd.setFls(entry.getValue());
+            products.add(pd);
+        }
+
+        /*Product pd = new Product();
+        //1. 组装no
+        pd.setNo(0);
+        //2. 组装product中的List FL
+        FL fl1 = new FL();
+        fl1.setFieldName("Product Name");
+        fl1.setFieldValue("<![CDATA[ 服务器 ]]>");
+        FL fl2 = new FL();
+        fl2.setFieldName("Product Id");
+        fl2.setFieldValue("85333000000089011");
+        List<FL> pdsFls = new ArrayList<FL>();
+        pdsFls.add(fl1);
+        pdsFls.add(fl2);
+        pd.setFls(pdsFls);
+        products.add(pd);*/
+        return products;
+    }
+
+
     private static List<FL> getCommonFLsByCRMMap(Map<String,String> crmSOMap) {
         List<FL> fls = new ArrayList<FL>();
 
@@ -75,11 +162,11 @@ public class SORdsMockTest {
      * @param crmSOMap
      * @return
      */
-    private static Map getProdDetlFLsByCRMMap(Map crmSOMap) {
+    private static Map<String,List<FL>> getProdDetlFLsByCRMMap(Map crmSOMap) {
         Map allPdsMap = new HashMap();
-        Map<Integer,Map> map  = (Map)crmSOMap.get("pds");
-        for(Map.Entry<Integer,Map> entry : map.entrySet()){
-            int no = entry.getKey();
+        Map<String,Map> map  = (Map)crmSOMap.get("pds");
+        for(Map.Entry<String,Map> entry : map.entrySet()){
+            String no = entry.getKey();
             Map<String,String> fieldNameMap = entry.getValue();
             List<FL> tmpfls = new ArrayList<FL>();
             for(Map.Entry<String,String> entry1 : fieldNameMap.entrySet()){

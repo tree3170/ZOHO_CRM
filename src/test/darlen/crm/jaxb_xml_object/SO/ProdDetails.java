@@ -15,6 +15,12 @@ import java.util.List;
  * darlen.crm.jaxb_xml_object.SO
  * Description：ZOHO_CRM
  * Created on  2016/08/27 22：19
+ * sample:
+ * <FL val="Product Details">
+ *    <product no="1">
+ *      <FL val="Product Id">85333000000089011</FL>
+ *   </product>
+ * </FL>
  * -------------------------------------------------------------------------
  * 版本     修改时间        作者         修改内容 
  * 1.0.0        22：19   Darlen              create
@@ -26,18 +32,26 @@ import java.util.List;
 @XmlType(propOrder = {})
 public class ProdDetails {
 
+    /**sample:<FL val="Product Details">*/
     @XmlAttribute(name="val")
     private String val;
 
+    /**
+     * <FL val="Product Details">
+     *    <product no="1">
+     *      <FL val="Product Id">85333000000089011</FL>
+     *   </product>
+     * </FL>
+     * */
     @XmlElement(name = "product")
-    private Product product;
+    private List<Product> products;
 
-    public Product getProduct() {
-        return product;
+    public List<Product> getProducts() {
+        return products;
     }
 
-    public void setProduct(Product product) {
-        this.product = product;
+    public void setProducts(List<Product> products) {
+        this.products = products;
     }
 
     public String getVal() {
@@ -52,7 +66,7 @@ public class ProdDetails {
     public String toString() {
         return "ProdDetails{" +
                 "val='" + val + '\'' +
-                ", product=" + product +
+                ", products=" + products +
                 '}';
     }
 }

@@ -26,7 +26,7 @@ import java.util.List;
 @XmlType(propOrder = {})
 public class Product {
     @XmlAttribute(name="no")
-    private Integer no;
+    private String no;
 
     @XmlElement(name = "FL")
     private List<FL> fls;
@@ -39,11 +39,11 @@ public class Product {
         this.fls = fls;
     }
 
-    public Integer getNo() {
+    public String getNo() {
         return no;
     }
 
-    public void setNo(Integer no) {
+    public void setNo(String no) {
         this.no = no;
     }
 

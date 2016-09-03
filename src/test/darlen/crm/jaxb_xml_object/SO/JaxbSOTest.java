@@ -5,6 +5,7 @@ import darlen.crm.util.CommonUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,25 +27,27 @@ public class JaxbSOTest {
         row.setNo(1);
         List<FL> fls = new ArrayList<FL>();
         FL fl = new FL();
-        fl.setVal("SOID");
-        fl.setFl("123123");
+        fl.setFieldName("SOID");
+        fl.setFieldValue("123123");
         fls.add(fl);
 
         ProdDetails pds = new ProdDetails();
         Product product = new Product();
-        product.setNo(1);
+        product.setNo("1");
         FL fl2 = new FL();
-        fl2.setVal("Product Name");
-        fl2.setFl("<![CDATA[ 服务器 ]]>");
+        fl2.setFieldName("Product Name");
+        fl2.setFieldValue("<![CDATA[ 服务器 ]]>");
         FL fl3 = new FL();
-        fl3.setVal("Product Id");
-        fl3.setFl("85333000000089011");
+        fl3.setFieldName("Product Id");
+        fl3.setFieldValue("85333000000089011");
         List<FL> pdsFls = new ArrayList<FL>();
         pdsFls.add(fl2);
         pdsFls.add(fl3);
         product.setFls(pdsFls);
         pds.setVal("Product Details");
-        pds.setProduct(product);
+        List<Product> products = new ArrayList<Product>();
+        products.add(product);
+        pds.setProducts(products);
         row.setFls(fls);
         row.setPds(pds);
         rows.add(row);
