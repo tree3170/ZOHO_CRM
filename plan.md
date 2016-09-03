@@ -1,4 +1,9 @@
-# 20160831 晚
+
+## 20160903
+* 继续完整修改对SO和Leads的注释
+* 把GitHub上的项目转移到Bitbucket上
+
+## 20160831 晚
 * 完成LeadsRdsMockTest.java，
 * 20160901 对product detail部分代码优化改良
 
