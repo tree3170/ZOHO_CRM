@@ -204,6 +204,7 @@ public class CommonUtils {
 
     public static void setPostMethodParams(PostMethod post,Map<String,String> map){
         String url = map.get(Constants.HTTP_POST_PARAM_TARGETURL)+"?";
+        post.getParams().setParameter(HttpMethodParams.HTTP_CONTENT_CHARSET, Constants.HTTP_POST_PARAM_UTF8);
         for(Map.Entry<String,String> entry: map.entrySet()){
             String key = entry.getKey();
             String value = entry.getValue();
@@ -213,6 +214,7 @@ public class CommonUtils {
             }
         }
         logger.debug("发送的URL是:::"+url.substring(0,url.length()-1));
+        System.err.println("发送的URL是:::"+url.substring(0,url.length()-1));
         /*post.setParameter(Constants.HTTP_POST_PARAM_AUTHTOKEN, authToken);
         post.setParameter(Constants.HTTP_POST_PARAM_SCOPE, scope);
         post.setParameter(Constants.HTTP_POST_PARAM_NEW_FORMAT, format);

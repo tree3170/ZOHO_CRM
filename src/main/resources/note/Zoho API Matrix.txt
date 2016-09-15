@@ -1,0 +1,105 @@
+一、#################账号信息############################
+China:
+marketing@matrixgroup.com.hk/giftu2303 chrome(Matrix)--> 00f65ee9c91b4906dbf4c1bd46bb1452
+API link：https://www.zoho.com.cn/crm/help/api/
+############################################
+
+二、
+1. 生成AuthToken：
+https://accounts.zoho.com.cn/apiauthtoken/nb/create?SCOPE=ZohoCRM/crmapi&EMAIL_ID=marketing@matrixgroup.com.hk&PASSWORD=giftu2303&DISPLAY_NAME=Marketing_Matrix
+#
+#Thu Sep 15 00:19:14 CST 2016
+AUTHTOKEN=00f65ee9c91b4906dbf4c1bd46bb1452
+RESULT=TRUE
+
+2. 功能：客户、产品、销售订单、发货单、报价（等待ken和你们的确认修改需求）
+
+3. 获取fields
+a. 获取客户字段（Accounts）
+https://crm.zoho.com.cn/crm/private/json/Accounts/getFields?authtoken=00f65ee9c91b4906dbf4c1bd46bb1452&scope=crmapi
+https://crm.zoho.com.cn/crm/private/xml/Accounts/getFields?authtoken=00f65ee9c91b4906dbf4c1bd46bb1452&scope=crmapi
+b. 获取产品字段（Products）
+https://crm.zoho.com.cn/crm/private/json/Products/getFields?authtoken=00f65ee9c91b4906dbf4c1bd46bb1452&scope=crmapi
+https://crm.zoho.com.cn/crm/private/xml/Products/getFields?authtoken=00f65ee9c91b4906dbf4c1bd46bb1452&scope=crmapi
+c. 获取销售订单（SalesOrders）
+https://crm.zoho.com.cn/crm/private/json/SalesOrders/getFields?authtoken=00f65ee9c91b4906dbf4c1bd46bb1452&scope=crmapi
+https://crm.zoho.com.cn/crm/private/xml/SalesOrders/getFields?authtoken=00f65ee9c91b4906dbf4c1bd46bb1452&scope=crmapi
+d. 获取发票/发货单（Invoice）
+https://crm.zoho.com.cn/crm/private/json/Invoices/getFields?authtoken=00f65ee9c91b4906dbf4c1bd46bb1452&scope=crmapi
+https://crm.zoho.com.cn/crm/private/xml/Invoices/getFields?authtoken=00f65ee9c91b4906dbf4c1bd46bb1452&scope=crmapi
+e. 获取报价（Quotes）
+https://crm.zoho.com.cn/crm/private/json/Quotes/getFields?authtoken=00f65ee9c91b4906dbf4c1bd46bb1452&scope=crmapi
+https://crm.zoho.com.cn/crm/private/xml/Quotes/getFields?authtoken=00f65ee9c91b4906dbf4c1bd46bb1452&scope=crmapi
+f. 获取线索
+https://crm.zoho.com.cn/crm/private/json/Leads/getFields?authtoken=00f65ee9c91b4906dbf4c1bd46bb1452&scope=crmapi
+https://crm.zoho.com.cn/crm/private/xml/Leads/getFields?authtoken=00f65ee9c91b4906dbf4c1bd46bb1452&scope=crmapi
+g. 获取联系人（Contacts）
+https://crm.zoho.com.cn/crm/private/json/Contacts/getFields?authtoken=00f65ee9c91b4906dbf4c1bd46bb1452&scope=crmapi
+https://crm.zoho.com.cn/crm/private/xml/Contacts/getFields?authtoken=00f65ee9c91b4906dbf4c1bd46bb1452&scope=crmapi
+
+4. 获取线索所有数据
+a. 获取客户数据（Accounts）
+https://crm.zoho.com.cn/crm/private/json/Accounts/getRecords?authtoken=00f65ee9c91b4906dbf4c1bd46bb1452&scope=crmapi
+b. 获取产品数据（Products）
+https://crm.zoho.com.cn/crm/private/json/Products/getRecords?authtoken=00f65ee9c91b4906dbf4c1bd46bb1452&scope=crmapi
+c. 获取销售订单数据（SalesOrders）--> 销售订单 --》商机，客户，产品
+https://crm.zoho.com.cn/crm/private/json/SalesOrders/getRecords?authtoken=00f65ee9c91b4906dbf4c1bd46bb1452&scope=crmapi
+https://crm.zoho.com.cn/crm/private/xml/SalesOrders/getRecords?authtoken=00f65ee9c91b4906dbf4c1bd46bb1452&scope=crmapi&newFormat=2
+d. 获取发票/发货单（Invoice）--> 客户，销售订单，产品，报价（报价如何联系的）
+https://crm.zoho.com.cn/crm/private/json/Invoices/getRecords?authtoken=00f65ee9c91b4906dbf4c1bd46bb1452&scope=crmapi
+e. 获取报价（Quotes）：Quotation报价   --> 客户、产品
+https://crm.zoho.com.cn/crm/private/json/Quotes/getRecords?authtoken=00f65ee9c91b4906dbf4c1bd46bb1452&scope=crmapi
+f. 获取线索
+https://crm.zoho.com.cn/crm/private/json/Leads/getRecords?authtoken=00f65ee9c91b4906dbf4c1bd46bb1452&scope=crmapi
+https://crm.zoho.com.cn/crm/private/xml/Leads/getRecords?authtoken=00f65ee9c91b4906dbf4c1bd46bb1452&scope=crmapi
+https://crm.zoho.com.cn/crm/private/xml/Leads/getRecords?authtoken=00f65ee9c91b4906dbf4c1bd46bb1452&scope=crmapi&newFormat=2
+g. 获取联系人（Contacts）
+https://crm.zoho.com.cn/crm/private/json/Contacts/getRecords?authtoken=00f65ee9c91b4906dbf4c1bd46bb1452&scope=crmapi
+
+
+
+三、
+https://www.zoho.com.cn/crm/help/api/api-methods.html
+API 方法
+方法名称 	目的
+getMyRecords 	获取API请求中指定的身份验证令牌的所有者的数据   
+getRecords 	获取API请求中指定的所有用户的数据   --get module recors and check 
+getRecordById 	通过记录ID获取个别记录    --get erp insert/update data and find the erp date and update
+getCVRecords 	获取ZohoCRM的自定义视图数据
+insertRecords 	将记录插入到所需的ZohoCRM模块     --insert from erp data
+updateRecords 	更新或修改ZohoCRM的记录           ---update from erp data
+getSearchRecords 	通过对选定列的表达式搜索记录
+getSearchRecordsByPDC 	根据预先定义的列搜索值
+deleteRecords 	删除所选的记录                    --DELETE from CRM
+convertLead 	将线索转换为商机、客户和联系人
+getRelatedRecords 	获得主模块的相关记录
+getFields 	获取模块中可用字段的详细信息          --get all fields
+updateRelatedRecords  	更新与另一条记录相关的记录
+getUsers 	获取机构用户列表
+uploadFile 	添加附件到记录
+downloadFile 	下载记录附件
+deleteFile 	删除记录附件
+uploadPhoto 	添加照片到某个联系人或线索
+downloadPhoto 	下载某个联系人或线索的照片
+deletePhoto 	删除某个联系人或线索的照片
+
+
+四。一些问题
+确定CRM版本，确定开工日期，确定交货日期，确定金额，
+1.drop down   --》 key  value
+response:
+2.根据什么主键去判断两条数据是否有修改，如何判断是CRM中的改变还是在ERP中改变有冲突情况？
+get all indexs from ERP and CRM : ERPIndexs / CRMIndexs
+insert--> get ERPIndexs and for loop index exists in CRMIndexs or not , if no , insert, if yes check need update or not 
+update  -->by modify date  change or not 
+delete--> get CRMIndexs and for loop index exists in ERPIndexs or not , if no , delete, if yes  do not handle
+PS:如果数据量巨大的话，处理时间长甚至超过5min，该如何处理？
+3.date类型如何表示？
+4.qutation是如何联系Invoice或者产品的？
+5.关于CRM网站中的一些字段，是需要客户主动去除然后rename后再交给我开发，还是我开发过程中自己去修改各个字段，如果是这样的话
+会导致到时候如果客户修改字段后我的api不一定能工作吗？
+
+五需要问Zoho相关技术问题
+1.需要问ZOHO相关的中英文字段问题，哪个字段才是fieldname，如果自定义字段如果支持国际化，
+是不是字段都是中文，比如客户中"dv": "客户所有者",  label ： lead owner
+Response: label是数据库中的字段；dv代表div是页面上显示的字段

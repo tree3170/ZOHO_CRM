@@ -1,4 +1,4 @@
-## JAXB 一些知识点
+## JAXB 一些知识点 具体参考test中的<Strong>jaxb_xml_object</Strong>中的所有方法
 
 * JAXBContext类，是应用的入口，用于管理XML/Java绑定信息。
 * Marshaller接口，将Java对象序列化为XML数据。

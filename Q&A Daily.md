@@ -1,4 +1,14 @@
-# 这是一个记录关于平常遇到的问题的一个MarkDown
+# 这是一个记录关于每天遇到的问题和解决的问题的MarkDown
+## 20160915 关于产品中的几个字段确认
+  ###问题
+  > Q: 关于产品中的金额，总计，小计，累计分别对应什么字段，有什么区别, 可不可以修改Product detail里面的字段；如何处理税，页面不可以修改
+    A: 经本人测试，大致已经确认，可能还有小小的东西需要找ZOHO确认
+     Total:金额 --> 金额(Total) = 定价(Unit Price) x 数量(Quantity)
+     Net Total:总计 --> 总计 = 金额 - 产品折扣(Discount) - 产品税（Tax）
+     Sub Total:订单小计 --> 订单小计 = 总计和
+     Grand Total:订单累计 -->订单累计 = 订单小计(Sub Total) - 订单折扣(Discount) - 订单税（Tax） - 订单调整(Adjustment)
+     Total After Discount:这是个什么字段，没有在页面显示？
+    Q:因为导出到excel中的数据为乱的，所以必需找Ken确认时间和日期格式
 
 ##20160901 confrirm mapping from ken
   ### 解决：

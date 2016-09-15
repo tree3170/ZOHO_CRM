@@ -12,6 +12,11 @@ package darlen.crm.model.result;
  * darlen.crm.model.result
  * Description：ZOHO_CRM
  * Created on  2016/08/26 08：21
+ Total:金额 --> 金额(Total) = 定价(Unit Price) x 数量(Quantity)
+ Net Total:总计 --> 总计 = 金额 - 产品折扣(Discount) - 产品税（Tax）
+ Sub Total:订单小计 --> 订单小计 = 总计和
+ Grand Total:订单累计 -->订单累计 = 订单小计(Sub Total) - 订单折扣(Discount) - 订单税（Tax） - 订单调整(Adjustment)
+ Total After Discount:这是个什么字段，没有在页面显示？
  * -------------------------------------------------------------------------
  * 版本     修改时间        作者         修改内容 
  * 1.0.0        08：21   Darlen              create
@@ -47,6 +52,9 @@ public class ProductDetails {
     private String pd_Tax;
     /**Product Description*/
     private String pd_Product_Description;
+
+
+
 
     public String getPd_Product_Id() {
         return pd_Product_Id;

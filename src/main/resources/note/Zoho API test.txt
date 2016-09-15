@@ -1,7 +1,7 @@
 一、#################账号信息############################
 China:
 xuxueshen345588@126.com/crm123  Firefox--> 93cef462d05ae66323797559e309f0ca
-tree317035791@163.com/zaq12wsx  Chrome--> f19d6f4ad3d2a491ef52f83a7a68bf04
+tree317035791@163.com/zaq12wsx  Chrome(tree3170)--> f19d6f4ad3d2a491ef52f83a7a68bf04
 
 Oversea: 
 tree3170@gmail.com/tree@2016  -->AUTHTOKEN=ae11f7443adee8de0f503803ffeb9df5
@@ -15,16 +15,13 @@ API link：https://www.zoho.com.cn/crm/help/api/
 2.生成AuthToken：
 https://accounts.zoho.com.cn/apiauthtoken/nb/create?SCOPE=ZohoCRM/crmapi&EMAIL_ID=tree317035791@163.com&PASSWORD=zaq12wsx&DISPLAY_NAME=tree3170
 https://accounts.zoho.com/apiauthtoken/nb/create?SCOPE=ZohoCRM/crmapi&EMAIL_ID=tree317035791@163.com&PASSWORD=zaq12wsx
-https://accounts.zoho.com.cn/apiauthtoken/nb/create?SCOPE=ZohoCRM/crmapi&EMAIL_ID=tree317035791@163.com&PASSWORD=zaq12wsx
+https://accounts.zoho.com.cn/apiauthtoken/nb/create?SCOPE=ZohoCRM/crmapi&EMAIL_ID=marketing@matrixgroup.com.hk&PASSWORD=giftu2303&DISPLAY_NAME=Marketing_Matrix
 #
 #Sun Aug 14 20:53:11 CST 2016
 AUTHTOKEN=9c50c348b9593c78ff5f998ffa0ce117
 RESULT=TRUE
 51db382e1eb939f54bc9f76e7060427a
 2459ba840b7708c68b0239c13dfc0403
-
-
-newFormat
 
 2.获取线索所有数据
 leads:线索

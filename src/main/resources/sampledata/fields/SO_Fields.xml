@@ -1,0 +1,26 @@
+<SalesOrders>
+    <section name="Sales Order Information" dv="销售订单信息">
+        <FL req="true" type="Text" isreadonly="false" maxlength="120"  label="Subject" dv="主题" customfield="false"/>
+        <FL req="false" type="Lookup" isreadonly="false" maxlength="120"  label="Sales Order Owner" dv="销售订单所有者" customfield="false"/>
+        <FL req="false" type="Text" isreadonly="false" maxlength="250"  label="ERP_Currency" dv="ERP_Currency" customfield="true"/>
+        <FL req="true" type="Lookup" isreadonly="false" maxlength="100"  label="Account Name" dv="客户名" customfield="false"/>
+        <FL req="false" type="Text" isreadonly="false" maxlength="250"  label="CustomerNO" dv="CustomerNO" customfield="true"/>
+        <FL req="false" type="Text" isreadonly="false" maxlength="250"  label="MailAddress" dv="MailAddress" customfield="true"/>
+        <FL req="false" type="Text" isreadonly="false" maxlength="250"  label="DeliveryAddress" dv="DeliveryAddress" customfield="true"/>
+        <FL req="false" type="Text" isreadonly="false" maxlength="250"  label="PONO" dv="PONO" customfield="true"/>
+        <FL req="false" type="Text" isreadonly="false" maxlength="250"  label="Email" dv="Email" customfield="true"/>
+        <FL req="false" type="Text" isreadonly="false" maxlength="250"  label="Tel" dv="Tel" customfield="true"/>
+        <FL req="false" type="Text" isreadonly="false" maxlength="250"  label="Fax" dv="Fax" customfield="true"/>
+        <FL req="false" type="Text" isreadonly="false" maxlength="250"  label="ERP_ExchangeRate" dv="ERP_ExchangeRate" customfield="true"/>
+        <FL req="false" type="Text" isreadonly="false" maxlength="250"  label="PaymentTerm" dv="PaymentTerm" customfield="true"/>
+        <FL req="false" type="Text" isreadonly="false" maxlength="250"  label="PayMethod" dv="PayMethod" customfield="true"/>
+        <FL req="false" type="Text" isreadonly="false" maxlength="250"  label="DeliveryMethod" dv="DeliveryMethod" customfield="true"/>
+        <FL req="false" type="Text" isreadonly="false" maxlength="250"  label="PaymentPeriod" dv="PaymentPeriod" customfield="true"/>
+        <FL req="false" type="Date" isreadonly="false" maxlength="120"  label="Due Date" dv="到期日期" customfield="false"/>
+        <FL req="false" type="Text" isreadonly="false" maxlength="250"  label="LatestEditBy" dv="LatestEditBy" customfield="true"/>
+        <FL req="false" type="Text" isreadonly="false" maxlength="250"  label="LatestEditTime" dv="LatestEditTime" customfield="true"/>
+    </section>
+    <section name="Product Details" dv="产品明细">
+        <FL req="true" type="Text" isreadonly="false" maxlength="1000"  label="Product Details" dv="产品明细" customfield="false"/>
+    </section>
+</SalesOrders>

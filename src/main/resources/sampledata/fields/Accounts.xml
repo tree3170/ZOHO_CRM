@@ -1,0 +1,26 @@
+<Accounts>
+    <section name="Account Information" dv="客户信息">
+        <FL req="false" type="Lookup" isreadonly="false" maxlength="120"  label="Account Owner" dv="客户所有者" customfield="false"/>
+        <FL req="true" type="Text" isreadonly="false" maxlength="200"  label="Account Name" dv="客户名" customfield="false"/>
+        <FL req="false" type="Text" isreadonly="false" maxlength="250"  label="CustomerNO" dv="CustomerNO" customfield="true"/>
+        <FL req="false" type="Boolean" isreadonly="false" maxlength="3"  label="Enabled" dv="Enabled" customfield="true" enabled="false"/>
+        <FL req="false" type="Phone" isreadonly="false" maxlength="30"  label="Phone" dv="电话" customfield="false"/>
+        <FL req="false" type="Text" isreadonly="false" maxlength="30"  label="Fax" dv="传真" customfield="false"/>
+        <FL req="false" type="Text" isreadonly="false" maxlength="250"  label="Contact" dv="Contact" customfield="true"/>
+        <FL req="false" type="Text" isreadonly="false" maxlength="250"  label="Direct" dv="Direct" customfield="true"/>
+        <FL req="false" type="Text" isreadonly="false" maxlength="250"  label="DeliveryAddress" dv="DeliveryAddress" customfield="true"/>
+        <FL req="false" type="Email" isreadonly="false" maxlength="100"  label="Email" dv="Email" customfield="true"/>
+        <FL req="false" type="Text" isreadonly="false" maxlength="250"  label="MailAddress" dv="MailAddress" customfield="true"/>
+        <FL req="false" type="Website" isreadonly="false" maxlength="120"  label="Website" dv="网站" customfield="false"/>
+        <FL req="false" type="Text" isreadonly="false" maxlength="250"  label="CountryID" dv="CountryID" customfield="true"/>
+        <FL req="false" type="Text" isreadonly="false" maxlength="250"  label="PostNo" dv="PostNo" customfield="true"/>
+        <FL req="false" type="Text" isreadonly="false" maxlength="250"  label="State" dv="State" customfield="true"/>
+        <FL req="false" type="Text" isreadonly="false" maxlength="250"  label="City" dv="City" customfield="true"/>
+        <FL req="false" type="Text" isreadonly="false" maxlength="250"  label="LatestEditTime" dv="LatestEditTime" customfield="true"/>
+        <FL req="false" type="Text" isreadonly="false" maxlength="250"  label="DeliveryMethod" dv="DeliveryMethod" customfield="true"/>
+        <FL req="false" type="Text" isreadonly="false" maxlength="250"  label="LatestEditBy" dv="LatestEditBy" customfield="true"/>
+        <FL req="false" type="Text" isreadonly="false" maxlength="250"  label="CreationTime" dv="CreationTime" customfield="true"/>
+        <FL req="false" type="Text" isreadonly="false" maxlength="250"  label="Remark" dv="Remark" customfield="true"/>
+        <FL req="false" type="DateTime" isreadonly="false" maxlength="25"  label="Last Activity Time" dv="最近操作时间" customfield="false"/>
+    </section>
+</Accounts>

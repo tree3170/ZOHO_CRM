@@ -16,6 +16,7 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
 public interface Constants {
     public static  enum ModuleNameKeys{Leads,Accounts,Contacts,Invoices,Products,Quotes,SalesOrders};
     public static  String MODULE_NAME_KEYS_ALL = "Leads,Accounts,Contacts,Invoices,Products,Quotes,SalesOrders";
+
     /**定义result中每个module的key , for 每一个result的xml*/
     public static final String ELEMENT_RESULT_KEY="result";
     public static final String ELEMENT_ROW_KEY="row";
@@ -51,5 +52,10 @@ public interface Constants {
     public static final String DB_CONNECT_DB_USERNAME="DB_USERNAME";
     public static final String DB_CONNECT_DB_PWD="DB_PWD";
     /** end */
+
+    /**zoho.properties常量*/
+    public static final String ZOHO_PROPs_AUTHTOKEN_TREE="authtoken";
+    public static final String ZOHO_PROPs_AUTHTOKEN_MATRIX="authtoken_matrix";
+    public static final String ZOHO_PROPS_MODULES="MODULES";
 
 }
