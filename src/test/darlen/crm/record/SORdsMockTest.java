@@ -327,9 +327,9 @@ public class SORdsMockTest {
     private static SO getDBSO() {
         SO so = new SO();
         so.setSubject("Darlen's SO");
-        so.setCarrier("平邮");
-        so.setStatus("创建");
-        so.setDiscount("10%");
+        so.setDeliveryMethod("平邮");
+        so.setEmail("tree317035791@163.com");
+        so.setFax("123456");
         ProductDetails pd = new ProductDetails();
         pd.setPd_Product_Id("1");
         pd.setPd_Product_Name("Darlen's Product");

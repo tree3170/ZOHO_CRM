@@ -121,7 +121,7 @@ public class LeadsRdsTest {
 //            String authtoken = "f19d6f4ad3d2a491ef52f83a7a68bf04";
             String scope = SCOPE;//"crmapi";
             String newFormat = NEWFORMAT_1;//"1";
-            String id = "85333000000072001";
+//            String id = "85333000000072001";
             String targetURL = "https://crm.zoho.com.cn/crm/private/xml/Leads/updateRecords";
 //            String xmlData = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><Leads><row no=\"1\"><FL val=\"LEADID\">85333000000072001</FL><FL val=\"SMOWNERID\">85333000000071039</FL><FL val=\"Lead Owner\"><![CDATA[qq qq]]></FL><FL val=\"Company\"><![CDATA[qq's company2]]></FL><FL val=\"First Name\"><![CDATA[qq's first name]]></FL><FL val=\"Last Name\"><![CDATA[qq's last name]]></FL><FL val=\"No of Employees\"><![CDATA[0]]></FL><FL val=\"Annual Revenue\"><![CDATA[0]]></FL><FL val=\"Email Opt Out\"><![CDATA[false]]></FL><FL val=\"SMCREATORID\">85333000000071039</FL><FL val=\"Created By\"><![CDATA[qq qq]]></FL><FL val=\"MODIFIEDBY\">85333000000071001</FL><FL val=\"Modified By\"><![CDATA[tree3170]]></FL><FL val=\"Created Time\"><![CDATA[2016-07-13 23:58:11]]></FL><FL val=\"Modified Time\"><![CDATA[2016-08-21 15:25:07]]></FL><FL val=\"Salutation\"><![CDATA[先生]]></FL><FL val=\"Last Activity Time\"><![CDATA[2016-08-21 15:25:07]]></FL></row></Leads>";
             String xmlData = "<Leads><row no=\"1\"><FL val=\"Lead Owner\"><![CDATA[tree3170]]></FL><FL val=\"Company\"><![CDATA[qq's company2]]></FL><FL val=\"First Name\"><![CDATA[qq's first name]]></FL><FL val=\"Last Name\"><![CDATA[qq's last name]]></FL><FL val=\"No of Employees\"><![CDATA[0]]></FL><FL val=\"Annual Revenue\"><![CDATA[0]]></FL><FL val=\"Email Opt Out\"><![CDATA[false]]></FL><FL val=\"SMCREATORID\">85333000000071039</FL><FL val=\"Created By\"><![CDATA[qq qq]]></FL><FL val=\"MODIFIEDBY\">85333000000071001</FL><FL val=\"Modified By\"><![CDATA[tree3170]]></FL><FL val=\"Created Time\"><![CDATA[2016-07-13 23:58:11]]></FL><FL val=\"Modified Time\"><![CDATA[2016-08-21 15:25:07]]></FL><FL val=\"Salutation\"><![CDATA[先生]]></FL><FL val=\"Last Activity Time\"><![CDATA[2016-08-21 15:25:07]]></FL></row></Leads>";
@@ -134,7 +134,7 @@ public class LeadsRdsTest {
             postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
             postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
             postParams.put(Constants.ZOHO_PROPS_NEWFORMAT_1, NEWFORMAT_1);
-            postParams.put(Constants.HTTP_POST_PARAM_ID,id);
+//            postParams.put(Constants.HTTP_POST_PARAM_ID,id);
             postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,xmlData);
 
             executePostMethod(postParams);

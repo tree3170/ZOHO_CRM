@@ -51,12 +51,18 @@ import java.util.*;
  * 3.如果dbModel中的id不存在于zohoMap中，则组装dbModel为xml并调用Zoho中的添加API：addAccountMap
  *
  *
- * ===================Ⅳ：组装updateAccountMap，
- *1. 获取每个Accounts对应的  dbFieldNameValueMap = getDBFieldNameValueMap<dbFieldName,FiledValue>
- *2. 根据dbRdAccountsFieldMapping.properties 过滤 dbFieldNameValueMap,  形成zohoFieldNameValueMap <zohoFieldName,FiledValue>
+ * ===================Ⅳ(assembleZOHOXmlTest)：组装XML
  *
+ * 重点在getRowByMap方法
+ * getRowByMap: getDBFieldNameValueMap()+getZOHOFieldMap()+getAllFLsByCRMMap()
+ * 1. dbFieldNameValueMap ： 获取每个Accounts对应的  dbFieldNameValueMap = getDBFieldNameValueMap<dbFieldName,FiledValue>
+ * 2. zohoFieldNameValueMap <zohoFieldName,dbFiledValue> --> getZOHOFieldMap()： 根据 dbRdAccountsFieldMapping.properties 过滤 dbFieldNameValueMap,  形成zohoFieldNameValueMap <zohoFieldName,FiledValue>
+ * 3. getAllFLsByCRMMap() --> 获得zohoFieldNameValueMap形成的List<FL>
  *
- * ===================Ⅴ：发送XML到ZOHO
+ * ========================Ⅴ：发送xml data到ZOHO，并执行更新、添加或者删除操作
+ * 更新（testUpdateAcctRecord）
+ * 添加（testAddAcctRecord）
+ * 删除（testDelAcctRecord）
  *
  * 注意账号信息：qq:85333000000071039, tree3170:85333000000071001
  * Description：ZOHO_CRM
@@ -179,9 +185,9 @@ public class HandleAccounts {
 
     /**
      * Ⅲ：组装需要真正需要传输到ZOHO的Account对象集合
-     * 1.如果zohoid存在于dbModel中，则判断 lastEditTime是否被修改，如果修改了，则直接组装dbModel为xml并调用ZOHO中的更新API：updateAccountMap
-     * 2.如果zohoid不存在于dbModel中，则直接调用ZOHO删除API：delZOHOIDList
-     * 3.如果dbModel中的id不存在于zohoMap中，则组装dbModel为xml并调用Zoho中的添加API：addAccountMap
+     * 1.updateAccountMap<>：如果zohoid存在于dbModel中，则判断 lastEditTime是否被修改，如果修改了，则直接组装dbModel为xml并调用ZOHO中的更新API：
+     * 2.delZOHOIDList：如果zohoid不存在于dbModel中，则直接调用ZOHO删除API：
+     * 3.addAccountMap：如果dbModel中的id不存在于zohoMap中，则组装dbModel为xml并调用Zoho中的添加API：
      * @return
      */
     @Test
@@ -229,7 +235,7 @@ public class HandleAccounts {
     }
 
     /**
-     * Ⅳ：组装Map为obj
+     * Ⅳ：组装addZOHOXml，updateZOHOXml，deleteZOHOIDsList,放进zohoXMLList集合对象中
      */
     @Test
     public void assembleZOHOXmlTest() throws Exception {
@@ -244,6 +250,7 @@ public class HandleAccounts {
         String addZOHOXml = assembelZOHOXml(addAccountMap);
         logger.debug("end组装 AddZOHOXML...");
 
+        //TODO confirm to 王继：如果有多条记录，因为每条API调用都需要带id， 该如何更新？ 是否支持批量更新？
         logger.debug("begin组装 updateZOHOXml...\n");
         String updateZOHOXml = assembelZOHOXml(updateAccountMap);
         logger.debug("end组装 updateZOHOXml...");
@@ -252,7 +259,7 @@ public class HandleAccounts {
         zohoXMLList.add(addZOHOXml);
         zohoXMLList.add(updateZOHOXml);
         //TODO: for delete
-        List deleteList  = (List)zohoAcctObjList.get(2);
+        List deleteZOHOIDsList  = (List)zohoAcctObjList.get(2);
         //zohoXMLList.add();
         return zohoXMLList;
     }
@@ -262,7 +269,7 @@ public class HandleAccounts {
      * ========================Ⅴ：发送xml data到ZOHO，并执行更新、添加或者删除操作
      * 更新（testUpdateAcctRecord）
      * 添加（testAddAcctRecord）
-     * 删除（）
+     * 删除（testDelAcctRecord）
      */
     @Test
     public void testUpdateAcctRecord(){
@@ -304,18 +311,18 @@ public class HandleAccounts {
         }
     }
     @Test
-    public void testdelAcctRecord(){
+    public void testDelAcctRecord(){
         try {
-            String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/Accounts/deleteRecords";
-            String addZohoXML = assembleZOHOXml().get(0);
-            Map<String,String> postParams = new HashMap<String, String>();
-            postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,targetURL_Accounts);
-            postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,addZohoXML);
-            postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
-            postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
-            postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
+//            String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/Accounts/deleteRecords";
+//            String addZohoXML = assembleZOHOXml().get(0);
+//            Map<String,String> postParams = new HashMap<String, String>();
+//            postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,targetURL_Accounts);
+//            postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,addZohoXML);
+//            postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
+//            postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
+//            postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
 
-            CommonUtils.executePostMethod(postParams);
+//            CommonUtils.executePostMethod(postParams);
 
         } catch(Exception e) {
             logger.error("执行更新Module操作出现错误",e);
@@ -346,16 +353,19 @@ public class HandleAccounts {
     }
 
     /**
-     * 获取Row对象的集合
-     * @param addAccountMap
+     * 获取Row对象的集合 : getDBFieldNameValueMap() + getZOHOFieldMap() + getAllFLsByCRMMap()
+     * 1. dbFieldNameValueMap ： 获取每个Accounts对应的  dbFieldNameValueMap = getDBFieldNameValueMap<dbFieldName,FiledValue>
+     * 2. zohoFieldNameValueMap <zohoFieldName,dbFiledValue> --> getZOHOFieldMap()： 根据dbRdAccountsFieldMapping.properties 过滤 dbFieldNameValueMap,  形成zohoFieldNameValueMap <zohoFieldName,FiledValue>
+     * 3. getAllFLsByCRMMap() --> 获得zohoFieldNameValueMap形成的List<FL>
+     * @param accountMap
      * @return
      * @throws Exception
      */
-    private List<Row> getRowByMap(Map<String, Accounts> addAccountMap) throws Exception {
+    private List<Row> getRowByMap(Map<String, Accounts> accountMap) throws Exception {
         List<Row> rows = new ArrayList<Row>();
 
         int i = 1;
-        for(Map.Entry<String,Accounts> entry : addAccountMap.entrySet()){
+        for(Map.Entry<String,Accounts> entry : accountMap.entrySet()){
             Row row = new Row();
 
             String key = entry.getKey();
