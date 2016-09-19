@@ -88,8 +88,27 @@ public class HandleModules {
     }
 
     private void retriveModuleRecordID() {
-        //TODO
+        //TODO getRecordById
+        try {
+            String id_Accounts = "85333000000088001";//客户1ID
+            String id_SO = "85333000000089051";//客户1ID
+            String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/Accounts/getRecordById";
+            String targetURL_SO = "https://crm.zoho.com.cn/crm/private/xml/SalesOrders/getRecordById";
+            //TODO: qq:85333000000071039, tree3170:85333000000071001
+            Map<String,String> postParams = new HashMap<String, String>();
+            postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,targetURL_Accounts);
+            postParams.put(Constants.HTTP_POST_PARAM_ID,id_Accounts);
+//            postParams.put(Constants.HTTP_POST_PARAM_ID,id_SO);
+//            postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,targetURL_SO);
+            postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
+            postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
+            postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
 
+            CommonUtils.executePostMethod(postParams);
+
+        } catch(Exception e) {
+            logger.error("执行搜索Module操作出现错误",e);
+        }
     }
 
     /**
@@ -139,19 +158,19 @@ public class HandleModules {
     public void testAddModuleRecord(){
         try {
             String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/Accounts/insertRecords";
-            String targetURL_SO = "https://crm.zoho.com.cn/crm/private/xml/SalesOrders/insertRecords";
+//            String targetURL_SO = "https://crm.zoho.com.cn/crm/private/xml/SalesOrders/insertRecords";
 //            String xmlData = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><Leads><row no=\"1\"><FL val=\"LEADID\">85333000000072001</FL><FL val=\"SMOWNERID\">85333000000071039</FL><FL val=\"Lead Owner\"><![CDATA[qq qq]]></FL><FL val=\"Company\"><![CDATA[qq's company2]]></FL><FL val=\"First Name\"><![CDATA[qq's first name]]></FL><FL val=\"Last Name\"><![CDATA[qq's last name]]></FL><FL val=\"No of Employees\"><![CDATA[0]]></FL><FL val=\"Annual Revenue\"><![CDATA[0]]></FL><FL val=\"Email Opt Out\"><![CDATA[false]]></FL><FL val=\"SMCREATORID\">85333000000071039</FL><FL val=\"Created By\"><![CDATA[qq qq]]></FL><FL val=\"MODIFIEDBY\">85333000000071001</FL><FL val=\"Modified By\"><![CDATA[tree3170]]></FL><FL val=\"Created Time\"><![CDATA[2016-07-13 23:58:11]]></FL><FL val=\"Modified Time\"><![CDATA[2016-08-21 15:25:07]]></FL><FL val=\"Salutation\"><![CDATA[先生]]></FL><FL val=\"Last Activity Time\"><![CDATA[2016-08-21 15:25:07]]></FL></row></Leads>";
 //            String xmlData = "<Leads><row no=\"1\"><FL val=\"Lead Owner\"><![CDATA[tree3170]]></FL><FL val=\"Company\"><![CDATA[qq's company2]]></FL><FL val=\"First Name\"><![CDATA[qq's first name]]></FL><FL val=\"Last Name\"><![CDATA[qq's last name]]></FL><FL val=\"No of Employees\"><![CDATA[0]]></FL><FL val=\"Annual Revenue\"><![CDATA[0]]></FL><FL val=\"Email Opt Out\"><![CDATA[false]]></FL><FL val=\"SMCREATORID\">85333000000071039</FL><FL val=\"Created By\"><![CDATA[qq qq]]></FL><FL val=\"MODIFIEDBY\">85333000000071001</FL><FL val=\"Modified By\"><![CDATA[tree3170]]></FL><FL val=\"Created Time\"><![CDATA[2016-07-13 23:58:11]]></FL><FL val=\"Modified Time\"><![CDATA[2016-08-21 15:25:07]]></FL><FL val=\"Salutation\"><![CDATA[先生]]></FL><FL val=\"Last Activity Time\"><![CDATA[2016-08-21 15:25:07]]></FL></row></Leads>";
 //            xmlData = "<Leads><row no=\"1\"><FL val=\"Salutation\"><![CDATA[先生]]></FL></row></Leads>";
 
 //            String  xmlData = "<Accounts><row no=\"1\"><FL val=\"ACCOUNTID\">85333000000089007</FL><FL val=\"SMOWNERID\">85333000000071001</FL><FL val=\"Account Owner\"><![CDATA[tree3170]]></FL><FL val=\"Account Name\"><![CDATA[三一重工]]></FL><FL val=\"Phone\"><![CDATA[null]]></FL><FL val=\"Fax\"><![CDATA[null]]></FL><FL val=\"Website\"><![CDATA[null]]></FL><FL val=\"Created Time\"><![CDATA[2016-08-22 23:51:06]]></FL><FL val=\"Modified Time\"><![CDATA[2016-08-22 23:51:06]]></FL><FL val=\"Last Activity Time\"><![CDATA[2016-08-23 00:07:52]]></FL><FL val=\"CustomerNO\"><![CDATA[null]]></FL><FL val=\"MailAddress\"><![CDATA[null]]></FL><FL val=\"Direct\"><![CDATA[null]]></FL><FL val=\"CreationTime\"><![CDATA[null]]></FL><FL val=\"DeliveryAddress\"><![CDATA[null]]></FL><FL val=\"Email\"><![CDATA[null]]></FL><FL val=\"LatestEditBy\"><![CDATA[null]]></FL><FL val=\"LatestEditTime\"><![CDATA[null]]></FL><FL val=\"Enabled\"><![CDATA[false]]></FL><FL val=\"DeliveryMethod\"><![CDATA[null]]></FL><FL val=\"PostNo\"><![CDATA[null]]></FL><FL val=\"CountryID\"><![CDATA[null]]></FL><FL val=\"State\"><![CDATA[null]]></FL><FL val=\"City\"><![CDATA[null]]></FL><FL val=\"Remark\"><![CDATA[null]]></FL><FL val=\"Contact\"><![CDATA[null]]></FL></row></Accounts>";
-            String xmlDataWithoutNull_Accounts = "<Accounts><row no=\"1\"><FL val=\"SMOWNERID\">85333000000071039</FL><FL val=\"Account Owner\"><![CDATA[qq]]></FL><FL val=\"Account Name\"><![CDATA[THINK Pad]]></FL><FL val=\"Created Time\"><![CDATA[2016-08-22 23:51:06]]></FL><FL val=\"Modified Time\"><![CDATA[2016-08-22 23:51:06]]></FL><FL val=\"Last Activity Time\"><![CDATA[2016-08-23 00:07:52]]></FL><FL val=\"Enabled\"><![CDATA[true]]></FL><FL val=\"LatestEditBy\"><![CDATA[qq]]></FL><FL val=\"LatestEditTime\"><![CDATA[2016-09-15 23:51:06]]></FL><FL val=\"Phone\"><![CDATA[12345678]]></FL><FL val=\"Website\"><![CDATA[https://crm.zoho.com.cn/crm]]></FL></row></Accounts>";
-            String xmlDataWithoutNull_SO = "<SalesOrders><row no=\"1\"><FL val=\"SO Number\"><![CDATA[85333000000089054]]></FL><FL val=\"Subject\"><![CDATA[三一重工合同]]></FL><FL val=\"ACCOUNTID\">85333000000089007</FL><FL val=\"Account Name\"><![CDATA[三一重工]]></FL><FL val=\"SMOWNERID\">85333000000071001</FL><FL val=\"Sales Order Owner\"><![CDATA[tree3170]]></FL><FL val=\"Sub Total\"><![CDATA[79445]]></FL><FL val=\"Discount\"><![CDATA[0]]></FL><FL val=\"Tax\"><![CDATA[0]]></FL><FL val=\"Adjustment\"><![CDATA[0]]></FL><FL val=\"Grand Total\"><![CDATA[79441]]></FL><FL val=\"Product Details\"><product no=\"1\"><FL val=\"Product Id\">85333000000089011</FL><FL val=\"Product Name\"><![CDATA[服务器]]></FL><FL val=\"Unit Price\">7224.0</FL><FL val=\"Quantity\">12.0</FL><FL val=\"Quantity in Stock\">10.0</FL><FL val=\"Total\">79442.0</FL><FL val=\"Discount\">1.0</FL><FL val=\"Total After Discount\">79443.0</FL><FL val=\"List Price\">7222.0</FL><FL val=\"Net Total\">79444.0</FL><FL val=\"Tax\">0.0</FL><FL val=\"Product Description\"><![CDATA[测试Product的描述]]></FL></product></FL></row></SalesOrders>";
+            String xmlDataWithoutNull_Accounts = "<Accounts><row no=\"1\"><FL val=\"SMOWNERID\">85333000000071039</FL><FL val=\"Account Owner\"><![CDATA[qq]]></FL><FL val=\"Account Name\"><![CDATA[IBM]]></FL><FL val=\"Created Time\"><![CDATA[2016-08-22 23:51:06]]></FL><FL val=\"Modified Time\"><![CDATA[2016-08-22 23:51:06]]></FL><FL val=\"Last Activity Time\"><![CDATA[2016-08-23 00:07:52]]></FL><FL val=\"Enabled\"><![CDATA[true]]></FL><FL val=\"LatestEditBy\"><![CDATA[qq]]></FL><FL val=\"LatestEditTime\"><![CDATA[2016-09-15 23:51:06]]></FL><FL val=\"Phone\"><![CDATA[12345678]]></FL><FL val=\"Website\"><![CDATA[https://crm.zoho.com.cn/crm]]></FL></row></Accounts>";
+//            String xmlDataWithoutNull_SO = "<SalesOrders><row no=\"1\"><FL val=\"SO Number\"><![CDATA[85333000000089054]]></FL><FL val=\"Subject\"><![CDATA[三一重工合同]]></FL><FL val=\"ACCOUNTID\">85333000000089007</FL><FL val=\"Account Name\"><![CDATA[三一重工]]></FL><FL val=\"SMOWNERID\">85333000000071001</FL><FL val=\"Sales Order Owner\"><![CDATA[tree3170]]></FL><FL val=\"Sub Total\"><![CDATA[79445]]></FL><FL val=\"Discount\"><![CDATA[0]]></FL><FL val=\"Tax\"><![CDATA[0]]></FL><FL val=\"Adjustment\"><![CDATA[0]]></FL><FL val=\"Grand Total\"><![CDATA[79441]]></FL><FL val=\"Product Details\"><product no=\"1\"><FL val=\"Product Id\">85333000000089011</FL><FL val=\"Product Name\"><![CDATA[服务器]]></FL><FL val=\"Unit Price\">7224.0</FL><FL val=\"Quantity\">12.0</FL><FL val=\"Quantity in Stock\">10.0</FL><FL val=\"Total\">79442.0</FL><FL val=\"Discount\">1.0</FL><FL val=\"Total After Discount\">79443.0</FL><FL val=\"List Price\">7222.0</FL><FL val=\"Net Total\">79444.0</FL><FL val=\"Tax\">0.0</FL><FL val=\"Product Description\"><![CDATA[测试Product的描述]]></FL></product></FL></row></SalesOrders>";
             Map<String,String> postParams = new HashMap<String, String>();
-//            postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,targetURL_Accounts);
-//            postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,xmlDataWithoutNull_Accounts);
-            postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,targetURL_SO);
-            postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,xmlDataWithoutNull_SO);
+            postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,targetURL_Accounts);
+            postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,xmlDataWithoutNull_Accounts);
+//            postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,targetURL_SO);
+//            postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,xmlDataWithoutNull_SO);
             postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
             postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
             postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
@@ -165,7 +184,27 @@ public class HandleModules {
 
     @Test
     public void deleteModuleRecord(){
-        //TODO
+        //TODO getRecordById
+        try {
+            String id_Accounts = "85333000000108003";//客户1ID
+            String id_SO = "85333000000089051——12";//客户1ID
+            String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/Accounts/deleteRecords";
+            String targetURL_SO = "https://crm.zoho.com.cn/crm/private/xml/SalesOrders/deleteRecords";
+            //TODO: qq:85333000000071039, tree3170:85333000000071001
+            Map<String,String> postParams = new HashMap<String, String>();
+            postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,targetURL_Accounts);
+            postParams.put(Constants.HTTP_POST_PARAM_ID,id_Accounts);
+//            postParams.put(Constants.HTTP_POST_PARAM_ID,id_SO);
+//            postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,targetURL_SO);
+            postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
+            postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
+            postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
+
+            CommonUtils.executePostMethod(postParams);
+
+        } catch(Exception e) {
+            logger.error("执行删除Module操作出现错误",e);
+        }
     }
 
 

@@ -1,4 +1,4 @@
-package darlen.crm.jaxb_xml_object.leads;
+package darlen.crm.jaxb_xml_object.Accounts;
 
 import darlen.crm.jaxb_xml_object.utils.JaxbUtil;
 import darlen.crm.util.CommonUtils;
@@ -8,27 +8,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class JaxbLeadsTest {
+public class JaxbAccountsTest {
 
 	@Test
 	public void showMarshaller() {
         Response response = new Response();
         Result result = new Result();
-        Leads leads = new Leads();
+        Accounts accounts = new Accounts();
         List<Row> rows = new ArrayList<Row>();
         Row row = new Row();
         row.setNo(1);
         List<FL> fls = new ArrayList<FL>();
         FL fl = new FL();
-//        fl.setVal("LEADID");
-//        fl.setFl("123123");
-        fl.setFieldName("LEADID");
+        fl.setFieldName("Accounts");
         fl.setFieldValue("Darlen");
         fls.add(fl);
         row.setFls(fls);
         rows.add(row);
-        leads.setRows(rows);
-        result.setLeads(leads);
+        accounts.setRows(rows);
+        result.setAccounts(accounts);
         response.setResult(result);
         String str = JaxbUtil.convertToXml(response);
         System.out.println(str);
@@ -37,7 +35,7 @@ public class JaxbLeadsTest {
 
 	@Test
 	public void showUnMarshaller() throws Exception {
-		String leadsStr = "<response uri=\"/crm/private/xml/Leads/getRecords\">\n" +
+		String accountsStr = "<response uri=\"/crm/private/xml/Leads/getRecords\">\n" +
                 "    <result>\n" +
                 "        <Leads>\n" +
                 "            <row no=\"1\">\n" +
@@ -53,10 +51,11 @@ public class JaxbLeadsTest {
                 "    </result>\n" +
                 "</response>";
 
-        leadsStr = CommonUtils.getContentsByPathAndName("", "sampledata/records/getRecords_Leads.xml");
-        System.out.println("leadsStr:::"+leadsStr);
-        Response response = JaxbUtil.converyToJavaBean(leadsStr, Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
+        accountsStr = CommonUtils.getContentsByPathAndName("", "sampledata/records/getRecords_Leads.xml");
+        accountsStr = CommonUtils.getContentsByPathAndName("", "sampledata/records/Accounts_Records.xml");
+        System.out.println("leadsStr:::"+accountsStr);
+        Response response = JaxbUtil.converyToJavaBean(accountsStr, Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
 		System.out.println("response object:::"+response);
 	}
-	
+
 }

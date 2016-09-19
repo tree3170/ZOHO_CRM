@@ -5,7 +5,6 @@ import darlen.crm.util.CommonUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,18 +68,35 @@ public class JaxbSOTest {
         System.out.println("XML to Object::: "+JaxbUtil.converyToJavaBean(str,Response.class));
 	}
 
+    //TODO：太繁琐，以后改成正则表达式
+    /**
+     * 替换关于product detail的标签FL 为pds
+     * 1. 先替换<FL val="Product Details"> 为 <pds val="Product Details">, 接下来替换最后一个</product>的第一个</FL>为</pds>
+     * 2. 拿出最后一个</product>前面的字符串为prefProduct（包含</product>） 和  </product>之后的字符串suffixProduct（不包含</product>）
+     * 3. 取出suffixProduct字符串的第一个为</FL>之后的字符串(目的是为了替换</FL> 为</pds>)
+     * 4. 组装finalStr=prefProduct+"</pds>" + suffixProduct
+     * @param str
+     * @return
+     */
     private String convertFLToPdsXmlTag(String str){
-        //由 Product Details之前的FL转换为pds:如何找到前后匹配的FL
-        String prex = str.replace("<FL val=\"Product Details\">","<pds val=\"Product Details\">");
-        //System.out.println("prex::"+prex );
-        String suffix = prex.substring(0,prex.lastIndexOf("</FL>")) +"</pds>"+prex.substring(prex.lastIndexOf("</FL>")+5);
-        System.out.println("suffix::"+suffix );
-        return suffix;
+        //1.由 Product Details之前的FL转换为pds:如何找到前后匹配的FL
+        String prexPds = str.replace("<FL val=\"Product Details\">","<pds val=\"Product Details\">");
+        System.out.println("prex::"+prexPds );
+//        String suffix = prexPds.substring(0,prexPds.lastIndexOf("</FL>")) +"</pds>"+prexPds.substring(prexPds.lastIndexOf("</FL>")+5);
+        //2. 获取最后一个</product>前面的字符串
+        String prefProduct = prexPds.substring(0,prexPds.lastIndexOf("</product>")+10);
+        String suffixProduct= prexPds.substring(prexPds.lastIndexOf("</product>")+10);
+        //3.取出suffixProduct字符串的第一个为</FL>之后的字符串
+        suffixProduct = suffixProduct.substring(suffixProduct.indexOf("</FL>")+5);
+        //4. 组装finalStr=prefProduct+"</pds>" + suffixProduct
+        String finalStr = prefProduct+"</pds>" + suffixProduct;
+        System.out.println("suffix::"+finalStr );
+        return finalStr;
     }
 
 	@Test
 	public void showUnMarshaller() throws Exception {
-		String leadsStr = "<response uri=\"/crm/private/xml/Leads/getRecords\">\n" +
+		String soStr = "<response uri=\"/crm/private/xml/Leads/getRecords\">\n" +
                 "    <result>\n" +
                 "        <Leads>\n" +
                 "            <row no=\"1\">\n" +
@@ -96,9 +112,10 @@ public class JaxbSOTest {
                 "    </result>\n" +
                 "</response>";
 
-        leadsStr = CommonUtils.getJsonStringByPathAndName("", "sampledata/records/getRecords_Leads.xml");
-        leadsStr = CommonUtils.getJsonStringByPathAndName("", "sampledata/records/getRecords_SO.xml");
-        Response response = JaxbUtil.converyToJavaBean(test.convertFLToPdsXmlTag(leadsStr), Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
+        soStr = CommonUtils.getContentsByPathAndName("", "sampledata/records/getRecords_Leads.xml");
+        soStr = CommonUtils.getContentsByPathAndName("", "sampledata/records/getRecords_SO.xml");
+//        leadsStr = CommonUtils.getContentsByPathAndName("", "sampledata/records/SO_Records.xml");
+        Response response = JaxbUtil.converyToJavaBean(test.convertFLToPdsXmlTag(soStr), Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
 		//System.out.println(leadsStr);
 		System.out.println(response);
 	}

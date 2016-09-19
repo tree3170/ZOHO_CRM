@@ -8,15 +8,7 @@
  * */
 package darlen.crm;
 
-import com.alibaba.fastjson.JSON;
-import darlen.crm.model.fields.common.Fields;
-import darlen.crm.model.fields.common.Section;
 import darlen.crm.util.CommonUtils;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * darlen.crm
@@ -66,8 +58,8 @@ public class FieldJsonFormatTest {
         Section section = JSON.parseObject(wholeJsonString, Section.class);
         CommonUtils.getAllFieldsBySection("test",Arrays.asList(section));*/
 
-//        String orignJsonString = CommonUtils.getJsonStringByPathAndName("sampledata/fields/", "getFields_Leads.orign.json");
-        String orignJsonString = CommonUtils.getJsonStringByPathAndName("sampledata/fields/", "getFields_Invoices.orign.json");
+//        String orignJsonString = CommonUtils.getContentsByPathAndName("sampledata/fields/", "getFields_Leads.orign.json");
+        String orignJsonString = CommonUtils.getContentsByPathAndName("sampledata/fields/", "getFields_Invoices.orign.json");
         System.out.println(orignJsonString);
         String wholeStr = getWholeJsonString(orignJsonString);
 //        Map<String,String> funcJsonMap = new HashMap();

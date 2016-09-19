@@ -45,21 +45,30 @@ public class CommonUtils {
      * @return
      */
     public static String getFileNamePath(String path,String fileName){
-        String filePath = ClassLoader.getSystemResource(path+fileName).getPath();
+        //判断path是不是以/或者\结尾，如果不是，需要加上来
+        String wholePath = "";
+        if(!StringUtils.isEmptyString(path)){
+            int lastLocation = path.lastIndexOf("/") + 1;
+            if( lastLocation!= path.length() || lastLocation != path.length()){
+                path += "/";
+            }
+        }
+        wholePath = path + fileName;
+        String filePath = ClassLoader.getSystemResource(wholePath).getPath();
         logger.debug("[getFileNamePath], file path :"+filePath);
         return filePath;
     }
 
     /**
-     * get json string by
+     * get content by path and file name
      * @param fileName
      * @return
      */
-    public static String getJsonStringByPathAndName(String path, String fileName) throws Exception{
+    public static String getContentsByPathAndName(String path, String fileName) throws Exception{
         String retStr = "";
         try {
             String realPath = getFileNamePath(path,fileName);
-            logger.debug("[getLeadsJsonString],file real path:::" + realPath);
+            logger.debug("#[getContentsByPathAndName],file real path:::" + realPath);
             FileReader fr = new FileReader(realPath);
             char[] buf = new char[1024];
             int num=0;
@@ -69,7 +78,7 @@ public class CommonUtils {
         } catch (Exception e) {
             throw e;
         }
-        //pls note::: If uncomment this logger , it will print the whole json string
+        //TODO::: If uncomment this logger , it will print the whole json string
 //        logger.debug("[getLeadsJsonString],whole json string:::"+retStr);
         return retStr;
     }
@@ -103,7 +112,7 @@ public class CommonUtils {
         List<Section> sectionFields = new ArrayList<Section>();
         try {
             //TODO：：：2. get current function jsonstr, 暂时hardcode
-            String funcJsonString = CommonUtils.getJsonStringByPathAndName("", jsonName);//"testjson.json"
+            String funcJsonString = CommonUtils.getContentsByPathAndName("", jsonName);//"testjson.json"
             //3.解析整个function的json字符串到JSONObject对象
             JSONObject wholeObj = JSON.parseObject(funcJsonString);
             //4.获取某个function部分的JSONObject对象
@@ -227,7 +236,7 @@ public class CommonUtils {
      * Execute post method
      * @param map
      */
-    public static void executePostMethod(Map<String,String> map){
+    public static String executePostMethod(Map<String,String> map){
         PostMethod post = new PostMethod(map.get(Constants.HTTP_POST_PARAM_TARGETURL));
         /*post.setParameter(Constants.HTTP_POST_PARAM_AUTHTOKEN, map.get(Constants.HTTP_POST_PARAM_AUTHTOKEN));
         post.setParameter(Constants.HTTP_POST_PARAM_SCOPE, map.get(Constants.HTTP_POST_PARAM_SCOPE));
@@ -240,7 +249,7 @@ public class CommonUtils {
         setPostMethodParams(post,map);
         HttpClient httpclient = new HttpClient();
         PrintWriter myout = null;
-
+        String postResp = "";
         try
         {
             long t1 = System.currentTimeMillis();
@@ -253,18 +262,20 @@ public class CommonUtils {
             myout.print(post.getResponseBodyAsString());
 
             //-----------------------Get response as a string ----------------
-            String postResp = post.getResponseBodyAsString();
+            postResp = post.getResponseBodyAsString();
             System.out.println("postResp=======>"+postResp);
+
             /**
              * sample response=======><?xml version="1.0" encoding="UTF-8" ?>
              <response uri="/crm/private/xml/Leads/updateRecords"><result><message>Record(s) updated successfully</message><recorddetail><FL val="Id">85333000000072001</FL><FL val="Created Time">2016-07-13 23:58:11</FL><FL val="Modified Time">2016-08-22 21:36:36</FL><FL val="Created By"><![CDATA[qq qq]]></FL><FL val="Modified By"><![CDATA[tree3170]]></FL></recorddetail></result></response>
              */
         }catch(Exception e){
-            e.printStackTrace();
+            logger.error("#[executePostMethod] executed occurs error"+e);
         } finally{
             myout.close();
             post.releaseConnection();
         }
+        return  postResp;
     }
 
     /**
@@ -293,11 +304,24 @@ public class CommonUtils {
      * @param map
      * @param custMsg， 自定义打印前的message
      */
-    public static void printMap(Map<Object,Object> map,String custMsg){
+    public static void printMap(Map<?,?> map,String custMsg){
         logger.debug("begin print map : "+custMsg);
         String str = "";
-        for(Map.Entry<Object,Object> entry : map.entrySet()){
+        for(Map.Entry<?,?> entry : map.entrySet()){
             str += entry.getKey()+"="+entry.getValue()+"; ";
+        }
+        logger.debug(str);
+    }
+    /**
+     * 打印list
+     * @param list
+     * @param custMsg， 自定义打印前的message
+     */
+    public static void printList(List list,String custMsg){
+        logger.debug("begin print List : "+custMsg);
+        String str = "";
+        for(int i = 0; i < list.size(); i++){
+            str+= list.get(i)+"; ";
         }
         logger.debug(str);
     }

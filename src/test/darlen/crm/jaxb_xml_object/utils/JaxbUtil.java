@@ -1,5 +1,7 @@
 package darlen.crm.jaxb_xml_object.utils;
 
+import org.apache.log4j.Logger;
+
 import java.io.StringReader;
 import java.io.StringWriter;
 
@@ -13,6 +15,7 @@ import javax.xml.bind.Unmarshaller;
  * @create
  */
 public class JaxbUtil {
+    private static Logger logger = Logger.getLogger(JaxbUtil.class);
 
 	/**
 	 * JavaBean转换成xml
@@ -32,6 +35,7 @@ public class JaxbUtil {
 	 * @return 
 	 */
 	public static String convertToXml(Object obj, String encoding) {
+        logger.debug("entering the [JaxbUtil] convertToXml...");
 		String result = null;
 		try {
 			JAXBContext context = JAXBContext.newInstance(obj.getClass());
@@ -40,14 +44,16 @@ public class JaxbUtil {
 			marshaller.setProperty(Marshaller.JAXB_ENCODING, encoding);
             //去掉默认生成的xml报头文<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
             marshaller.setProperty(Marshaller.JAXB_FRAGMENT,true);
+            //去掉默认生成的Namespace
+//            marshaller.setProperty(Marshaller.JAXB_NO_NAMESPACE_SCHEMA_LOCATION,true);
 
 			StringWriter writer = new StringWriter();
 			marshaller.marshal(obj, writer);
 			result = writer.toString();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("#[JaxbUtil] convertToXml occurs error",e);
 		}
-
+        logger.debug("end the [JaxbUtil] convertToXml..."+result);
 		return result;
 	}
 
