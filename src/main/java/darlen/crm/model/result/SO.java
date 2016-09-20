@@ -25,7 +25,7 @@ public class SO {
     /**ZOHO ID*/
     private String SALESORDERID;
     /**销售订单所有者SMOWNERID*/
-    /**主题Subject:必填,就是DB中的SORef 编号*/
+    /**主题Subject:必填,就是DB中的SORef 编号,似乎没起什么作用*/
     private String subject;
     /** 销售订单编号SO Number*/
     private String soNumber;
@@ -36,6 +36,8 @@ public class SO {
     private String owner;
     /**客户IDACCOUNTID*/
     private String ACCOUNTID;
+    /**公司联络人Contact*/
+    private String contact;
     /**QuoteNO*/
     private String quoteNO;
     /**客户名Account Name*/
@@ -66,7 +68,7 @@ public class SO {
     private String deliveryMethod;
     /**PaymentPeriod*/
     private String paymentPeriod;
-    /**到期日期Due Date*/
+    /**到期日期Due Date,db中的是SODate*/
     private String dueDate;
     /**LatestEditBy*/
     private String latestEditBy;
@@ -132,6 +134,14 @@ public class SO {
 
     public void setACCOUNTID(String ACCOUNTID) {
         this.ACCOUNTID = ACCOUNTID;
+    }
+
+    public String getContact() {
+        return contact;
+    }
+
+    public void setContact(String contact) {
+        this.contact = contact;
     }
 
     public String getAcctName() {
