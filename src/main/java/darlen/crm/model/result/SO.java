@@ -25,18 +25,22 @@ public class SO {
     /**ZOHO ID*/
     private String SALESORDERID;
     /**销售订单所有者SMOWNERID*/
-    /**主题Subject:必填*/
+    /**主题Subject:必填,就是DB中的SORef 编号*/
     private String subject;
     /** 销售订单编号SO Number*/
     private String soNumber;
-    private String SMOWNERID;
-    /**销售订单所有者Sales Order Owner*/
-    private String soOwner;
+    private String owerID;
+    /**销售订单所有者Sales Order Owner
+     * 就是DB中的lastEditBy
+     * */
+    private String owner;
     /**客户IDACCOUNTID*/
     private String ACCOUNTID;
+    /**QuoteNO*/
+    private String quoteNO;
     /**客户名Account Name*/
     private String acctName;
-    /**客户名ERP_Currency*/
+    /**客户名ERP_Currency,DB中用CurrencyName表示     */
     private String erpCurrency;
     /**CustomerNO*/
     private String customerNO;
@@ -98,20 +102,28 @@ public class SO {
         this.soNumber = soNumber;
     }
 
-    public String getSMOWNERID() {
-        return SMOWNERID;
+    public String getOwerID() {
+        return owerID;
     }
 
-    public void setSMOWNERID(String SMOWNERID) {
-        this.SMOWNERID = SMOWNERID;
+    public void setOwerID(String owerID) {
+        this.owerID = owerID;
     }
 
-    public String getSoOwner() {
-        return soOwner;
+    public String getOwner() {
+        return owner;
     }
 
-    public void setSoOwner(String soOwner) {
-        this.soOwner = soOwner;
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    public String getQuoteNO() {
+        return quoteNO;
+    }
+
+    public void setQuoteNO(String quoteNO) {
+        this.quoteNO = quoteNO;
     }
 
     public String getACCOUNTID() {
@@ -288,8 +300,8 @@ public class SO {
                 "SALESORDERID='" + SALESORDERID + '\'' +
                 ", subject='" + subject + '\'' +
                 ", soNumber='" + soNumber + '\'' +
-                ", SMOWNERID='" + SMOWNERID + '\'' +
-                ", soOwner='" + soOwner + '\'' +
+                ", owerID='" + owerID + '\'' +
+                ", owner='" + owner + '\'' +
                 ", ACCOUNTID='" + ACCOUNTID + '\'' +
                 ", acctName='" + acctName + '\'' +
                 ", erpCurrency='" + erpCurrency + '\'' +

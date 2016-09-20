@@ -134,7 +134,7 @@ public class HandleSO {
      * delZOHOIDList:里面是所有 ERP ID 为空时的 ZOHO ID
      */
     @Test
-    public void assembleZOHOAcctObjListTest(){
+    public void testAssembleZOHOAcctObjList(){
         handleSO.assembleZOHOAcctObjList();
     }
     public List assembleZOHOAcctObjList(){
@@ -165,20 +165,46 @@ public class HandleSO {
      * 2.idAccountsMap<CustomerID,Accounts> --> dbAcctList.get(1)
      */
     @Test
-    public void assembleDBAcctObjListTest(){
+    public void testAssembleDBAcctObjList(){
         handleSO.assembleDBAcctObjList();
     }
     public List assembleDBAcctObjList(){
         List dbAcctList = new ArrayList();
         Map<String,SO> idAccountsMap = new HashMap<String, SO>();
-        SO accounts = getAcctDBObj(idAccountsMap);
+        SO accounts = getSODBObj(idAccountsMap);
         dbAcctList.add(accounts);
         dbAcctList.add(idAccountsMap);
         CommonUtils.printList(dbAcctList, "DB Account obj");
         return dbAcctList;
     }
 
-    private SO getAcctDBObj(Map<String, SO> idAccountsMap) {
+    private SO getSODBObj(Map<String, SO> idAccountsMap) {
+        SO so = new SO();
+        so.setOwerID("85333000000071039");
+        so.setOwner("qq");
+        so.setSubject("PSO30190412");
+        so.setSoNumber("PSO30190412");
+        so.setQuoteNO("PQ000112");
+        so.setErpCurrency("USD");
+        so.setACCOUNTID("1");
+        so.setAcctName("PriPac Design & Communication AB");
+        so.setErpCurrency("");
+        so.setMailAddress("");
+        so.setEmail("");
+        so.setPoNO("");
+        so.setFax("");
+        so.setTel("");
+        so.setFax("");
+        so.setPaymentTerm("");
+        so.setErpExchangeRate("");
+        so.setDeliveryMethod("");
+        so.setPayMethod("");
+        so.setDueDate("");
+        so.setPaymentPeriod("");
+        so.setLatestEditTime("");
+        so.setCreationTime("");
+        so.setLatestEditBy("");
+        so.setSOID("");
         return null;
     }
 

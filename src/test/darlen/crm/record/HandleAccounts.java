@@ -139,7 +139,7 @@ public class HandleAccounts {
      * delZOHOIDList:里面是所有 ERP ID 为空时的 ZOHO ID
      */
     @Test
-    public void assembleZOHOAcctObjListTest(){
+    public void testAssembleZOHOAcctObjList(){
         handleAccounts.assembleZOHOAcctObjList();
     }
     public List assembleZOHOAcctObjList(){
@@ -170,7 +170,7 @@ public class HandleAccounts {
      * 2.idAccountsMap<CustomerID,Accounts> --> dbAcctList.get(1)
      */
     @Test
-    public void assembleDBAcctObjListTest(){
+    public void testAssembleDBAcctObjList(){
         handleAccounts.assembleDBAcctObjList();
     }
     public List assembleDBAcctObjList(){
@@ -191,7 +191,7 @@ public class HandleAccounts {
      * @return
      */
     @Test
-    public void assembelSendToZOHOAcctListTest(){
+    public void testAssembelSendToZOHOAcctList(){
         handleAccounts.assembelSendToZOHOAcctList();
     }
     public List assembelSendToZOHOAcctList(){
@@ -238,7 +238,7 @@ public class HandleAccounts {
      * Ⅳ：组装addZOHOXml，updateZOHOXml，deleteZOHOIDsList,放进zohoXMLList集合对象中
      */
     @Test
-    public void assembleZOHOXmlTest() throws Exception {
+    public void testAssembleZOHOXml() throws Exception {
         handleAccounts.assembleZOHOXml();
     }
 

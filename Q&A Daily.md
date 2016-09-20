@@ -11,6 +11,11 @@
 
 ## 问题： Ken
    * 确定日期格式问题
+   * 关于销售订单拥有者，产品拥有者，报价拥有者，发票拥有者--》LatestEditBy【已确定：根据ken的下面comment】
+   "千萬別用你自己為创建或者修改的用户，因為公司是按誰開單來發放Bonus的，所有者就是发票、订单中的
+   LatestEditBy(User表中的UserName)。 要找CRM中的所有者，你應該將User表發給Elvis或Gary，請他幫你填上CRM賬戶用作Mapping"
+
+
 
 ## 问题： 客户
    * 确定UI
