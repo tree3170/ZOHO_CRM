@@ -12,6 +12,13 @@ import java.util.List;
 
 /**
  * darlen.crm.model.result
+ * Total:金额 --> 金额(Total) = 定价(Unit Price) x 数量(Quantity)
+ * Net Total:总计 --> 总计 = 金额 - 产品折扣(Discount) - 产品税（Tax）
+ * Sub Total:订单小计 --> 订单小计 = 总计和
+ * Grand Total:订单累计 -->订单累计 = 订单小计(Sub Total) - 订单折扣(Discount) - 订单税（Tax） - 订单调整(Adjustment)
+ * Total After Discount:这是个什么字段，没有在页面显示？
+ *
+ *
  * Description：ZOHO_CRM  SO=Quotation +Potential+Customer+product
  * Created on  2016/08/26 08：20
  * -------------------------------------------------------------------------
@@ -22,7 +29,7 @@ import java.util.List;
  * @author Darlen liu
  */
 public class SO {
-    /**ZOHO ID*/
+    /**ZOHO ID，系统生成，不需要设置*/
     private String SALESORDERID;
     /**销售订单所有者SMOWNERID*/
     /**主题Subject:必填,就是DB中的SORef 编号,似乎没起什么作用*/
@@ -69,7 +76,7 @@ public class SO {
     /**PaymentPeriod*/
     private String paymentPeriod;
     /**到期日期Due Date,db中的是SODate*/
-    private String dueDate;
+    private String erpDueDate;
     /**LatestEditBy*/
     private String latestEditBy;
     /**LatestEditTime*/
@@ -77,6 +84,48 @@ public class SO {
     /**CreationTime*/
     private String creationTime;
     private String SOID;
+
+    /**Customer Discount*/
+    private String cusDiscount;//from ERP
+    /**Discount来自销售订单中的“折扣”*/
+    private String discount;
+    /**Sub Total 来自销售订单中的“小计”*/
+    private String subTotal;
+    /**Grand Total来自销售订单中的“累计”*/
+    private String grandTotal;
+
+    public String getCusDiscount() {
+        return cusDiscount;
+    }
+
+    public void setCusDiscount(String cusDiscount) {
+        this.cusDiscount = cusDiscount;
+    }
+
+    public String getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(String discount) {
+        this.discount = discount;
+    }
+
+    public String getSubTotal() {
+        return subTotal;
+    }
+
+    public void setSubTotal(String subTotal) {
+        this.subTotal = subTotal;
+    }
+
+    public String getGrandTotal() {
+        return grandTotal;
+    }
+
+    public void setGrandTotal(String grandTotal) {
+        this.grandTotal = grandTotal;
+    }
+
     /**pds*/
     private List<ProductDetails> pds;
 
@@ -256,12 +305,12 @@ public class SO {
         this.paymentPeriod = paymentPeriod;
     }
 
-    public String getDueDate() {
-        return dueDate;
+    public String getErpDueDate() {
+        return erpDueDate;
     }
 
-    public void setDueDate(String dueDate) {
-        this.dueDate = dueDate;
+    public void setErpDueDate(String erpDueDate) {
+        this.erpDueDate = erpDueDate;
     }
 
     public String getLatestEditBy() {
@@ -313,6 +362,8 @@ public class SO {
                 ", owerID='" + owerID + '\'' +
                 ", owner='" + owner + '\'' +
                 ", ACCOUNTID='" + ACCOUNTID + '\'' +
+                ", contact='" + contact + '\'' +
+                ", quoteNO='" + quoteNO + '\'' +
                 ", acctName='" + acctName + '\'' +
                 ", erpCurrency='" + erpCurrency + '\'' +
                 ", customerNO='" + customerNO + '\'' +
@@ -327,11 +378,15 @@ public class SO {
                 ", payMethod='" + payMethod + '\'' +
                 ", deliveryMethod='" + deliveryMethod + '\'' +
                 ", paymentPeriod='" + paymentPeriod + '\'' +
-                ", dueDate='" + dueDate + '\'' +
+                ", erpDueDate='" + erpDueDate + '\'' +
                 ", latestEditBy='" + latestEditBy + '\'' +
                 ", latestEditTime='" + latestEditTime + '\'' +
                 ", creationTime='" + creationTime + '\'' +
                 ", SOID='" + SOID + '\'' +
+                ", cusDiscount='" + cusDiscount + '\'' +
+                ", discount='" + discount + '\'' +
+                ", subTotal='" + subTotal + '\'' +
+                ", grandTotal='" + grandTotal + '\'' +
                 ", pds=" + pds +
                 '}';
     }

@@ -1,21 +1,25 @@
 # 这是一个记录关于每天遇到的问题和解决的问题的MarkDown
 
 ## 问题： 王继
-   * 如何确定每个功能的记录数？
    * product detail能修改吗？【不能修改】
-   * 自定义的字段如果国际化？[不支持]
+   * 自定义的字段如果国际化？【不支持】
    * add可以同时多条，那么delete和update呢？因为只传id，所以是不是代表只能一次删除或者更新1条数据？不支持批量删除或者修改操作？如果不支持，但是每天的最大API执行量为3000，这个该如何处理？
      deleteRecords ：您可以使用这种方法删除所选的记录（您必须指定记录的唯一ID)并移动到回收站。此方法适用于 所有模块。但使用这种方法，您不能将记录永久从您的帐号删除。
      getRecords拿到多条数据，跟数据库匹配，去做更新删除添加操作，例如：当更新的list中>1， 那么我是否需要每一条去执行updateRecords？
-   * 关于getRecords最大只支持200条数据，但是我该如何判断我的数据是超过还是小于200条呢？
+     【add最大支持100条，update/delete只能每次一条】
+   * 如何确定每个功能的记录数？我该如何判断我的数据是超过还是小于200条呢？【无API可以取记录数，只能每次遍历100条试试，最大200条】
+   * 调用delete，删除的数据在回收站？怎么理解？如何roll back？
+
+   *Unit Price 与 List Price 分别表示什么？因为我看List Price其实是表示单价那么Unit Price表示什么
 
 ## 问题： Ken
-   * 确定日期格式问题，这个是datetime的表示的
+   * 确定日期格式问题，这个是datetime的表示的【datetime】
    * 关于销售订单拥有者，产品拥有者，报价拥有者，发票拥有者--》LatestEditBy【已确定：根据ken的下面comment】
    "千萬別用你自己為创建或者修改的用户，因為公司是按誰開單來發放Bonus的，所有者就是发票、订单中的
    LatestEditBy(User表中的UserName)。 要找CRM中的所有者，你應該將User表發給Elvis或Gary，請他幫你填上CRM賬戶用作Mapping"
    * 关于销售订单，报价或者发票中的customer信息，id和name不能被修改，像adress/tel/mail之类的是可以修改的
    * 滙入資料到CRM的流程應該是， Customer表 , Item表, 報價單, 訂單, 發票
+   * 是如何计算SO的价格的？需要找Ken confirm
 
 
 
@@ -38,8 +42,9 @@
      Total:金额 --> 金额(Total) = 定价(Unit Price) x 数量(Quantity)
      Net Total:总计 --> 总计 = 金额 - 产品折扣(Discount) - 产品税（Tax）
      Sub Total:订单小计 --> 订单小计 = 总计和
-     Grand Total:订单累计 -->订单累计 = 订单小计(Sub Total) - 订单折扣(Discount) - 订单税（Tax） - 订单调整(Adjustment)
+     Grand Total:订单累计 -->订单累计 = 订单小计(Sub Total) - 订单折扣(Discount，不是百分比，是数值) - 订单税（Tax） - 订单调整(Adjustment)
      Total After Discount:这是个什么字段，没有在页面显示？
+     Unit Price 与 List Price 分别表示什么？因为我看List Price其实是表示单价那么Unit Price表示什么
     Q:因为导出到excel中的数据为乱的，所以必需找Ken确认时间和日期格式
 
 ##20160901 confrirm mapping from ken

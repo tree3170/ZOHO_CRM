@@ -47,7 +47,7 @@ https://crm.zoho.com.cn/crm/private/json/Leads/getFields?authtoken=f19d6f4ad3d2a
 https://crm.zoho.com.cn/crm/private/json/Contacts/getFields?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi
 https://crm.zoho.com.cn/crm/private/json/Accounts/getFields?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi
 https://crm.zoho.com.cn/crm/private/json/Products/getFields?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi
-https://crm.zoho.com.cn/crm/private/json/SalesOrders/getFields?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi
+https://crm.zoho.com.cn/crm/private/xml/SalesOrders/getFields?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi
 https://crm.zoho.com.cn/crm/private/json/Quotes/getFields?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi
 https://crm.zoho.com.cn/crm/private/json/Invoices/getFields?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi
 

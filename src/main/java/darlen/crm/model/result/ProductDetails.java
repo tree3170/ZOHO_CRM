@@ -25,11 +25,11 @@ package darlen.crm.model.result;
  * @author Darlen liu
  */
 public class ProductDetails {
-    /**产品IDProduct Id*/
+    /**产品IDProduct Id， product name必需是同时存在*/
     private String pd_Product_Id;
     /**产品名字Product Name*/
     private String pd_Product_Name;
-    //TODO Confirm Unit Price and List Price 区别
+    //TODO Confirm Unit Price and List Price 区别,貌似List price是单价的意思？
     /**定价 (￥)：单价Unit Price*/
     private String pd_Unit_Price;
     /**List Price*/
@@ -42,11 +42,11 @@ public class ProductDetails {
     /**折扣 (￥)Discount*/
     private String pd_Discount;
 
-    /**累计Total After Discount*/
+    /**Total After Discount；貌似没用*/
     private String pd_Total_After_Discount;
-    /**总计Total*/
+    /**金额****Total*/
     private String pd_Total;
-    /**小计Net Total*/
+    /**总计***计Net Total*/
     private String pd_Net_Total;
     /**税	Tax*/
     private String pd_Tax;

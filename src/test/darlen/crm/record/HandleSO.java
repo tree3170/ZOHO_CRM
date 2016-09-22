@@ -8,10 +8,7 @@
  * */
 package darlen.crm.record;
 
-import darlen.crm.jaxb_xml_object.SO.FL;
-import darlen.crm.jaxb_xml_object.SO.Response;
-import darlen.crm.jaxb_xml_object.SO.Result;
-import darlen.crm.jaxb_xml_object.SO.Row;
+import darlen.crm.jaxb_xml_object.SO.*;
 import darlen.crm.jaxb_xml_object.utils.JaxbUtil;
 import darlen.crm.model.result.ProductDetails;
 import darlen.crm.model.result.SO;
@@ -236,7 +233,10 @@ public class HandleSO {
     }
 
     /**
-     * Ⅳ：组装addZOHOXml，updateZOHOXml，deleteZOHOIDsList,放进zohoXMLList集合对象中
+     * Ⅳ：组装
+     * addZOHOXml:最大100条数据
+     * updateZOHOXml：一次只能更新1条
+     * deleteZOHOIDsList：转换为以逗号分割ZOHO ID的字符串
      */
     @Test
     public void testAssembleZOHOXml() throws Exception {
@@ -249,6 +249,7 @@ public class HandleSO {
         Map<String,SO> updateAccountMap =  (Map<String,SO> )zohoAcctObjList.get(1);
         logger.debug("begin组装 AddZOHOXML...\n");
         String addZOHOXml = assembelZOHOXml(addAccountMap);
+        addZOHOXml = addZOHOXml.replace("pds","FL");
         logger.debug("end组装 AddZOHOXML...");
 
         //TODO confirm to 王继：如果有多条记录，因为每条API调用都需要带id， 该如何更新？ 是否支持批量更新？
@@ -261,10 +262,81 @@ public class HandleSO {
         zohoXMLList.add(updateZOHOXml);
         //TODO: for delete
         List deleteZOHOIDsList  = (List)zohoAcctObjList.get(2);
-        //zohoXMLList.add();
+        zohoXMLList.add(org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,","));
         return zohoXMLList;
     }
 
+
+    /**
+     * ========================Ⅴ：发送xml data到ZOHO，并执行更新、添加或者删除操作
+     * 更新（testUpdateAcctRecord）
+     * 添加（testAddAcctRecord）
+     * 删除（testDelAcctRecord）
+     */
+    @Test
+    public void testAddAcctRecord(){
+        try {
+            String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/SalesOrders/insertRecords";
+            String addZohoXML = assembleZOHOXml().get(0);
+            Map<String,String> postParams = new HashMap<String, String>();
+            postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,targetURL_Accounts);
+            postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,addZohoXML);
+            postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
+            postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
+            postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
+
+            CommonUtils.executePostMethod(postParams);
+
+        } catch(Exception e) {
+            logger.error("执行更新Module操作出现错误",e);
+        }
+    }
+    @Test
+    public void testUpdateAcctRecord(){
+        try {
+            String id = "85333000000113197";//客户1ID
+            String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/SalesOrders/updateRecords";
+            //TODO: qq:85333000000071039, tree3170:85333000000071001
+            String updZohoXML = assembleZOHOXml().get(1);
+            Map<String,String> postParams = new HashMap<String, String>();
+            postParams.put(Constants.HTTP_POST_PARAM_ID,id);
+            postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,targetURL_Accounts);
+            postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,updZohoXML);
+            postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
+            postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
+            postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
+
+            CommonUtils.executePostMethod(postParams);
+        } catch(Exception e) {
+            logger.error("执行更新Module操作出现错误",e);
+        }
+    }
+
+    /**
+     * 因为API一次只能删除一条
+     */
+    @Test
+    public void testDelSORecord(){
+        try {
+            String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/SalesOrders/deleteRecords";
+            String delZOHOIDStr = assembleZOHOXml().get(2);
+            String[] delZOHOIDStrArr = delZOHOIDStr.split(",");
+            for(String id : delZOHOIDStrArr){
+                Map<String,String> postParams = new HashMap<String, String>();
+                postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,targetURL_Accounts);
+                postParams.put(Constants.HTTP_POST_PARAM_ID,id);//"85333000000113197"
+                postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
+                postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
+                postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
+
+                CommonUtils.executePostMethod(postParams);
+            }
+
+
+        } catch(Exception e) {
+            logger.error("执行更新Module操作出现错误",e);
+        }
+    }
     /**
      * 根据accountMap 组装成ZOHO XML
      * @param accountMap
@@ -288,6 +360,7 @@ public class HandleSO {
         return str;
     }
     /**
+     * ************注意这里需要处理普通的FL和product detail的FL
      * 获取Row对象的集合 : getDBFieldNameValueMap() + getZOHOFieldMap() + getAllFLsByCRMMap()
      * 1. dbFieldNameValueMap ： 获取每个Accounts对应的  dbFieldNameValueMap = getDBFieldNameValueMap<dbFieldName,FiledValue>
      * 2. zohoFieldNameValueMap <zohoFieldName,dbFiledValue> --> getZOHOFieldMap()： 根据dbRdAccountsFieldMapping.properties 过滤 dbFieldNameValueMap,  形成zohoFieldNameValueMap <zohoFieldName,FiledValue>
@@ -302,13 +375,23 @@ public class HandleSO {
         int i = 1;
         for(Map.Entry<String,SO> entry : accountMap.entrySet()){
             Row row = new Row();
-
             String key = entry.getKey();
-            Map<String,String> dbFieldNameValueMap = getDBFieldNameValueMap("darlen.crm.model.result.SO",entry.getValue());
-            Map<String,String> zohoFieldMap = getZOHOFieldMap(CommonUtils.readProperties("/mapping/dbRdSOFieldMapping.properties"), dbFieldNameValueMap);
-            List<FL> fls =  getAllFLsByCRMMap(zohoFieldMap);
+
+            SO so  = entry.getValue();
+            List<ProductDetails> pds = so.getPds();
+            //Map<String,Object> dbFieldNameValueMap = getDBFieldNameValueMap("darlen.crm.model.result.SO",so);
+            //for(Map.Entry<String,String> soEntry : entry.getValue())
+
+//            List fls = getCommonFLList(so);
+            List fls2 = getAllFLList(so);
+
             row.setNo(i);
-            row.setFls(fls);
+            row.setFls((List<FL>)fls2.get(0));
+            ProdDetails prodDetails = new ProdDetails();
+            prodDetails.setVal("Product Details");
+            List<Product> products = (List<Product>)fls2.get(1);
+            prodDetails.setProducts(products);
+            row.setPds(prodDetails);
             rows.add(row);
             i++;
         }
@@ -316,30 +399,177 @@ public class HandleSO {
         return rows;
 
     }
-    public static List<FL> getAllFLsByCRMMap(Map<String,String> zohoFieldMap){
-        List<FL> fls = new ArrayList<FL>();
 
-        for(Map.Entry<String,String> entry : zohoFieldMap.entrySet()){
-            String key = entry.getKey();
-            String value = entry.getValue();
-            FL fl = new FL();
-            fl.setFieldName(key);
-            fl.setFieldValue(value);
-            fls.add(fl);
-        }
-        return fls;
+    private List getAllFLList(SO so) throws Exception {
+        Map<String,Object> dbFieldNameValueMap = getDBFieldNameValueMap("darlen.crm.model.result.SO",so);
+        List zohoFieldList = getZOHOFLs(CommonUtils.readProperties("/mapping/dbRdSOFieldMapping.properties"), dbFieldNameValueMap);
+        return zohoFieldList;
     }
-
-    private Map getZOHOFieldMap(Properties properties, Map dbFieldNameValueMap) {
-        Map<String,String> crmFieldMap = new HashMap<String, String>();
+    /**
+     * 根据properties确定返回给zoho的fieldname和fieldvalue
+     * @param properties
+     * @param dbFieldNameValueMap
+     * @return
+     */
+    private List getZOHOFLs(Properties properties, Map dbFieldNameValueMap) {
+        List allFls = new ArrayList();
+        List<Product> products = new ArrayList<Product>();
+        List<FL> commonFls = new ArrayList<FL>();
 
         for(Map.Entry entry : properties.entrySet()){
             if(dbFieldNameValueMap.containsKey(entry.getKey())){
-                crmFieldMap.put((String)entry.getValue(),(String)dbFieldNameValueMap.get(entry.getKey()));
+                String dbFieldName = (String)entry.getKey();
+                if("pds".equalsIgnoreCase(dbFieldName)){
+                    /**
+                     * 1. pdsMap: 取出key为pds的Map<no,Map<fieldName,FieldValue> --> pdsMap,并新建一个newPdsMap<<no,Map<fieldName,FieldValue>>,
+                     * 2. pdMap: 遍历这个map(pdsMap)，取出每个Map<FieldName,FieldValue> -->pdMap ,判断fieldName是否在properties存在
+                     * 3. 如果dbFielName存在与properties中，则取properties中的value和dbFieldValue，放入一个新的FL对象中，最后放入List<FL>中;如果不存在，忽略这个字段
+                     * 4. 组装product，并把product对象放入List<Product>中
+                     */
+                    //1.
+                    Map<String,Map> pdsMap = (Map)dbFieldNameValueMap.get("pds");
+                    for (Map.Entry<String,Map> pdsEntry : pdsMap.entrySet()) {//多少条prduct detail;记录
+                        Product pd = new Product();
+                        //这个是记录no
+                        String no = pdsEntry.getKey().toString();
+                        //2. 这个是每个no的product中的fieldname和field value组装成的map
+                        Map<String,String> pdMap = pdsEntry.getValue();
+                        List<FL> fls = new ArrayList<FL>();
+                        for(Map.Entry<String,String> pdEnry : pdMap.entrySet()){
+                            String dbFielName = pdEnry.getKey().toString();
+                            //3.取出properyies中没有的db key,放入一个新的map中，组成一个最新的crm field name对应的producrt detail 的map
+                            if(properties.containsKey(dbFielName)){
+                                FL fl = new FL();
+                                fl.setFieldName((String) properties.get(dbFielName));
+                                fl.setFieldValue((String)pdEnry.getValue());
+                                fls.add(fl);
+                            }
+                        }
+                        // 4.1 组装product  no
+                        pd.setNo(no);
+                        // 4.2.组装product FLs
+                        pd.setFls(fls);
+                        products.add(pd);
+                    }
+                }else{
+                    /**
+                     * for common field : 跟properties做对比，
+                     * 如果存在，则取properties的value作为key，以前的value还是作为value
+                     * 如果不存在，则忽略这个field，也就是说不会作为最后发送到CRM中的字段
+                     */
+                    String dbFieldValue = (String)dbFieldNameValueMap.get(dbFieldName);
+                    String zohoFieldName = String.valueOf(entry.getValue());
+                    FL fl = new FL();
+                    fl.setFieldName(zohoFieldName);
+                    fl.setFieldValue(dbFieldValue);
+                    commonFls.add(fl);
+                }
             }
         }
-        CommonUtils.printMap(crmFieldMap,"ZOHO Field Map:");
-        return crmFieldMap;
+        allFls.add(commonFls);
+        allFls.add(products);
+        CommonUtils.printList(allFls, "ZOHO Field List:");
+        return allFls;
+
+    }
+
+    public List getCommonFLList(SO so) throws Exception {
+        Map<String,Object> dbFieldNameValueMap = getDBFieldNameValueMap("darlen.crm.model.result.SO",so);
+        Map<String,Object> zohoFieldMap = getZOHOFieldMap(CommonUtils.readProperties("/mapping/dbRdSOFieldMapping.properties"), dbFieldNameValueMap);
+        List commonFLs =getAllFLsByCRMMap(zohoFieldMap);
+        return commonFLs;
+    }
+    public static List getAllFLsByCRMMap(Map<String,Object> zohoFieldMap){
+        List allFls = new ArrayList();
+        List<Product> products = new ArrayList<Product>();
+        List<FL> commonFls = new ArrayList<FL>();
+
+
+        for(Map.Entry<String,Object> entry : zohoFieldMap.entrySet()){
+            String key = entry.getKey();
+            if(!"pds".equals(key)){
+                String value = String.valueOf(entry.getValue());
+                FL fl = new FL();
+                fl.setFieldName(key);
+                fl.setFieldValue(value);
+                commonFls.add(fl);
+            }else{
+                Map<String,Map<String,String>> pdsFlsMap = (Map)entry.getValue();
+                for(Map.Entry<String,Map<String,String>> pdEntry : pdsFlsMap.entrySet()){
+                    Product pd = new Product();
+                    //1. 组装no
+                    pd.setNo(pdEntry.getKey());
+                    //2. 组装product中的List FL
+                    Map<String,String> map  = (Map<String,String>)pdEntry.getValue();
+                   // pd.setFls(pdEntry.getValue());
+                    List<FL> pdFls = new ArrayList<FL>();
+                    for(Map.Entry<String,String> entry2 :map.entrySet() ){
+                        FL fl = new FL();
+                        fl.setFieldName(entry2.getKey());
+                        fl.setFieldValue(entry2.getValue());
+                        pdFls.add(fl);
+                    }
+                    pd.setFls(pdFls);
+                    products.add(pd);
+                }
+            }
+        }
+        allFls.add(commonFls);
+        allFls.add(products);
+        return allFls;
+    }
+
+    /**
+     * 根据properties确定返回给zoho的fieldname和fieldvalue
+     * @param properties
+     * @param dbFieldNameValueMap
+     * @return
+     */
+    private Map getZOHOFieldMap(Properties properties, Map dbFieldNameValueMap) {
+        Map<String,Object> zohoFieldMap = new HashMap<String, Object>();
+
+        for(Map.Entry entry : properties.entrySet()){
+            if(dbFieldNameValueMap.containsKey(entry.getKey())){
+                String dbFieldName = (String)entry.getKey();
+                if("pds".equalsIgnoreCase(dbFieldName)){
+                    /**
+                     * 1. 取出key为pds的Map<no,Map<fieldName,FieldValue> --> pdsMap,并新建一个newPdsMap<<no,Map<fieldName,FieldValue>>,
+                     * 2. 遍历这个map(pdsMap)，取出每个Map<FieldName,FieldValue> -->pdMap ,判断fieldName是否在properties存在
+                     * 3. 如果存在，则取properties中的value和fieldvalue，放入一个新的newPdMap<properties.get(fieldName),fieldVaue>
+                     * 4. 如果不存在，忽略这个字段
+                     * 5. 将新的newPdMap放入newPdsMap，
+                     * 6. 最终newPdsMap放入crmFieldMap
+                     */
+                    Map<String,Map> pdsMap = (Map)dbFieldNameValueMap.get("pds");
+                    Map newPdsMap = new HashMap();
+                    for (Map.Entry<String,Map> pdsEntry : pdsMap.entrySet()) {//多少条prduct detail;记录
+                        String no = pdsEntry.getKey().toString();//这个是记录no
+                        Map<String,String> pdMap = pdsEntry.getValue();//这个是每个no的product中的fieldname和field value组装成的map
+                        Map newPdMap = new HashMap();
+                        for(Map.Entry pdEnry : pdMap.entrySet()){
+                            String pdKey = pdEnry.getKey().toString();
+                            if(properties.containsKey(pdKey)){//取出properyies中没有的db key,放入一个新的map中，组成一个最新的crm field name对应的producrt detail 的map
+                                newPdMap.put(properties.get(pdKey),pdEnry.getValue());
+                            }
+                        }
+                        newPdsMap.put(no,newPdMap);
+
+                    }
+                    zohoFieldMap.put("pds",newPdsMap);
+                }else{
+                    /**
+                     * for common field : 跟properties做对比，
+                     * 如果存在，则取properties的value作为key，以前的value还是作为value
+                     * 如果不存在，则忽略这个field，也就是说不会作为最后发送到CRM中的字段
+                     */
+                    String dbFieldValue = (String)dbFieldNameValueMap.get(dbFieldName);
+                    String zohoFieldName = String.valueOf(entry.getValue());
+                    zohoFieldMap.put(zohoFieldName,dbFieldValue);
+                }
+            }
+        }
+        CommonUtils.printMap(zohoFieldMap,"ZOHO Field Map:");
+        return zohoFieldMap;
 
     }
 
@@ -349,8 +579,8 @@ public class HandleSO {
      * @return
      * refer:http://blog.csdn.net/sd4000784/article/details/7448221
      */
-    public static Map<String,String> getDBFieldNameValueMap(String className,SO dbFields) throws Exception {
-        Map<String,String> map = new HashMap();
+    public static Map<String,Object> getDBFieldNameValueMap(String className,SO dbFields) throws Exception {
+        Map<String,Object> map = new HashMap();
         Class clazz = Class.forName(className);
         Field[] fields = clazz.getDeclaredFields();
         Method[] methods = clazz.getMethods();
@@ -362,46 +592,107 @@ public class HandleSO {
                 if(!StringUtils.isEmptyString(fieldValue)){
                     map.put(fieldName,fieldValue);
                 }
+            }else if("pds".equals(field.getName())){//handle the product detail
+                map.put("pds", getDBProdDetlFieldMap(field,dbFields));
             }
         }
         CommonUtils.printMap(map,"打印DBfield的map");
         return map;
     }
 
+    /**
+     *  取出所有的db中的product details，然后每个遍历，有值的就放入tmpMap中，最后组装成一个Map ，
+     *  key是product no，value是tmpMap(fieldName,fieldValue)
+     * @param field
+     * @param so
+     * @return  key : product detail no --> value : map(key:fieldName-->value:fieldValue)
+     * @throws IllegalAccessException
+     */
+    private static Map<String,Object> getDBProdDetlFieldMap(Field field,SO so) throws IllegalAccessException, ClassNotFoundException, InstantiationException {
+        List<ProductDetails> pds = (List<ProductDetails>)field.get(so);
+        Map<String,Object> map = new HashMap<String, Object>();
+        for(int i = 0;i < pds.size(); i++) {
+            ProductDetails pd = pds.get(i);
+            Class clazz = Class.forName(pd.getClass().getName());
+            Object object = clazz.newInstance();
+            Field[] fields = clazz.getDeclaredFields();
+            Method[] methods = clazz.getMethods();
+            Map<String,String> tmpMap = new HashMap<String, String>();
+            for(Field f : fields){
+                String fieldName = f.getName();
+                f.setAccessible(true) ;
+                if (f.getGenericType().toString().equals("class java.lang.String")) {// 如果type是类类型，则前面包含"class "，后面跟类名
+                    String fieldValue =String.valueOf(f.get(pd));
+                    if(!StringUtils.isEmptyString(fieldValue)){
+                        tmpMap.put(fieldName,fieldValue);
+                    }
+                }
+            }
+            map.put((i+1)+"",tmpMap);
+        }
+        CommonUtils.printMap(map,"打印 DB Product Detail Field Map:");
+        return map;
+    }
+
 
     //TODO 注意价格： 汇率
+
+    /**
+     * TODO:
+     * 1. 注意productid 和product name一定要存在与系统中
+     * 2. 注意SALESORDERID是系统生成的，不需要设入
+     * 3.
+     * @param idSOMap
+     * @return
+     */
     private SO getSODBObj(Map<String, SO> idSOMap) {
         SO so = new SO();
+        so.setSALESORDERID("12345678");
         so.setOwerID("85333000000071039");
         so.setOwner("qq");
         so.setSubject("PSO30190412");
         /**ZOHO生成的字段，似乎没什么作用*/
-        so.setSoNumber("PSO30190412");
+        //so.setSoNumber("PSO30190412");
         so.setQuoteNO("PQ000112");
         so.setErpCurrency("USD");
-        so.setACCOUNTID("1");
-        so.setAcctName("PriPac Design & Communication AB");
+        /**
+         * Account id 和Name一般是同时存在的；
+         * 如果只存在id，Name可以不对；
+         * 如果只存在Name，那么会新创建一个客户；
+         * 例外：但如果有ID，那么ID必需存在已经创建的客户中
+         */
+        so.setACCOUNTID("85333000000106011");
+        /**
+         * PriPac Design & Communication AB, 注意&符号，以后会改成CDATA形式
+         */
+        so.setAcctName("富士廊紙品有限公司");
         so.setContact("Mr. Johan Svard");
         so.setErpCurrency("USD");
         so.setMailAddress("Saltängsvägen 18, 721 32 Västerås Sweden");
-        so.setEmail("NULL");
+        so.setEmail("tree317035791@163.com");
         so.setPoNO("496");
-        so.setDeliveryAddress("");
-        so.setTel("");
-        so.setFax("");
+        so.setDeliveryAddress("test");
+        so.setTel("12345678");
+        so.setFax("12345678");
         so.setErpExchangeRate("7.77");
         /**不是直接顯示ID，要顯示PaymentTerm表中的Name字段         */
         so.setPaymentTerm("2");
         so.setPayMethod("T/T");
         so.setDeliveryMethod("FOB Shenzhen");
         so.setPaymentPeriod("0");
-        so.setDueDate("2016-09-31 10：10：10");
-        so.setLatestEditTime("2016-09-31 10：10：10");
-        so.setCreationTime("2016-09-01 10：10：10");
+        so.setErpDueDate("2016-09-31 10:10:10");
+        so.setLatestEditTime("2016-09-31 10:10:10");
+        so.setCreationTime("2016-09-01 10:10:10");
         so.setLatestEditBy("qq");
         /**DB中的SO id*/
         so.setSOID("10");
 
+        /**
+         * 设置product detail右下角那堆属于SO的字段:Discount,Sub Total,Grand Total
+         */
+        so.setDiscount("100");
+        so.setSubTotal("4000");//小计
+        so.setGrandTotal("3000");//累计
         /**
          * 处理list<ProductDetail>, 根据db中的SOID关联Item_SO表，拿出所有的product Detail,注意为空情况
          */
@@ -420,15 +711,26 @@ public class HandleSO {
         List<ProductDetails> pds = new ArrayList<ProductDetails>();
         ProductDetails pd =new ProductDetails();
         String realUnitPrice = String.valueOf(0.73 * erpExchangeRate);
+        String listPrice = String.valueOf(0.73 * erpExchangeRate);
         pd.setPd_Unit_Price(realUnitPrice);//定价  ： DB-->SOPrice,注意价格要跟Currency一致
+        pd.setPd_List_Price(listPrice);//单价  ： DB-->SOPrice,注意价格要跟Currency一致
         pd.setPd_Quantity("10000");//数量
         pd.setPd_Discount("0");//折扣
         pd.setPd_Tax("0");//税，Matrix默认这个字段是0，因为不用税
 
         pd.setPd_Product_Description("Wesc Cardboard drawer box ");
-        pd.setPd_Product_Id("11");
-        pd.setPd_Product_Name("尼龍背心環保袋\n");//TODO 需要找ken确认ItemName为【Name】是表示什么意思？是否根据id从Item表找
-       pds.add(pd);
+        /**
+         * 注意 product id和Name一定要是已经存在与产品里面的
+         */
+        pd.setPd_Product_Id("85333000000101001");
+        pd.setPd_Product_Name("Test Item 1");//TODO 需要找ken确认ItemName为【Name】是表示什么意思？是否根据id从Item表找
+        pd.setPd_Total("86664.0");//金额
+        pd.setPd_Net_Total("86666.0");//总计
+
+        ProductDetails pd2 = pd;
+        pd2.setPd_Quantity("10000");//数量
+        pds.add(pd2);
+        pds.add(pd);
         return pds;
     }
 
@@ -497,4 +799,61 @@ public class HandleSO {
         return retZohoStr;
 
     }
+
+
 }
+
+
+
+/**
+ * 实例
+ https://crm.zoho.com.cn/crm/private/xml/SalesOrders/insertRecords?authtoken=f19d6f4ad3d2a491ef52f83a7a68bf04&scope=crmapi&xmlData=<response>
+ <result>
+ <SalesOrders>
+ <row no="1">
+ <FL val="Sales Order Owner">qq</FL>
+ <FL val="PayMethod">T/T</FL>
+ <FL val="QuoteNO">PQ000112</FL>
+ <FL val="PaymentTerm">2</FL>
+ <FL val="ERP_Currency">USD</FL>
+ <FL val="Tel">12345678</FL>
+ <FL val="Subject">PSO30190412</FL>
+ <FL val="MailAddress">Saltängsvägen 18, 721 32 Västerås Sweden</FL>
+ <FL val="DeliveryMethod">FOB Shenzhen</FL>
+ <FL val="ACCOUNTID">85333000000106011</FL>
+ <FL val="Account Name">富士廊紙品有限公司</FL>
+ <FL val="ERP_ExchangeRate">7.77</FL>
+ <FL val="SOID">10</FL>
+ <FL val="CreationTime">2016-09-01 10:10:10</FL>
+ <FL val="SMOWNERID">85333000000071039</FL>
+ <FL val="LatestEditTime">2016-09-31 10:10:10</FL>
+ <FL val="DeliveryAddress">test</FL>
+ <FL val="Contact">Mr. Johan Svard</FL>
+ <FL val="ERP Due Date">2016-09-31 10:10:10</FL>
+ <FL val="Fax">12345678</FL>
+ <FL val="LatestEditBy">qq</FL>
+ <FL val="PONO">496</FL>
+ <FL val="Discount">100</FL>
+ <FL val="Sub Total">4961</FL>
+ <FL val="Grand Total">4962</FL>
+ <FL val="Product Details">
+ <product no="1">
+ <FL val='Discount'>0</FL>
+ <FL val='Tax'>0</FL>
+ <FL val='Product Description'>Wesc Cardboard drawer box </FL>
+ <FL val='Unit Price'>123</FL>
+ <FL val='Product Name'>Test Item 1</FL>
+ <FL val='Product Id'>85333000000101001</FL>
+ <FL val='Quantity'>10000</FL>
+ <FL val='Total'>86664.0</FL>
+ <FL val='List Price'>72223.0</FL>
+ <FL val='Net Total'>86665.0</FL>
+ </product>
+ </FL>
+ </row>
+ </SalesOrders>
+ </result>
+ </response>&newFormat=1
+
+ *
+ **/
