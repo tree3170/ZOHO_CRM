@@ -8,8 +8,9 @@
      getRecords拿到多条数据，跟数据库匹配，去做更新删除添加操作，例如：当更新的list中>1， 那么我是否需要每一条去执行updateRecords？
      【add最大支持100条，update/delete只能每次一条】
    * 如何确定每个功能的记录数？我该如何判断我的数据是超过还是小于200条呢？【无API可以取记录数，只能每次遍历100条试试，最大200条】
-   * 调用delete，删除的数据在回收站？怎么理解？如何roll back？
 
+   # 20160923
+   * 调用delete，删除的数据在回收站？怎么理解？如何roll back？
    *Unit Price 与 List Price 分别表示什么？因为我看List Price其实是表示单价那么Unit Price表示什么
 
 ## 问题： Ken
@@ -17,8 +18,10 @@
    * 关于销售订单拥有者，产品拥有者，报价拥有者，发票拥有者--》LatestEditBy【已确定：根据ken的下面comment】
    "千萬別用你自己為创建或者修改的用户，因為公司是按誰開單來發放Bonus的，所有者就是发票、订单中的
    LatestEditBy(User表中的UserName)。 要找CRM中的所有者，你應該將User表發給Elvis或Gary，請他幫你填上CRM賬戶用作Mapping"
-   * 关于销售订单，报价或者发票中的customer信息，id和name不能被修改，像adress/tel/mail之类的是可以修改的
-   * 滙入資料到CRM的流程應該是， Customer表 , Item表, 報價單, 訂單, 發票
+   * 关于销售订单，报价或者发票中的customer信息，id和name不能被修改，像adress/tel/mail之类的是可以修改的【已确认】
+   * 滙入資料到CRM的流程應該是， Customer表 , Item表, 報價單, 訂單, 發票【已确认】
+
+   # 20160923
    * 是如何计算SO的价格的？需要找Ken confirm
 
 
@@ -27,8 +30,11 @@
    * 确定UI
    * 确定账户13个账户人
 
+## 20160923
+   * 确认将test转移到Matrix程序中
+
 ## 20160921
-   明天找Bruce和Eddie确定db数据能否导入到SQL Server 2005
+   明天找Bruce和Eddie确定db数据能否导入到SQL Server 2005【已确认】
 
 ## 20160918
    ###问题：王继

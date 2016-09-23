@@ -1,3 +1,16 @@
+
+
+## 20160923
+* 完成对Account和SO的update和delete的操作，并尝试优化和写markdown并画出图形(百度脑图：http://naotu.baidu.com/)关于这两个部分的逻辑
+* 这周末需要完成HandleProduct和HandleInvoice的编写
+注意：
+1. 因为update和delete是只能单条，所以这部分需要优化
+2. 同时getRecord一次也只能拿到200条，这个程序也需要优化
+3. Add最大也只支持100， 这也是需要优化的地方
+
+
+
+
 ##20160919
 * 明天和王继确认些问题，参照daily.md
 * 明天继续完成HandleSO.java

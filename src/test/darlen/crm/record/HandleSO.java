@@ -128,9 +128,15 @@ public class HandleSO {
 
     /**
      * Ⅰ：这里仅仅只是组装zohoAcctObjList
-     * 1. 从ZOHO获取有效的xml
-     * 2. xml 转 java bean
-     * 3. 组装 zohoListObj ，其中里面的element有：
+     *
+     * 1. 从ZOHO获取有效的xml ： retriveZohoSORecords()
+     * 2. xml 转 java bean : JaxbUtil.converyToJavaBean(zohoStr, Response.class);
+     * 3. 组装 zohoListObj : assembleZOHOList() -->
+     *               作用是：拿出ZOHOID、ERPID和LastModified这三个字段，用作将来的判断是否存在于已有的DB中，并且lastModified时间是否一直
+     *                       ZOHO ID:用作delete、update
+     *                       ERPID： 用作判断是否存在于DB中，不存在则加入删除列表
+     *                       LastModified： 当ERP存在DB中，则判断LastModified是否被修改，如果修改则加入更新列表里面
+     * 其中里面的element有：
      * zohoIDMap<ERPID,ZOHOID> = zohoListObj.get(0)
      * zohoTimeMap<ERPID,lastEditTime> = zohoListObj.get(1)
      * delZOHOIDList:里面是所有 ERP ID 为空时的 ZOHO ID
@@ -142,8 +148,9 @@ public class HandleSO {
     public List assembleZOHOAcctObjList(){
         //因为这里仅仅是测试数据这里仅仅只演示一条record，免得ZOHO的数据
         String id = "85333000000106003";//ID：中联重科
+        // TODO ：：：Notice: 最大只能取到200条数据，这边可能需要另外的逻辑控制判断数据是否取完
 //        1. 从ZOHO获取有效的xml
-        String zohoStr =  retriveZohoSORecordID(id);
+        String zohoStr =  retriveZohoSORecords();
 //       2. xml 转 java bean
         System.out.println("zohoStr:::"+zohoStr);
         Response response = JaxbUtil.converyToJavaBean(zohoStr, Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
@@ -274,7 +281,7 @@ public class HandleSO {
      * 删除（testDelAcctRecord）
      */
     @Test
-    public void testAddAcctRecord(){
+    public void testAddRecord(){
         try {
             String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/SalesOrders/insertRecords";
             String addZohoXML = assembleZOHOXml().get(0);
@@ -292,7 +299,7 @@ public class HandleSO {
         }
     }
     @Test
-    public void testUpdateAcctRecord(){
+    public void testUpdateRecords(){
         try {
             String id = "85333000000113197";//客户1ID
             String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/SalesOrders/updateRecords";
@@ -316,7 +323,7 @@ public class HandleSO {
      * 因为API一次只能删除一条
      */
     @Test
-    public void testDelSORecord(){
+    public void testDelSORecords(){
         try {
             String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/SalesOrders/deleteRecords";
             String delZOHOIDStr = assembleZOHOXml().get(2);
@@ -763,7 +770,7 @@ public class HandleSO {
             for(FL fl : fls){
                 String fieldName = fl.getFieldName();
                 String fieldVal = fl.getFieldValue();
-                if(zohoIDName.equals(fieldName)){
+                if(zohoIDName.equals(fieldName) && !StringUtils.isEmptyString(fieldVal)){
                     zohoID = fieldVal;
                 }
                 if(erpIDName.equals(fieldName)){
@@ -781,7 +788,7 @@ public class HandleSO {
         return zohoAcctObjList;
     }
 
-    private String retriveZohoSORecordID(String id) {
+    private String retriveZohoSORecords() {
         String retZohoStr = "";
         try {
 //            String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/Accounts/getRecordById";
