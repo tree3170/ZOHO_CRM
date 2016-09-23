@@ -58,4 +58,9 @@ public interface Constants {
     public static final String ZOHO_PROPs_AUTHTOKEN_MATRIX="authtoken_matrix";
     public static final String ZOHO_PROPS_MODULES="MODULES";
 
+
+
+    /**Max Add size*/
+    public static final int MAX_ADD_SIZE = 1;
+
 }

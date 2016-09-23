@@ -223,7 +223,7 @@ public class CommonUtils {
             }
         }
         logger.debug("发送的URL是:::"+url.substring(0,url.length()-1));
-        System.err.println("发送的URL是:::"+url.substring(0,url.length()-1));
+        //System.err.println("发送的URL是:::"+url.substring(0,url.length()-1));
         /*post.setParameter(Constants.HTTP_POST_PARAM_AUTHTOKEN, authToken);
         post.setParameter(Constants.HTTP_POST_PARAM_SCOPE, scope);
         post.setParameter(Constants.HTTP_POST_PARAM_NEW_FORMAT, format);
@@ -254,8 +254,8 @@ public class CommonUtils {
         {
             long t1 = System.currentTimeMillis();
             int result = httpclient.executeMethod(post);
-            System.out.println("HTTP Response status code: " + result);
-            System.out.println(">> Time taken " + (System.currentTimeMillis() - t1));
+            logger.error("HTTP Response status code: " + result);
+            logger.error(">> Time taken " + (System.currentTimeMillis() - t1));
 
             // writing the response to a file
             myout = new PrintWriter(new File("response.xml"));
@@ -263,7 +263,7 @@ public class CommonUtils {
 
             //-----------------------Get response as a string ----------------
             postResp = post.getResponseBodyAsString();
-            System.out.println("postResp=======>"+postResp);
+            logger.error("postResp=======>"+postResp);
 
             /**
              * sample response=======><?xml version="1.0" encoding="UTF-8" ?>

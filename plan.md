@@ -1,4 +1,8 @@
 
+# 20160923 晚
+*1. 继续优化了HandleSO的add方法（最大只能添加100条）
+*2. 明天完成脑图，并且编写HandleProduct和HandleInvoice
+*3. 准备log的编写：如何处理log
 
 ## 20160923
 * 完成对Account和SO的update和delete的操作，并尝试优化和写markdown并画出图形(百度脑图：http://naotu.baidu.com/)关于这两个部分的逻辑

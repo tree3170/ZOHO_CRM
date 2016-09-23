@@ -181,6 +181,9 @@ public class HandleSO {
         List dbAcctList = new ArrayList();
         Map<String,SO> idSOMap = new HashMap<String, SO>();
         SO accounts = getSODBObj(idSOMap);
+        SO accouts2 = getSODBObj2(idSOMap);
+        accouts2.setSubject("tree31701");
+        idSOMap.put("tree3170",accouts2);
         dbAcctList.add(accounts);
         dbAcctList.add(idSOMap);
         CommonUtils.printList(dbAcctList, "DB Account obj");
@@ -210,14 +213,12 @@ public class HandleSO {
 
         Map<String,SO> addAccountMap = new HashMap<String, SO>();
         Map<String,SO> updateAccountMap = new HashMap<String, SO>();
-//        Map<String,Accounts> deleteAccountMap = new HashMap<String, Accounts>();
 
         for(Map.Entry<String,String> entry : zohoIDTimeMap.entrySet()){
             String erpID = entry.getKey();
             if(idAccountsMap.containsKey(erpID)){//update
-                updateAccountMap.put(erpID,idAccountsMap.get(erpID));
+                updateAccountMap.put(erpZohoIDMap.get(erpID),idAccountsMap.get(erpID));
             }else{ //delete
-//                deleteAccountMap.put(erpID,idAccountsMap.get(erpID));
                 if(!delZOHOIDList.contains(erpZohoIDMap.get(erpID))){
                     delZOHOIDList.add(erpZohoIDMap.get(erpID));
                 }
@@ -250,23 +251,25 @@ public class HandleSO {
         handleSO.assembleZOHOXml();
     }
 
-    public List<String> assembleZOHOXml() throws Exception {
+    public List assembleZOHOXml() throws Exception {
         List zohoAcctObjList = assembelSendToZOHOAcctList();
         Map<String,SO> addAccountMap =  (Map<String,SO> )zohoAcctObjList.get(0);
-        Map<String,SO> updateAccountMap =  (Map<String,SO> )zohoAcctObjList.get(1);
+        Map<String,SO> updateAccountMap =(Map<String,SO> )zohoAcctObjList.get(1);
+
+        //TODO add最大条数为100，
         logger.debug("begin组装 AddZOHOXML...\n");
-        String addZOHOXml = assembelZOHOXml(addAccountMap);
-        addZOHOXml = addZOHOXml.replace("pds","FL");
+        List<String> addZohoXmlList = assembelAddZohoXml(addAccountMap);
+//        addZOHOXml = addZOHOXml.replace("pds","FL");
         logger.debug("end组装 AddZOHOXML...");
 
         //TODO confirm to 王继：如果有多条记录，因为每条API调用都需要带id， 该如何更新？ 是否支持批量更新？
         logger.debug("begin组装 updateZOHOXml...\n");
-        String updateZOHOXml = assembelZOHOXml(updateAccountMap);
+        Map<String,String> updateZOHOXmlMap  = assembelUpdateZohoXml(updateAccountMap);
         logger.debug("end组装 updateZOHOXml...");
 
-        List<String> zohoXMLList = new ArrayList<String>();
-        zohoXMLList.add(addZOHOXml);
-        zohoXMLList.add(updateZOHOXml);
+        List zohoXMLList = new ArrayList();
+        zohoXMLList.add(addZohoXmlList);
+        zohoXMLList.add(updateZOHOXmlMap);
         //TODO: for delete
         List deleteZOHOIDsList  = (List)zohoAcctObjList.get(2);
         zohoXMLList.add(org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,","));
@@ -281,18 +284,21 @@ public class HandleSO {
      * 删除（testDelAcctRecord）
      */
     @Test
-    public void testAddRecord(){
+    public void testAddRecords(){
         try {
             String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/SalesOrders/insertRecords";
-            String addZohoXML = assembleZOHOXml().get(0);
-            Map<String,String> postParams = new HashMap<String, String>();
-            postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,targetURL_Accounts);
-            postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,addZohoXML);
-            postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
-            postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
-            postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
+            List<String> addZohoXMLList = (List<String> )assembleZOHOXml().get(0);
+            for(int i = 0; i < addZohoXMLList.size(); i ++){
+                System.err.println("添加第"+(i+1)+"条数据，xml为："+addZohoXMLList.get(i));
+                Map<String,String> postParams = new HashMap<String, String>();
+                postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,targetURL_Accounts);
+                postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,addZohoXMLList.get(i));
+                postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
+                postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
+                postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
 
-            CommonUtils.executePostMethod(postParams);
+                CommonUtils.executePostMethod(postParams);
+            }
 
         } catch(Exception e) {
             logger.error("执行更新Module操作出现错误",e);
@@ -304,16 +310,21 @@ public class HandleSO {
             String id = "85333000000113197";//客户1ID
             String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/SalesOrders/updateRecords";
             //TODO: qq:85333000000071039, tree3170:85333000000071001
-            String updZohoXML = assembleZOHOXml().get(1);
-            Map<String,String> postParams = new HashMap<String, String>();
-            postParams.put(Constants.HTTP_POST_PARAM_ID,id);
-            postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,targetURL_Accounts);
-            postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,updZohoXML);
-            postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
-            postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
-            postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
+            Map<String,String> updZohoXMLMap = (Map<String,String>)assembleZOHOXml().get(1);
+            int i = 1 ;
+            for(Map.Entry<String,String> zohoIDUpdXmlEntry : updZohoXMLMap.entrySet()){
+                System.err.println("更新第"+(i)+"条数据，xml为："+zohoIDUpdXmlEntry.getValue());
+                Map<String,String> postParams = new HashMap<String, String>();
+                postParams.put(Constants.HTTP_POST_PARAM_ID,zohoIDUpdXmlEntry.getKey());
+                postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,targetURL_Accounts);
+                postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,zohoIDUpdXmlEntry.getValue());
+                postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
+                postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
+                postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
 
-            CommonUtils.executePostMethod(postParams);
+                CommonUtils.executePostMethod(postParams);
+                i++;
+            }
         } catch(Exception e) {
             logger.error("执行更新Module操作出现错误",e);
         }
@@ -326,7 +337,7 @@ public class HandleSO {
     public void testDelSORecords(){
         try {
             String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/SalesOrders/deleteRecords";
-            String delZOHOIDStr = assembleZOHOXml().get(2);
+            String delZOHOIDStr = (String)assembleZOHOXml().get(2);
             String[] delZOHOIDStrArr = delZOHOIDStr.split(",");
             for(String id : delZOHOIDStrArr){
                 Map<String,String> postParams = new HashMap<String, String>();
@@ -344,28 +355,106 @@ public class HandleSO {
             logger.error("执行更新Module操作出现错误",e);
         }
     }
+
     /**
-     * 根据accountMap 组装成ZOHO XML
+     * 根据accountMap 组装成每100条数据的addZohoXmlList中
+     * 注意：getAddRowsMap
+     *
      * @param accountMap
      * @return
      * @throws Exception
      */
-    private String  assembelZOHOXml(Map<String, SO> accountMap) throws Exception {
+    private List<String>  assembelAddZohoXml(Map<String, SO> accountMap) throws Exception {
+        List<String> addZohoXmlList= new ArrayList<String>();
+        Response response = new Response();
+        Result result = new Result();
+        darlen.crm.jaxb_xml_object.SO.SO so = new darlen.crm.jaxb_xml_object.SO.SO();
+        Map<Integer,List<Row>> addRowsMap = getAddRowsMap(accountMap);
+        if(addRowsMap==null || addRowsMap.size() == 0){
+            return addZohoXmlList;
+        }else{
+
+            for(int i = 0 ; i< addRowsMap.size(); i ++){
+                so.setRows(addRowsMap.get(i));
+                result.setSo(so);
+                response.setResult(result);
+                String str  = JaxbUtil.convertToXml(response);
+                //转换pds为FL
+                addZohoXmlList.add(str.replace("pds","FL"));
+            }
+        }
+        return addZohoXmlList;
+    }
+
+    /**
+     * 获取Add的row的Map： 每100条rows放入Map，最后不满100条rows的放到最后的Map中
+     * @param accountMap
+     * @return
+     * @throws Exception
+     */
+    private Map<Integer,List<Row>> getAddRowsMap(Map<String, SO> accountMap) throws Exception {
+        List<Row> rows = new ArrayList<Row>();
+        Map<Integer,List<Row>>  rowsMap = new HashMap<Integer, List<Row>>();
+        int i = 1;
+        for(Map.Entry<String,SO> entry : accountMap.entrySet()){
+            Row row = new Row();
+            String key = entry.getKey();
+            SO so  = entry.getValue();
+            List fls = getAllFLList(so);
+            row.setNo(i);
+            row.setFls((List<FL>)fls.get(0));
+            ProdDetails prodDetails = new ProdDetails();
+            prodDetails.setVal("Product Details");
+            List<Product> products = (List<Product>)fls.get(1);
+            prodDetails.setProducts(products);
+            row.setPds(prodDetails);
+            rows.add(row);
+            //当row的size达到了100，那么需要放入
+            if(i == Constants.MAX_ADD_SIZE){
+                logger.debug("Add Rows的size达到了100，需要放到Map中，然后重新计算rows的条数...");
+                rowsMap.put(rowsMap.size(),rows);
+                rows = new ArrayList<Row>();
+                i = 1;
+            }else{
+                 i++;
+            }
+
+        }
+        //最后不满100条的，放入最后的Map中,如果刚好则不添加
+        if(rows.size()>0) rowsMap.put(rowsMap.size()+1,rows);
+        return rowsMap;
+    }
+
+    /**
+     * 根据accountMap 组装成updateZphoXmlMap <zohoID,updateXml>
+     * @param accountMap
+     * @return
+     * @throws Exception
+     */
+    private Map<String,String>  assembelUpdateZohoXml(Map<String, SO> accountMap) throws Exception {
+        Map<String,String> updateZphoXmlMap = new HashMap<String, String>();
         String str = "";
         Response response = new Response();
         Result result = new Result();
         darlen.crm.jaxb_xml_object.SO.SO so = new darlen.crm.jaxb_xml_object.SO.SO();
-        List<Row> rows = getRowByMap(accountMap);
+        List<Row> rows = getUpdRowByMap(accountMap);
         if(rows==null || rows.size() == 0){
-            return str;
+            return updateZphoXmlMap;
         }else{
-            so.setRows(rows);
-            result.setSo(so);
-            response.setResult(result);
-            str = JaxbUtil.convertToXml(response);
+            int i = 0;
+            for (Map.Entry<String,SO> zohoIDAccountEntry : accountMap.entrySet()){
+                so.setRows(Arrays.asList(rows.get(i)));
+                result.setSo(so);
+                response.setResult(result);
+                str = JaxbUtil.convertToXml(response);
+                updateZphoXmlMap.put(zohoIDAccountEntry.getKey(),str);
+                i++;
+            }
+
         }
-        return str;
+        return updateZphoXmlMap;
     }
+
     /**
      * ************注意这里需要处理普通的FL和product detail的FL
      * 获取Row对象的集合 : getDBFieldNameValueMap() + getZOHOFieldMap() + getAllFLsByCRMMap()
@@ -376,35 +465,26 @@ public class HandleSO {
      * @return
      * @throws Exception
      */
-    private List<Row> getRowByMap(Map<String, SO> accountMap) throws Exception {
+    private List<Row> getUpdRowByMap(Map<String, SO> accountMap) throws Exception {
         List<Row> rows = new ArrayList<Row>();
 
         int i = 1;
         for(Map.Entry<String,SO> entry : accountMap.entrySet()){
             Row row = new Row();
             String key = entry.getKey();
-
             SO so  = entry.getValue();
-            List<ProductDetails> pds = so.getPds();
-            //Map<String,Object> dbFieldNameValueMap = getDBFieldNameValueMap("darlen.crm.model.result.SO",so);
-            //for(Map.Entry<String,String> soEntry : entry.getValue())
-
-//            List fls = getCommonFLList(so);
-            List fls2 = getAllFLList(so);
-
+            List fls = getAllFLList(so);
             row.setNo(i);
-            row.setFls((List<FL>)fls2.get(0));
+            row.setFls((List<FL>)fls.get(0));
             ProdDetails prodDetails = new ProdDetails();
             prodDetails.setVal("Product Details");
-            List<Product> products = (List<Product>)fls2.get(1);
+            List<Product> products = (List<Product>)fls.get(1);
             prodDetails.setProducts(products);
             row.setPds(prodDetails);
             rows.add(row);
             i++;
         }
-
         return rows;
-
     }
 
     private List getAllFLList(SO so) throws Exception {
@@ -706,6 +786,68 @@ public class HandleSO {
         List<ProductDetails> pds = handlePdsList("10",Double.valueOf(so.getErpExchangeRate()));
         so.setPds(pds);
         idSOMap.put(so.getSOID(),so);
+        return so;
+    }
+
+    /**
+     * 这个方法仅仅用于测试
+     * @param idSOMap
+     * @return
+     */
+    private SO getSODBObj2(Map<String, SO> idSOMap) {
+        SO so = new SO();
+        so.setSALESORDERID("12345678");
+        so.setOwerID("85333000000071039");
+        so.setOwner("qq");
+        so.setSubject("PSO30190412-Test");
+        /**ZOHO生成的字段，似乎没什么作用*/
+        //so.setSoNumber("PSO30190412");
+        so.setQuoteNO("PQ000112");
+        so.setErpCurrency("USD");
+        /**
+         * Account id 和Name一般是同时存在的；
+         * 如果只存在id，Name可以不对；
+         * 如果只存在Name，那么会新创建一个客户；
+         * 例外：但如果有ID，那么ID必需存在已经创建的客户中
+         */
+        so.setACCOUNTID("85333000000106011");
+        /**
+         * PriPac Design & Communication AB, 注意&符号，以后会改成CDATA形式
+         */
+        so.setAcctName("富士廊紙品有限公司");
+        so.setContact("Mr. Johan Svard");
+        so.setErpCurrency("USD");
+        so.setMailAddress("Saltängsvägen 18, 721 32 Västerås Sweden");
+        so.setEmail("tree317035791@163.com");
+        so.setPoNO("496");
+        so.setDeliveryAddress("test");
+        so.setTel("12345678");
+        so.setFax("12345678");
+        so.setErpExchangeRate("7.77");
+        /**不是直接顯示ID，要顯示PaymentTerm表中的Name字段         */
+        so.setPaymentTerm("2");
+        so.setPayMethod("T/T");
+        so.setDeliveryMethod("FOB Shenzhen");
+        so.setPaymentPeriod("0");
+        so.setErpDueDate("2016-09-31 10:10:10");
+        so.setLatestEditTime("2016-09-31 10:10:10");
+        so.setCreationTime("2016-09-01 10:10:10");
+        so.setLatestEditBy("qq");
+        /**DB中的SO id*/
+        so.setSOID("10");
+
+        /**
+         * 设置product detail右下角那堆属于SO的字段:Discount,Sub Total,Grand Total
+         */
+        so.setDiscount("100");
+        so.setSubTotal("4000");//小计
+        so.setGrandTotal("3000");//累计
+        /**
+         * 处理list<ProductDetail>, 根据db中的SOID关联Item_SO表，拿出所有的product Detail,注意为空情况
+         */
+        List<ProductDetails> pds = handlePdsList("10",Double.valueOf(so.getErpExchangeRate()));
+        so.setPds(pds);
+        idSOMap.put("tree3170",so);
         return so;
     }
 
