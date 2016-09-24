@@ -15,6 +15,7 @@ import darlen.crm.model.result.SO;
 import darlen.crm.util.CommonUtils;
 import darlen.crm.util.Constants;
 import darlen.crm.util.StringUtils;
+import darlen.crm.util.ThreadLocalDateUtil;
 import org.apache.log4j.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -22,6 +23,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.text.ParseException;
 import java.util.*;
 
 /**
@@ -39,7 +41,7 @@ import java.util.*;
  * 2.ZOHOID一定不能为空
  * 3.lastEditTime
  *
- * ===================Ⅱ：获取db数据，组装成 dbAcctList  : assembleDBAcctObjList()
+ * ===================Ⅱ：获取db数据，组装成 dbAcctList  : buildDBObjList()
  * 1.Accounts --> dbAcctList.get(0)
  * 2.idAccountsMap<CustomerID,Accounts> --> dbAcctList.get(1)
  *
@@ -128,44 +130,47 @@ public class HandleSO {
 
     /**
      * Ⅰ：这里仅仅只是组装zohoAcctObjList
-     *
-     * 1. 从ZOHO获取有效的xml ： retriveZohoSORecords()
-     * 2. xml 转 java bean : JaxbUtil.converyToJavaBean(zohoStr, Response.class);
-     * 3. 组装 zohoListObj : assembleZOHOList() -->
-     *               作用是：拿出ZOHOID、ERPID和LastModified这三个字段，用作将来的判断是否存在于已有的DB中，并且lastModified时间是否一直
-     *                       ZOHO ID:用作delete、update
-     *                       ERPID： 用作判断是否存在于DB中，不存在则加入删除列表
-     *                       LastModified： 当ERP存在DB中，则判断LastModified是否被修改，如果修改则加入更新列表里面
-     * 其中里面的element有：
-     * zohoIDMap<ERPID,ZOHOID> = zohoListObj.get(0)
-     * zohoTimeMap<ERPID,lastEditTime> = zohoListObj.get(1)
-     * delZOHOIDList:里面是所有 ERP ID 为空时的 ZOHO ID
      */
     @Test
     public void testAssembleZOHOAcctObjList(){
-        handleSO.assembleZOHOAcctObjList();
+        handleSO.buildZohoObjSkeletonList();
     }
-    public List assembleZOHOAcctObjList(){
+
+    /**
+     * 从ZOHO获取所有的XML并转化为java对象，所有的SO记录，并且最后组装为3组对象：erpZohoIDMap，erpIDTimeMap，delZOHOIDList
+     *
+     * 1. 从ZOHO获取有效的xml ： retriveZohoSORecords()
+     * 2. xml 转 java bean : JaxbUtil.converyToJavaBean(zohoStr, Response.class);
+     * 3. 组装 zohoListObj : buildZohoComponentList() -->
+     *    作用是：拿出ZOHO ID、ERP ID和LastModified这三个字段，用作将来的判断是否存在于已有的DB中，并且lastModified时间是否一直
+     *        ZOHO ID:用作delete、update
+     *        ERP ID ： 用作判断是否存在于DB中，不存在则加入删除列表
+     *        LastModified： 当ERP存在DB中，则判断LastModified是否被修改，如果修改则加入更新列表里面
+     * 其中里面的element有：
+     * erpZohoIDMap<ERP ID,ZOHO ID> = zohoComponentObjList.get(0)
+     * erpIDTimeMap<ERP ID,lastEditTime> = zohoComponentObjList.get(1)
+     * delZOHOIDList = = zohoComponentObjList.get(2): 里面是所有 ERP ID 为空时的 ZOHO ID
+     */
+    public List buildZohoObjSkeletonList(){
         //因为这里仅仅是测试数据这里仅仅只演示一条record，免得ZOHO的数据
-        String id = "85333000000106003";//ID：中联重科
+//        String id = "85333000000106003";//ID：中联重科
         // TODO ：：：Notice: 最大只能取到200条数据，这边可能需要另外的逻辑控制判断数据是否取完
-//        1. 从ZOHO获取有效的xml
+//       1. 从ZOHO获取有效的xml
+        System.out.println("从ZOHO获取回来的所有记录的XML:::");
         String zohoStr =  retriveZohoSORecords();
 //       2. xml 转 java bean
-        System.out.println("zohoStr:::"+zohoStr);
         Response response = JaxbUtil.converyToJavaBean(zohoStr, Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
-        System.out.println("response object:::"+response);
-//     3. 组装 zohoAcctObjList
-        List  zohoAcctObjList = handleSO.assembleZOHOList(response,"SALESORDERID","SOID");
-        Map<String,String> zohoIDMap = (Map)zohoAcctObjList.get(0);
-        Map<String,String> zohoIDTimeMap = (Map)zohoAcctObjList.get(1);
-        //TODO:暂时在test测序中不处理删除数据
-        List delZOHOIDList = (List)zohoAcctObjList.get(2);
-        CommonUtils.printMap(zohoIDMap, "ERPID 和ZOHOID Map");
-        CommonUtils.printMap(zohoIDTimeMap,"ERPID 和LastEditTime Map");
-        CommonUtils.printList(delZOHOIDList,"Remove ZOHO ID list");
+        System.out.println("转化ZOHO获取回来的XML:::"+response);
+//       3. 组装 zohoComponentObjList的三大对象
+        List  zohoComponentObjList = handleSO.buildZohoComponentList(response, "SALESORDERID", "SOID");
+        Map<String,String> erpZohoIDMap = (Map)zohoComponentObjList.get(0);
+        Map<String,String> erpIDTimeMap = (Map)zohoComponentObjList.get(1);
+        List delZohoIDList = (List)zohoComponentObjList.get(2);
+        CommonUtils.printMap(erpZohoIDMap, "ERP ID 和ZOHO ID Map");
+        CommonUtils.printMap(erpIDTimeMap,"ERP ID 和LastEditTime Map");
+        CommonUtils.printList(delZohoIDList,"Remove ZOHO ID list");
 
-        return zohoAcctObjList;
+        return zohoComponentObjList;
     }
 
     /**
@@ -174,105 +179,126 @@ public class HandleSO {
      * 2.idAccountsMap<CustomerID,Accounts> --> dbAcctList.get(1)
      */
     @Test
-    public void testAssembleDBAcctObjList(){
-        handleSO.assembleDBAcctObjList();
+    public void testAssembleDBAcctObjList() throws ParseException {
+        handleSO.buildDBObjList();
     }
-    public List assembleDBAcctObjList(){
+    public List buildDBObjList() throws ParseException {
         List dbAcctList = new ArrayList();
         Map<String,SO> idSOMap = new HashMap<String, SO>();
         SO accounts = getSODBObj(idSOMap);
         SO accouts2 = getSODBObj2(idSOMap);
         accouts2.setSubject("tree31701");
-        idSOMap.put("tree3170",accouts2);
         dbAcctList.add(accounts);
         dbAcctList.add(idSOMap);
         CommonUtils.printList(dbAcctList, "DB Account obj");
         return dbAcctList;
     }
 
+
     /**
-     * Ⅲ：组装需要真正需要传输到ZOHO的Account对象集合
-     * 1.updateAccountMap<>：如果zohoid存在于dbModel中，则判断 lastEditTime是否被修改，如果修改了，则直接组装dbModel为xml并调用ZOHO中的更新API：
+     * Ⅲ：由获得的ZOHO所有对象集合和从DB获取的对象集合，经过过滤，获取的组装需要***发送到ZOHO的对象集合骨架***
+     */
+    @Test
+    public void testAssembelSendToZOHOAcctList() throws ParseException {
+        handleSO.build2ZohoObjSkeletonList();
+    }
+
+    /**
+     * 由获得的ZOHO所有对象集合和从DB获取的对象集合，经过过滤，获取的组装需要***发送到ZOHO的对象集合骨架***
+     * 1.updateAccountMap<>：如果Zoho ID存在于DB对象集合中，则判断 lastEditTime是否被修改，如果修改了，则直接组装到updateAccountMap中
      * 2.delZOHOIDList：如果zohoid不存在于dbModel中，则直接调用ZOHO删除API：
      * 3.addAccountMap：如果dbModel中的id不存在于zohoMap中，则组装dbModel为xml并调用Zoho中的添加API：
      * @return
      */
-    @Test
-    public void testAssembelSendToZOHOAcctList(){
-        handleSO.assembelSendToZOHOAcctList();
-    }
-
-    public List assembelSendToZOHOAcctList(){
-        List zohoAcctObjList = assembleZOHOAcctObjList();
+    public List build2ZohoObjSkeletonList() throws ParseException {
+        //1. 获取ZOHO对象的骨架集合
+        List allZohoObjList = buildZohoObjSkeletonList();
         //Map<ERPID，ZOHOID>
-        Map<String,String> erpZohoIDMap = (Map)zohoAcctObjList.get(0);
-        Map<String,String> zohoIDTimeMap = (Map)zohoAcctObjList.get(1);
-        List<String> delZOHOIDList = (List)zohoAcctObjList.get(2);
-        List dbAcctList = assembleDBAcctObjList();
+        Map<String,String> erpZohoIDMap = (Map)allZohoObjList.get(0);
+        Map<String,String> erpIDTimeMap = (Map)allZohoObjList.get(1);
+        List<String> delZohoIDList = (List)allZohoObjList.get(2);
+        //2.组装DB 对象List
+        List dbAcctList = buildDBObjList();
         Map<String,SO> idAccountsMap = (Map<String,SO>)dbAcctList.get(1);
 
-        Map<String,SO> addAccountMap = new HashMap<String, SO>();
-        Map<String,SO> updateAccountMap = new HashMap<String, SO>();
+        //3. 解析并组装addMap、updateMap、delZohoIDList
+        Map<String,SO> addMap = new HashMap<String, SO>();
+        Map<String,SO> updateMap = new HashMap<String, SO>();
 
-        for(Map.Entry<String,String> entry : zohoIDTimeMap.entrySet()){
+        for(Map.Entry<String,String> entry : erpIDTimeMap.entrySet()){
             String erpID = entry.getKey();
             if(idAccountsMap.containsKey(erpID)){//update
-                updateAccountMap.put(erpZohoIDMap.get(erpID),idAccountsMap.get(erpID));
+                updateMap.put(erpZohoIDMap.get(erpID), idAccountsMap.get(erpID));
             }else{ //delete
-                if(!delZOHOIDList.contains(erpZohoIDMap.get(erpID))){
-                    delZOHOIDList.add(erpZohoIDMap.get(erpID));
+                if(!delZohoIDList.contains(erpZohoIDMap.get(erpID))){
+                    delZohoIDList.add(erpZohoIDMap.get(erpID));
                 }
             }
         }
 
         for(Map.Entry<String,SO> entry : idAccountsMap.entrySet()){
             String dbID = entry.getKey();
-            if(!zohoIDTimeMap.containsKey(dbID)){//add
-                addAccountMap.put(dbID,entry.getValue());
+            if(!erpIDTimeMap.containsKey(dbID)){//add
+                addMap.put(dbID, entry.getValue());
             }
         }
 
-        List sendToZohoAcctList = new ArrayList();
-        sendToZohoAcctList.add(addAccountMap);
-        sendToZohoAcctList.add(updateAccountMap);
-        sendToZohoAcctList.add(delZOHOIDList);
+        List sendToZohoList = new ArrayList();
+        CommonUtils.printMap(addMap,"addSOMap组装到ZOHO的对象的集合：：：\n");
+        sendToZohoList.add(addMap);
+        CommonUtils.printMap(updateMap, "updateSOMap组装到ZOHO的对象的集合：：：\n");
+        sendToZohoList.add(updateMap);
+        CommonUtils.printList(delZohoIDList, "delZOHOSOIDList组装到ZOHO的对象的集合：：：\n");
+        sendToZohoList.add(delZohoIDList);
 
-        return sendToZohoAcctList;
+        return sendToZohoList;
     }
 
     /**
-     * Ⅳ：组装
+     * Ⅳ：由发送到ZOHO的骨架对象，组装发送到ZOHO 的XML，分别为添加、更新、删除三个对象集合
      * addZOHOXml:最大100条数据
      * updateZOHOXml：一次只能更新1条
      * deleteZOHOIDsList：转换为以逗号分割ZOHO ID的字符串
      */
     @Test
     public void testAssembleZOHOXml() throws Exception {
-        handleSO.assembleZOHOXml();
+        handleSO.build2ZohoXmlSkeleton();
     }
 
-    public List assembleZOHOXml() throws Exception {
-        List zohoAcctObjList = assembelSendToZOHOAcctList();
-        Map<String,SO> addAccountMap =  (Map<String,SO> )zohoAcctObjList.get(0);
-        Map<String,SO> updateAccountMap =(Map<String,SO> )zohoAcctObjList.get(1);
+    /**
+     * 由发送到ZOHO的骨架对象，组装发送到ZOHO 的XML，分别为添加、更新、删除三个对象集合
+     * List<String> addZohoXmlList :每一百条数据组装成xml放入list里面
+     * Map<zohoID,zohoXML> updateZOHOXmlMap ：以zohoID为key，xml为value
+     * deleteZOHOIDsList： zohoID的集合
+     * @return  zohoComponentList
+     * @throws Exception
+     */
+    public List build2ZohoXmlSkeleton() throws Exception {
+        //1. 获取发送到ZOHO对象集合骨架
+        List zohoComponentList = build2ZohoObjSkeletonList();
+        Map<String,SO> addAccountMap =  (Map<String,SO> )zohoComponentList.get(0);
+        Map<String,SO> updateAccountMap =(Map<String,SO> )zohoComponentList.get(1);
 
         //TODO add最大条数为100，
+        //2. 添加
         logger.debug("begin组装 AddZOHOXML...\n");
-        List<String> addZohoXmlList = assembelAddZohoXml(addAccountMap);
-//        addZOHOXml = addZOHOXml.replace("pds","FL");
+        List<String> addZohoXmlList = buildAdd2ZohoXml(addAccountMap);
         logger.debug("end组装 AddZOHOXML...");
 
         //TODO confirm to 王继：如果有多条记录，因为每条API调用都需要带id， 该如何更新？ 是否支持批量更新？
+        //3. 更新
         logger.debug("begin组装 updateZOHOXml...\n");
-        Map<String,String> updateZOHOXmlMap  = assembelUpdateZohoXml(updateAccountMap);
+        Map<String,String> updateZOHOXmlMap  = buildUpd2ZohoXml(updateAccountMap);
         logger.debug("end组装 updateZOHOXml...");
 
         List zohoXMLList = new ArrayList();
         zohoXMLList.add(addZohoXmlList);
         zohoXMLList.add(updateZOHOXmlMap);
         //TODO: for delete
-        List deleteZOHOIDsList  = (List)zohoAcctObjList.get(2);
-        zohoXMLList.add(org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,","));
+        //4. 删除
+        List deleteZOHOIDsList  = (List)zohoComponentList.get(2);
+        logger.debug("打印删除ZohoIDs集合 deleteZOHOIDsList...\n"+org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,","));
+        zohoXMLList.add(deleteZOHOIDsList);//org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,",")
         return zohoXMLList;
     }
 
@@ -287,7 +313,7 @@ public class HandleSO {
     public void testAddRecords(){
         try {
             String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/SalesOrders/insertRecords";
-            List<String> addZohoXMLList = (List<String> )assembleZOHOXml().get(0);
+            List<String> addZohoXMLList = (List<String> ) build2ZohoXmlSkeleton().get(0);
             for(int i = 0; i < addZohoXMLList.size(); i ++){
                 System.err.println("添加第"+(i+1)+"条数据，xml为："+addZohoXMLList.get(i));
                 Map<String,String> postParams = new HashMap<String, String>();
@@ -310,7 +336,7 @@ public class HandleSO {
             String id = "85333000000113197";//客户1ID
             String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/SalesOrders/updateRecords";
             //TODO: qq:85333000000071039, tree3170:85333000000071001
-            Map<String,String> updZohoXMLMap = (Map<String,String>)assembleZOHOXml().get(1);
+            Map<String,String> updZohoXMLMap = (Map<String,String>) build2ZohoXmlSkeleton().get(1);
             int i = 1 ;
             for(Map.Entry<String,String> zohoIDUpdXmlEntry : updZohoXMLMap.entrySet()){
                 System.err.println("更新第"+(i)+"条数据，xml为："+zohoIDUpdXmlEntry.getValue());
@@ -337,12 +363,13 @@ public class HandleSO {
     public void testDelSORecords(){
         try {
             String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/SalesOrders/deleteRecords";
-            String delZOHOIDStr = (String)assembleZOHOXml().get(2);
-            String[] delZOHOIDStrArr = delZOHOIDStr.split(",");
-            for(String id : delZOHOIDStrArr){
+            List delZOHOIDList = (List) build2ZohoXmlSkeleton().get(2);
+            //String[] delZOHOIDStrArr = new String[]{"85333000000116059"};//delZOHOIDStr.split(",");
+            for(int i = 0; i < delZOHOIDList.size(); i++){
+                System.err.println("删除"+(i)+"条数据，xml为："+delZOHOIDList.get(i));
                 Map<String,String> postParams = new HashMap<String, String>();
                 postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,targetURL_Accounts);
-                postParams.put(Constants.HTTP_POST_PARAM_ID,id);//"85333000000113197"
+                postParams.put(Constants.HTTP_POST_PARAM_ID,(String)delZOHOIDList.get(i));//"85333000000113197"
                 postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
                 postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
                 postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
@@ -364,7 +391,7 @@ public class HandleSO {
      * @return
      * @throws Exception
      */
-    private List<String>  assembelAddZohoXml(Map<String, SO> accountMap) throws Exception {
+    private List<String> buildAdd2ZohoXml(Map<String, SO> accountMap) throws Exception {
         List<String> addZohoXmlList= new ArrayList<String>();
         Response response = new Response();
         Result result = new Result();
@@ -431,7 +458,7 @@ public class HandleSO {
      * @return
      * @throws Exception
      */
-    private Map<String,String>  assembelUpdateZohoXml(Map<String, SO> accountMap) throws Exception {
+    private Map<String,String> buildUpd2ZohoXml(Map<String, SO> accountMap) throws Exception {
         Map<String,String> updateZphoXmlMap = new HashMap<String, String>();
         String str = "";
         Response response = new Response();
@@ -725,14 +752,14 @@ public class HandleSO {
     //TODO 注意价格： 汇率
 
     /**
-     * TODO:
+     * TODO: 注意其中一些字段该放入值
      * 1. 注意productid 和product name一定要存在与系统中
      * 2. 注意SALESORDERID是系统生成的，不需要设入
      * 3.
      * @param idSOMap
      * @return
      */
-    private SO getSODBObj(Map<String, SO> idSOMap) {
+    private SO getSODBObj(Map<String, SO> idSOMap) throws ParseException {
         SO so = new SO();
         so.setSALESORDERID("12345678");
         so.setOwerID("85333000000071039");
@@ -768,7 +795,8 @@ public class HandleSO {
         so.setDeliveryMethod("FOB Shenzhen");
         so.setPaymentPeriod("0");
         so.setErpDueDate("2016-09-31 10:10:10");
-        so.setLatestEditTime("2016-09-31 10:10:10");
+        String currentDate = ThreadLocalDateUtil.formatDate(new Date());
+        so.setLatestEditTime(currentDate);
         so.setCreationTime("2016-09-01 10:10:10");
         so.setLatestEditBy("qq");
         /**DB中的SO id*/
@@ -794,7 +822,7 @@ public class HandleSO {
      * @param idSOMap
      * @return
      */
-    private SO getSODBObj2(Map<String, SO> idSOMap) {
+    private SO getSODBObj2(Map<String, SO> idSOMap) throws ParseException {
         SO so = new SO();
         so.setSALESORDERID("12345678");
         so.setOwerID("85333000000071039");
@@ -830,11 +858,12 @@ public class HandleSO {
         so.setDeliveryMethod("FOB Shenzhen");
         so.setPaymentPeriod("0");
         so.setErpDueDate("2016-09-31 10:10:10");
-        so.setLatestEditTime("2016-09-31 10:10:10");
+        String currentDate = ThreadLocalDateUtil.formatDate(new Date());
+        so.setLatestEditTime(currentDate);
         so.setCreationTime("2016-09-01 10:10:10");
         so.setLatestEditBy("qq");
         /**DB中的SO id*/
-        so.setSOID("10");
+        so.setSOID("11");
 
         /**
          * 设置product detail右下角那堆属于SO的字段:Discount,Sub Total,Grand Total
@@ -847,7 +876,7 @@ public class HandleSO {
          */
         List<ProductDetails> pds = handlePdsList("10",Double.valueOf(so.getErpExchangeRate()));
         so.setPds(pds);
-        idSOMap.put("tree3170",so);
+        idSOMap.put(so.getSOID(),so);
         return so;
     }
 
@@ -885,30 +914,32 @@ public class HandleSO {
 
 
     /**
-     * //* zohoIDMap<ERPID,ZOHOID> = zohoListObj.get(0)
-     * //* zohoTimeMap<ERPID,lastEditTime> = zohoListObj.get(1)
+     * 获取Zoho组件的集合，其中包含三个对象，分别为 erpZohoID，erpIDTime，delZohoIDList（zoho ID list）
+     * 1. erpZohoID<erpID,zohoID> = zohoListObj.get(0)
+     * 2. erpIDTime<erpID,lastEditTime> = zohoListObj.get(1)
+     * 3. delZohoIDList
      * @param response
      * @param zohoIDName
      * @param erpIDName
-     * @return
+     * @return  zohoCompList
      */
-    private List assembleZOHOList(Response response, String zohoIDName, String erpIDName) {
-        List  zohoAcctObjList = new ArrayList();
+    private List buildZohoComponentList(Response response, String zohoIDName, String erpIDName) {
+        List  zohoCompList = new ArrayList();
 
-        Map<String,String> zohoIDMap = new HashMap<String, String>();
-        Map<String,String> zohoIDTimeMap = new HashMap<String, String>();
-        List delZOHOIDList = new ArrayList();
-        zohoAcctObjList.add(zohoIDMap);
-        zohoAcctObjList.add(zohoIDTimeMap);
-        zohoAcctObjList.add(delZOHOIDList);
+        Map<String,String> erpZohoIDMap = new HashMap<String, String>();
+        Map<String,String> erpIDTimeMap = new HashMap<String, String>();
+        List delZohoIDList = new ArrayList();
+        zohoCompList.add(erpZohoIDMap);
+        zohoCompList.add(erpIDTimeMap);
+        zohoCompList.add(delZohoIDList);
         List<Row> rows = response.getResult().getSo().getRows();
         for (int i = 0; i < rows.size() ; i++){
-            logger.debug("遍历第"+(i+1)+"条数据");
+            logger.debug("遍历第"+(i+1)+"条数据:::"+rows.get(i));
             String zohoID = "";
             String erpID = "";
             String lastEditTime = "";
             List<FL> fls = rows.get(i).getFls();
-            boolean hasERPID = false;
+            boolean hasERPID = true;
             for(FL fl : fls){
                 String fieldName = fl.getFieldName();
                 String fieldVal = fl.getFieldValue();
@@ -916,18 +947,27 @@ public class HandleSO {
                     zohoID = fieldVal;
                 }
                 if(erpIDName.equals(fieldName)){
+                    if(StringUtils.isEmptyString(fieldVal)){
+                        fieldVal = "emptyERPID_"+i;
+                        hasERPID = false;
+                    }
                     erpID = fieldVal;
-                    hasERPID = true;
+                    //如果出现重复的erpID，那么删除其中一条
+                    if(erpZohoIDMap.containsKey(erpID)){
+                        hasERPID = false;
+                        erpID = "dulERPID_"+erpID+"_"+i;
+                    }
                 }
                 if("LatestEditTime".equals(fieldName)){
                     lastEditTime = fieldVal;
                 }
             }
-            zohoIDMap.put(erpID,zohoID);
-            zohoIDTimeMap.put(erpID,lastEditTime);
-            if(!hasERPID) delZOHOIDList.add(zohoID);
+            erpZohoIDMap.put(erpID, zohoID);
+            erpIDTimeMap.put(erpID, lastEditTime);
+            //如果ERPID为空，那么加入到删除列表中
+            if(!hasERPID) delZohoIDList.add(zohoID);
         }
-        return zohoAcctObjList;
+        return zohoCompList;
     }
 
     private String retriveZohoSORecords() {

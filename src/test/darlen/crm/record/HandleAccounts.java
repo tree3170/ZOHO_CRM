@@ -41,7 +41,7 @@ import java.util.*;
  * 2.ZOHOID一定不能为空
  * 3.lastEditTime
  *
- * ===================Ⅱ：获取db数据，组装成 dbAcctList  : assembleDBAcctObjList()
+ * ===================Ⅱ：获取db数据，组装成 dbAcctList  : buildDBObjList()
  * 1.Accounts --> dbAcctList.get(0)
  * 2.idAccountsMap<CustomerID,Accounts> --> dbAcctList.get(1)
  *
@@ -314,7 +314,7 @@ public class HandleAccounts {
     public void testDelAcctRecord(){
         try {
 //            String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/Accounts/deleteRecords";
-//            String addZohoXML = assembleZOHOXml().get(0);
+//            String addZohoXML = build2ZohoXmlSkeleton().get(0);
 //            Map<String,String> postParams = new HashMap<String, String>();
 //            postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,targetURL_Accounts);
 //            postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,addZohoXML);

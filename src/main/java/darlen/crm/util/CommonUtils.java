@@ -237,6 +237,9 @@ public class CommonUtils {
      * @param map
      */
     public static String executePostMethod(Map<String,String> map){
+        System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.SimpleLog");
+        System.setProperty("org.apache.commons.logging.simplelog.showdatetime", "true");
+        System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.commons.httpclient", "stdout");
         PostMethod post = new PostMethod(map.get(Constants.HTTP_POST_PARAM_TARGETURL));
         /*post.setParameter(Constants.HTTP_POST_PARAM_AUTHTOKEN, map.get(Constants.HTTP_POST_PARAM_AUTHTOKEN));
         post.setParameter(Constants.HTTP_POST_PARAM_SCOPE, map.get(Constants.HTTP_POST_PARAM_SCOPE));
