@@ -29,6 +29,8 @@ import java.util.List;
  * @author Darlen liu
  */
 public class SO {
+    /**DB ID*/
+    private String erpID;
     /**ZOHO ID，系统生成，不需要设置*/
     private String SALESORDERID;
     /**销售订单所有者SMOWNERID*/
@@ -83,7 +85,7 @@ public class SO {
     private String latestEditTime;
     /**CreationTime*/
     private String creationTime;
-    private String SOID;
+
 
     /**Customer Discount*/
     private String cusDiscount;//from ERP
@@ -93,6 +95,8 @@ public class SO {
     private String subTotal;
     /**Grand Total来自销售订单中的“累计”*/
     private String grandTotal;
+    /**pds*/
+    private List<ProductDetails> pds;
 
     public String getCusDiscount() {
         return cusDiscount;
@@ -126,8 +130,7 @@ public class SO {
         this.grandTotal = grandTotal;
     }
 
-    /**pds*/
-    private List<ProductDetails> pds;
+
 
     public String getSALESORDERID() {
         return SALESORDERID;
@@ -337,12 +340,12 @@ public class SO {
         this.creationTime = creationTime;
     }
 
-    public String getSOID() {
-        return SOID;
+    public String getErpID() {
+        return erpID;
     }
 
-    public void setSOID(String SOID) {
-        this.SOID = SOID;
+    public void setErpID(String erpID) {
+        this.erpID = erpID;
     }
 
     public List<ProductDetails> getPds() {
@@ -382,7 +385,7 @@ public class SO {
                 ", latestEditBy='" + latestEditBy + '\'' +
                 ", latestEditTime='" + latestEditTime + '\'' +
                 ", creationTime='" + creationTime + '\'' +
-                ", SOID='" + SOID + '\'' +
+                ", SOID='" + erpID + '\'' +
                 ", cusDiscount='" + cusDiscount + '\'' +
                 ", discount='" + discount + '\'' +
                 ", subTotal='" + subTotal + '\'' +

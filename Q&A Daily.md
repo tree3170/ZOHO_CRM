@@ -24,6 +24,8 @@
 
    # 20160923
    * 是如何计算SO的价格的？需要找Ken confirm
+   * LatestEditBy在ERP系统中能被修改吗？因为我看产品等module中存的是name而不是ID，那么如果修改了，产品等module中的所有模块会不会一起跟着修改？
+
 
 
 

@@ -20,12 +20,13 @@ package darlen.crm.model.result;
  * @author Darlen liu
  */
 public class Accounts {
-    /**CustomerID*/
-    private String customerID;
-    /**客户拥有者ID*/
-    private String SMOWNERID;
-    /**客户拥有者Account Owner*/
-    private String acctOwner;
+    private String erpID;
+    /**客户拥有者*/
+    private User user;
+//    /**客户拥有者ID*/
+//    private String SMOWNERID;
+//    /**客户拥有者Account Owner*/
+//    private String acctOwner;
     /**客户名称Account Name*/
     private String acctName;
     /**CustomerNO客户编号*/
@@ -49,29 +50,37 @@ public class Accounts {
     private String latestEditBy;
     private String latestEditTime;
 
-    public String getCustomerID() {
-        return customerID;
+    public String getErpID() {
+        return erpID;
     }
 
-    public void setCustomerID(String customerID) {
-        this.customerID = customerID;
+    public void setErpID(String erpID) {
+        this.erpID = erpID;
     }
 
-    public String getSMOWNERID() {
-        return SMOWNERID;
+    public User getUser() {
+        return user;
     }
 
-    public void setSMOWNERID(String SMOWNERID) {
-        this.SMOWNERID = SMOWNERID;
+    public void setUser(User user) {
+        this.user = user;
     }
 
-    public String getAcctOwner() {
-        return acctOwner;
-    }
-
-    public void setAcctOwner(String acctOwner) {
-        this.acctOwner = acctOwner;
-    }
+//    public String getSMOWNERID() {
+//        return SMOWNERID;
+//    }
+//
+//    public void setSMOWNERID(String SMOWNERID) {
+//        this.SMOWNERID = SMOWNERID;
+//    }
+//
+//    public String getAcctOwner() {
+//        return acctOwner;
+//    }
+//
+//    public void setAcctOwner(String acctOwner) {
+//        this.acctOwner = acctOwner;
+//    }
 
     public String getAcctName() {
         return acctName;
@@ -236,9 +245,8 @@ public class Accounts {
     @Override
     public String toString() {
         return "Accounts{" +
-                "customerID='" + customerID + '\'' +
-                ", SMOWNERID='" + SMOWNERID + '\'' +
-                ", acctOwner='" + acctOwner + '\'' +
+                "ERP ID='" + erpID + '\'' +
+                ", User='" + user + '\'' +
                 ", acctName='" + acctName + '\'' +
                 ", customerNO='" + customerNO + '\'' +
                 ", enabled='" + enabled + '\'' +

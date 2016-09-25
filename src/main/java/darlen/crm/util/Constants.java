@@ -44,6 +44,9 @@ public interface Constants {
     public static final String HTTP_POST_PARAM_TARGETURL="TARGET_URL";
     public static final String ZOHO_PROPS_NEWFORMAT_1="newFormat_1";
     public static final String ZOHO_PROPS_NEWFORMAT_2="newFormat_2";
+    public static final String HTTP_POST_PARAM_SELECTCOLS="selectColumns";
+    public static final String HTTP_POST_PARAM_SORTORDER="sortOrderString";
+    public static final String HTTP_POST_PARAM_SORTORDER_COL="sortColumnString";
     /** end */
 
     /**CONNECT DB CONSTANTS*/
