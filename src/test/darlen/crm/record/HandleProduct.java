@@ -14,7 +14,6 @@ import darlen.crm.jaxb_xml_object.Products.Result;
 import darlen.crm.jaxb_xml_object.Products.Row;
 import darlen.crm.jaxb_xml_object.utils.JaxbUtil;
 import darlen.crm.model.common.Module;
-import darlen.crm.model.result.Accounts;
 import darlen.crm.model.result.Products;
 import darlen.crm.model.result.User;
 import darlen.crm.util.*;
@@ -22,7 +21,6 @@ import org.apache.log4j.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.text.ParseException;
@@ -99,35 +97,41 @@ public class HandleProduct extends Module{
      */
     @Test
     public void testAssembleZOHOAcctObjList() throws Exception {
-        handleProduct.buildZohoObjSkeletonList();
+        handleProduct.buildSkeletonFromZohoList();
     }
-    public List buildZohoObjSkeletonList() throws Exception {
+    public List buildSkeletonFromZohoList() throws Exception {
 //        1. 从ZOHO获取有效的xml
-        String zohoURL = "https://crm.zoho.com.cn/crm/private/xml/Products/getRecords";
+        String zohoURL = zohoPropsMap.get(Constants.FETCH_PRODUCTS_URL);//"https://crm.zoho.com.cn/crm/private/xml/Products/getRecords";
         String selectedColumns = "Products(Modified Time,PRODUCTID,Product Name,ERP ID,LatestEditTime)";
         String sortOrderString = "desc";
         String sortColumnString = "Modified Time";
         //注意：format 一定要为2，因为有可能需要的字段为空
-        String zohoStr = ModuleUtils.retriveZohoRecords(zohoURL,Module.NEWFORMAT_2,selectedColumns,sortOrderString,sortColumnString);
+        String zohoStr = ModuleUtils.retrieveZohoRecords(zohoURL, Module.NEWFORMAT_2, selectedColumns, sortOrderString, sortColumnString);
 //       2. xml 转 java bean
         logger.debug("zohoStr:::\n" + zohoStr);
         Response response = JaxbUtil.converyToJavaBean(zohoStr, Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
         logger.debug("response object:::\n" + response);
 //     3. 组装 zohoAcctObjList
         List  zohoModuleList = new ArrayList();
+        Map<String,String> erpZohoIDMap = new HashMap<String, String>();
+        Map<String,String> erpZohoIDTimeMap = new HashMap<String, String>();
+        List delZOHOIDList = new ArrayList();
         //如果没有数据<response uri="/crm/private/xml/Products/getRecords"><nodata><code>4422</code><message>There is no data to show</message></nodata></response>
         if(null != response.getResult()){
             List<Row> rows = response.getResult().getProducts().getRows();
             zohoModuleList = handleProduct.buildZohoComponentList(rows, "PRODUCTID", "ERP ID");
-            Map<String,String> erpZohoIDMap = (Map)zohoModuleList.get(0);
-            Map<String,String> erpZohoIDTimeMap = (Map)zohoModuleList.get(1);
-            List delZOHOIDList = (List)zohoModuleList.get(2);
+            erpZohoIDMap = (Map)zohoModuleList.get(0);
+            erpZohoIDTimeMap = (Map)zohoModuleList.get(1);
+            delZOHOIDList = (List)zohoModuleList.get(2);
             CommonUtils.printMap(erpZohoIDMap,"ERPID 和ZOHOID Map");
             CommonUtils.printMap(erpZohoIDTimeMap,"ERPID 和LastEditTime Map");
             CommonUtils.printList(delZOHOIDList,"Remove ZOHO ID list");
 
         }else{
             logger.debug("没有数据了：：：\n"+zohoStr);
+            zohoModuleList.add(erpZohoIDMap);
+            zohoModuleList.add(erpZohoIDTimeMap);
+            zohoModuleList.add(delZOHOIDList);
         }
         return zohoModuleList;
     }
@@ -167,7 +171,7 @@ public class HandleProduct extends Module{
      */
     public List build2ZohoObjSkeletonList() throws Exception {
         //1. 获取ZOHO对象的骨架集合
-        List allZohoObjList = buildZohoObjSkeletonList();
+        List allZohoObjList = buildSkeletonFromZohoList();
         //Map<ERPID，ZOHOID>
         Map<String,String> erpZohoIDMap = (Map)allZohoObjList.get(0);
         Map<String,String> erpIDTimeMap = (Map)allZohoObjList.get(1);
@@ -264,7 +268,7 @@ public class HandleProduct extends Module{
     @Test
     public void testAddRecords(){
         try {
-            String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/Products/insertRecords";
+            String targetURL_Accounts = zohoPropsMap.get(Constants.INSERT_PRODUCTS_URL);
             List<String> addZohoXMLList = (List<String> ) build2ZohoXmlSkeleton().get(0);
             for(int i = 0; i < addZohoXMLList.size(); i ++){
                 System.err.println("添加第"+(i+1)+"条数据，xml为："+addZohoXMLList.get(i));
@@ -508,9 +512,10 @@ public class HandleProduct extends Module{
         // 产品名称
         products.setProdName("尼龍背心環保袋");
         //设置Product Owner产品拥有者：与lastEditBy一致
-        User user = new User();
-        user.setUserID("85333000000071039");
-        user.setUserName("qq");
+//        User user = new User();
+//        user.setUserID("85333000000071039");
+//        user.setUserName("qq");
+        User user = ModuleUtils.fetchDevUser(false);
         products.setUser(user);
         products.setEnabled("true");
         //产品分类
@@ -524,7 +529,7 @@ public class HandleProduct extends Module{
         //barcode
         products.setBarcode("");
         products.setRemark("長方形移動電源");
-        products.setLatestEditBy("qq");
+        products.setLatestEditBy(user.getUserName());
         String currentDate = ThreadLocalDateUtil.formatDate(new Date());
         products.setLatestEditTime(currentDate);
         idProductsMap.put(products.getErpID(),products);
@@ -535,14 +540,15 @@ public class HandleProduct extends Module{
         Products products = new Products();
         products.setErpID("2");
         // 产品名称
-        products.setProdName("挖土机");
+        products.setProdName("水松木杯墊");
         //设置Product Owner产品拥有者：与lastEditBy一致
-        User user = new User();
-        user.setUserID("85333000000071039");
-        user.setUserName("qq");
+//        User user = new User();
+//        user.setUserID("85333000000071039");
+//        user.setUserName("qq");
+        User user = ModuleUtils.fetchDevUser(false);
         products.setUser(user);
         products.setEnabled("true");
-        products.setLatestEditBy("qq");
+        products.setLatestEditBy(user.getUserName());
         String currentDate = ThreadLocalDateUtil.formatDate(new Date());
         products.setLatestEditTime(currentDate);
         idProductsMap.put(products.getErpID(),products);

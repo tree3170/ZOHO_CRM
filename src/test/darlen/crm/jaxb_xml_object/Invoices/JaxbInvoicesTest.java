@@ -1,5 +1,8 @@
 package darlen.crm.jaxb_xml_object.Invoices;
 
+import darlen.crm.jaxb_xml_object.commjaxb.FL;
+import darlen.crm.jaxb_xml_object.commjaxb.ProdDetails;
+import darlen.crm.jaxb_xml_object.commjaxb.Product;
 import darlen.crm.jaxb_xml_object.utils.JaxbUtil;
 import darlen.crm.util.CommonUtils;
 import org.junit.BeforeClass;
@@ -96,7 +99,7 @@ public class JaxbInvoicesTest {
 
 	@Test
 	public void showUnMarshaller() throws Exception {
-		String soStr = "<response uri=\"/crm/private/xml/Leads/getRecords\">\n" +
+		String invoiceStr = "<response uri=\"/crm/private/xml/Leads/getRecords\">\n" +
                 "    <result>\n" +
                 "        <Leads>\n" +
                 "            <row no=\"1\">\n" +
@@ -112,10 +115,11 @@ public class JaxbInvoicesTest {
                 "    </result>\n" +
                 "</response>";
 
-        soStr = CommonUtils.getContentsByPathAndName("", "sampledata/records/getRecords_Leads.xml");
-        soStr = CommonUtils.getContentsByPathAndName("", "sampledata/records/getRecords_SO.xml");
+        invoiceStr = CommonUtils.getContentsByPathAndName("", "sampledata/records/getRecords_Leads.xml");
+        invoiceStr = CommonUtils.getContentsByPathAndName("", "sampledata/records/getRecords_SO.xml");
+        invoiceStr = "<response uri=\"/crm/private/xml/Invoices/getRecords\"><result><Invoices><row no=\"1\"><FL val=\"INVOICEID\">85333000000089067</FL><FL val=\"SMOWNERID\">85333000000071001</FL><FL val=\"Invoice Owner\"><![CDATA[tree3170]]></FL><FL val=\"Invoice Number\"><![CDATA[85333000000089069]]></FL><FL val=\"Subject\"><![CDATA[三一重工合同]]></FL><FL val=\"SALESORDERID\">85333000000089051</FL><FL val=\"Sales Order\"><![CDATA[三一重工合同]]></FL><FL val=\"Invoice Date\"><![CDATA[2016-08-23]]></FL><FL val=\"Due Date\"><![CDATA[null]]></FL><FL val=\"ACCOUNTID\">85333000000089007</FL><FL val=\"Account Name\"><![CDATA[三一重工]]></FL><FL val=\"Created Time\"><![CDATA[2016-08-23 00:11:58]]></FL><FL val=\"Modified Time\"><![CDATA[2016-08-23 00:11:58]]></FL><FL val=\"Sub Total\"><![CDATA[72220]]></FL><FL val=\"Discount\"><![CDATA[0]]></FL><FL val=\"Tax\"><![CDATA[0]]></FL><FL val=\"Adjustment\"><![CDATA[0]]></FL><FL val=\"Grand Total\"><![CDATA[72220]]></FL><FL val=\"Product Details\"><product no=\"1\"><FL val=\"Product Id\">85333000000089011</FL><FL val=\"Product Name\"><![CDATA[服务器]]></FL><FL val=\"Unit Price\">7222.0</FL><FL val=\"Quantity\">10.0</FL><FL val=\"Quantity in Stock\">10.0</FL><FL val=\"Total\">72220.0</FL><FL val=\"Discount\">0.0</FL><FL val=\"Total After Discount\">72220.0</FL><FL val=\"List Price\">7222.0</FL><FL val=\"Net Total\">72220.0</FL><FL val=\"Tax\">0.0</FL><FL val=\"Product Description\"><![CDATA[null]]></FL></product></FL><FL val=\"PayMethod\"><![CDATA[null]]></FL><FL val=\"DeliveryMethod\"><![CDATA[null]]></FL><FL val=\"Deposit\"><![CDATA[null]]></FL><FL val=\"ERP_ExchangeRate\"><![CDATA[null]]></FL><FL val=\"OtherCharge\"><![CDATA[null]]></FL><FL val=\"FreightAmount\"><![CDATA[null]]></FL><FL val=\"ERP_Currency\"><![CDATA[null]]></FL><FL val=\"DNNo\"><![CDATA[null]]></FL><FL val=\"ERP ID\"><![CDATA[null]]></FL><FL val=\"PONO\"><![CDATA[null]]></FL><FL val=\"CustomerNo\"><![CDATA[null]]></FL><FL val=\"PaymentTerm\"><![CDATA[null]]></FL><FL val=\"DeliveryAddress\"><![CDATA[null]]></FL><FL val=\"MailAddress\"><![CDATA[null]]></FL><FL val=\"Tel\"><![CDATA[null]]></FL><FL val=\"Email\"><![CDATA[null]]></FL><FL val=\"Fax\"><![CDATA[null]]></FL><FL val=\"Contact\"><![CDATA[null]]></FL><FL val=\"Total\"><![CDATA[null]]></FL><FL val=\"LatestEditTime\"><![CDATA[null]]></FL><FL val=\"LatestEditBy\"><![CDATA[null]]></FL><FL val=\"CreationTime\"><![CDATA[null]]></FL></row></Invoices></result></response>";
 //        leadsStr = CommonUtils.getContentsByPathAndName("", "sampledata/records/SO_Records.xml");
-        Response response = JaxbUtil.converyToJavaBean(test.convertFLToPdsXmlTag(soStr), Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
+        Response response = JaxbUtil.converyToJavaBean(test.convertFLToPdsXmlTag(invoiceStr), Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
 		//System.out.println(leadsStr);
 		System.out.println(response);
 	}

@@ -10,17 +10,15 @@ package darlen.crm.record;
 
 import darlen.crm.jaxb_xml_object.SO.*;
 import darlen.crm.jaxb_xml_object.utils.JaxbUtil;
+import darlen.crm.model.common.Module;
 import darlen.crm.model.result.ProductDetails;
 import darlen.crm.model.result.SO;
-import darlen.crm.util.CommonUtils;
-import darlen.crm.util.Constants;
-import darlen.crm.util.StringUtils;
-import darlen.crm.util.ThreadLocalDateUtil;
+import darlen.crm.model.result.User;
+import darlen.crm.util.*;
 import org.apache.log4j.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.text.ParseException;
@@ -73,32 +71,12 @@ import java.util.*;
  *
  * @author Darlen liu
  */
-public class HandleSO {
+public class HandleSO extends Module{
     private static HandleSO handleSO;
     //
 //    Ⅰ：或者ZOHO xml并组装到zohoMap(id,lastEditTime)中： 参考（JaxbAccountsTest.java/JaxbSOTest.java/JaxbLeadsTest.java）
 //
     private static Logger logger =  Logger.getLogger(HandleModules.class);
-    /**
-     * 使用ZOHO API时必需要的密钥
-     */
-    private static String AUTHTOKEN ="";
-    /**
-     * 查询的数据中不包含null
-     */
-    private static String NEWFORMAT_1 ="1";
-    /**
-     * 查询的数据中包含null
-     */
-    private static String NEWFORMAT_2 ="2";//include null
-    /**
-     * API 使用范围
-     */
-    private static String SCOPE ="crmapi";
-    private static String MODULES= "";
-    /**传递方式为JSON或者XML，默认是xml*/
-    private static String FORMAT="xml";
-
 
     /**
      * BeforeClass 与Before的区别
@@ -106,34 +84,16 @@ public class HandleSO {
     @BeforeClass
     public static void getInstance(){
         handleSO = new HandleSO();
-        initZohoProps();
+        handleSO.getProperties();
     }
 
-
-    /**
-     * 初始化ZOHO配置文件中的一些字段值
-     */
-    private static void initZohoProps() {
-        try {
-            Properties prop = new Properties();
-            prop.load(HandleModules.class.getResourceAsStream("/secure/zoho.properties"));
-            AUTHTOKEN = prop.getProperty(Constants.ZOHO_PROPs_AUTHTOKEN_TREE);
-            NEWFORMAT_1 = prop.getProperty(Constants.ZOHO_PROPS_NEWFORMAT_1);
-            NEWFORMAT_2 = prop.getProperty(Constants.ZOHO_PROPS_NEWFORMAT_2);
-            SCOPE = prop.getProperty(Constants.HTTP_POST_PARAM_SCOPE);
-            MODULES = prop.getProperty(Constants.ZOHO_PROPS_MODULES);
-        } catch(IOException e) {
-            logger.error("读取zoho properties出现错误",e);
-        }
-        logger.debug("[readProperties], AUTHTOKEN:::" + AUTHTOKEN + "; NEWFORMAT_1:::" + NEWFORMAT_1 + "; NEWFORMAT_2:::" + NEWFORMAT_2 + "; SCOPE:::" + SCOPE);
-    }
 
     /**
      * Ⅰ：这里仅仅只是组装zohoAcctObjList
      */
     @Test
     public void testAssembleZOHOAcctObjList(){
-        handleSO.buildZohoObjSkeletonList();
+        handleSO.buildSkeletonFromZohoList();
     }
 
     /**
@@ -151,7 +111,7 @@ public class HandleSO {
      * erpIDTimeMap<ERP ID,lastEditTime> = zohoComponentObjList.get(1)
      * delZOHOIDList = = zohoComponentObjList.get(2): 里面是所有 ERP ID 为空时的 ZOHO ID
      */
-    public List buildZohoObjSkeletonList(){
+    public List buildSkeletonFromZohoList(){
         //因为这里仅仅是测试数据这里仅仅只演示一条record，免得ZOHO的数据
 //        String id = "85333000000106003";//ID：中联重科
         // TODO ：：：Notice: 最大只能取到200条数据，这边可能需要另外的逻辑控制判断数据是否取完
@@ -162,15 +122,27 @@ public class HandleSO {
         Response response = JaxbUtil.converyToJavaBean(zohoStr, Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
         System.out.println("转化ZOHO获取回来的XML:::"+response);
 //       3. 组装 zohoComponentObjList的三大对象
-        List  zohoComponentObjList = handleSO.buildZohoComponentList(response, "SALESORDERID", "ERP ID");
-        Map<String,String> erpZohoIDMap = (Map)zohoComponentObjList.get(0);
-        Map<String,String> erpIDTimeMap = (Map)zohoComponentObjList.get(1);
-        List delZohoIDList = (List)zohoComponentObjList.get(2);
-        CommonUtils.printMap(erpZohoIDMap, "ERP ID 和ZOHO ID Map");
-        CommonUtils.printMap(erpIDTimeMap,"ERP ID 和LastEditTime Map");
-        CommonUtils.printList(delZohoIDList,"Remove ZOHO ID list");
+        List  zohoModuleList = new ArrayList();
+        Map<String,String> erpZohoIDMap = new HashMap<String, String>();
+        Map<String,String> erpZohoIDTimeMap = new HashMap<String, String>();
+        List delZOHOIDList = new ArrayList();
+        if(null != response.getResult()){
+            List<Row> rows = response.getResult().getSo().getRows();
+            zohoModuleList = handleSO.buildZohoComponentList(rows, "SALESORDERID", "ERP ID");
+            erpZohoIDMap = (Map)zohoModuleList.get(0);
+            erpZohoIDTimeMap = (Map)zohoModuleList.get(1);
+            delZOHOIDList = (List)zohoModuleList.get(2);
+            CommonUtils.printMap(erpZohoIDMap, "ERP ID 和ZOHO ID Map");
+            CommonUtils.printMap(erpZohoIDTimeMap,"ERP ID 和LastEditTime Map");
+            CommonUtils.printList(delZOHOIDList,"Remove ZOHO ID list");
+        }else{
+            logger.debug("没有数据了：：：\n" + zohoStr);
+            zohoModuleList.add(erpZohoIDMap);
+            zohoModuleList.add(erpZohoIDTimeMap);
+            zohoModuleList.add(delZOHOIDList);
+        }
 
-        return zohoComponentObjList;
+        return zohoModuleList;
     }
 
     /**
@@ -185,8 +157,8 @@ public class HandleSO {
     public List buildDBObjList() throws ParseException {
         List dbAcctList = new ArrayList();
         Map<String,SO> idSOMap = new HashMap<String, SO>();
-        SO accounts = getSODBObj(idSOMap);
-        SO accouts2 = getSODBObj2(idSOMap);
+        SO accounts = getDBObj(idSOMap);
+        SO accouts2 = getDBObj2(idSOMap);
         accouts2.setSubject("tree31701");
         dbAcctList.add(accounts);
         dbAcctList.add(idSOMap);
@@ -212,7 +184,7 @@ public class HandleSO {
      */
     public List build2ZohoObjSkeletonList() throws ParseException {
         //1. 获取ZOHO对象的骨架集合
-        List allZohoObjList = buildZohoObjSkeletonList();
+        List allZohoObjList = buildSkeletonFromZohoList();
         //Map<ERPID，ZOHOID>
         Map<String,String> erpZohoIDMap = (Map)allZohoObjList.get(0);
         Map<String,String> erpIDTimeMap = (Map)allZohoObjList.get(1);
@@ -312,7 +284,7 @@ public class HandleSO {
     @Test
     public void testAddRecords(){
         try {
-            String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/SalesOrders/insertRecords";
+            String targetURL_Accounts = zohoPropsMap.get(Constants.INSERT_SO_URL);//"https://crm.zoho.com.cn/crm/private/xml/SalesOrders/insertRecords";
             List<String> addZohoXMLList = (List<String> ) build2ZohoXmlSkeleton().get(0);
             for(int i = 0; i < addZohoXMLList.size(); i ++){
                 System.err.println("添加第"+(i+1)+"条数据，xml为："+addZohoXMLList.get(i));
@@ -327,7 +299,7 @@ public class HandleSO {
             }
 
         } catch(Exception e) {
-            logger.error("执行更新Module操作出现错误",e);
+            logger.error("执行添加SO Module操作出现错误",e);
         }
     }
     @Test
@@ -773,11 +745,14 @@ public class HandleSO {
      * @param idSOMap
      * @return
      */
-    private SO getSODBObj(Map<String, SO> idSOMap) throws ParseException {
+    private SO getDBObj(Map<String, SO> idSOMap) throws ParseException {
         SO so = new SO();
         so.setSALESORDERID("12345678");
-        so.setOwerID("85333000000071039");
-        so.setOwner("qq");
+        //销售拥有者
+//        so.setOwerID("85333000000071039");
+//        so.setOwner("qq");
+        User user = ModuleUtils.fetchDevUser(false);
+        so.setUser(user);
         so.setSubject("PSO30190412");
         /**ZOHO生成的字段，似乎没什么作用*/
         //so.setSoNumber("PSO30190412");
@@ -789,11 +764,11 @@ public class HandleSO {
          * 如果只存在Name，那么会新创建一个客户；
          * 例外：但如果有ID，那么ID必需存在已经创建的客户中
          */
-        so.setACCOUNTID("85333000000106011");
+        so.setACCOUNTID("80487000000096005");
         /**
          * PriPac Design & Communication AB, 注意&符号，以后会改成CDATA形式
          */
-        so.setAcctName("富士廊紙品有限公司");
+        so.setAcctName("永昌紙品");
         so.setContact("Mr. Johan Svard");
         so.setErpCurrency("USD");
         so.setMailAddress("Saltängsvägen 18, 721 32 Västerås Sweden");
@@ -812,7 +787,7 @@ public class HandleSO {
         String currentDate = ThreadLocalDateUtil.formatDate(new Date());
         so.setLatestEditTime(currentDate);
         so.setCreationTime("2016-09-01 10:10:10");
-        so.setLatestEditBy("qq");
+        so.setLatestEditBy(user.getUserName());
         /**DB中的SO id*/
         so.setErpID("10");
 
@@ -836,11 +811,14 @@ public class HandleSO {
      * @param idSOMap
      * @return
      */
-    private SO getSODBObj2(Map<String, SO> idSOMap) throws ParseException {
+    private SO getDBObj2(Map<String, SO> idSOMap) throws ParseException {
         SO so = new SO();
         so.setSALESORDERID("12345678");
-        so.setOwerID("85333000000071039");
-        so.setOwner("qq");
+        //销售拥有者
+//        so.setOwerID("85333000000071039");
+//        so.setOwner("qq");
+        User user = ModuleUtils.fetchDevUser(false);
+        so.setUser(user);
         so.setSubject("PSO30190412-Test");
         /**ZOHO生成的字段，似乎没什么作用*/
         //so.setSoNumber("PSO30190412");
@@ -852,7 +830,7 @@ public class HandleSO {
          * 如果只存在Name，那么会新创建一个客户；
          * 例外：但如果有ID，那么ID必需存在已经创建的客户中
          */
-        so.setACCOUNTID("85333000000106011");
+        so.setACCOUNTID("80487000000094005");
         /**
          * PriPac Design & Communication AB, 注意&符号，以后会改成CDATA形式
          */
@@ -875,7 +853,7 @@ public class HandleSO {
         String currentDate = ThreadLocalDateUtil.formatDate(new Date());
         so.setLatestEditTime(currentDate);
         so.setCreationTime("2016-09-01 10:10:10");
-        so.setLatestEditBy("qq");
+        so.setLatestEditBy(user.getUserName());
         /**DB中的SO id*/
         so.setErpID("11");
 
@@ -914,8 +892,8 @@ public class HandleSO {
         /**
          * 注意 product id和Name一定要是已经存在与产品里面的
          */
-        pd.setPd_Product_Id("85333000000101001");
-        pd.setPd_Product_Name("Test Item 1");//TODO 需要找ken确认ItemName为【Name】是表示什么意思？是否根据id从Item表找
+        pd.setPd_Product_Id("80487000000095003");
+        pd.setPd_Product_Name("尼龍背心環保袋");//TODO 需要找ken确认ItemName为【Name】是表示什么意思？是否根据id从Item表找
         pd.setPd_Total("86664.0");//金额
         pd.setPd_Net_Total("86666.0");//总计
 
@@ -932,12 +910,12 @@ public class HandleSO {
      * 1. erpZohoID<erpID,zohoID> = zohoListObj.get(0)
      * 2. erpIDTime<erpID,lastEditTime> = zohoListObj.get(1)
      * 3. delZohoIDList
-     * @param response
+     * @param rows
      * @param zohoIDName
      * @param erpIDName
      * @return  zohoCompList
      */
-    private List buildZohoComponentList(Response response, String zohoIDName, String erpIDName) {
+    private List buildZohoComponentList(List<Row> rows, String zohoIDName, String erpIDName) {
         List  zohoCompList = new ArrayList();
 
         Map<String,String> erpZohoIDMap = new HashMap<String, String>();
@@ -946,7 +924,6 @@ public class HandleSO {
         zohoCompList.add(erpZohoIDMap);
         zohoCompList.add(erpIDTimeMap);
         zohoCompList.add(delZohoIDList);
-        List<Row> rows = response.getResult().getSo().getRows();
         for (int i = 0; i < rows.size() ; i++){
             logger.debug("遍历第"+(i+1)+"条数据:::"+rows.get(i));
             String zohoID = "";

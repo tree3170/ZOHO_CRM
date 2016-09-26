@@ -12,6 +12,8 @@ import darlen.crm.util.Constants;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -46,6 +48,7 @@ public abstract  class Module {
     public static String MODULES= "";
     /**传递方式为JSON或者XML，默认是xml*/
     public static String FORMAT="xml";
+    public static Map<String,String> zohoPropsMap = new HashMap<String,String>();
 
 
     public  void getProperties(){
@@ -65,6 +68,10 @@ public abstract  class Module {
             NEWFORMAT_2 = prop.getProperty(Constants.ZOHO_PROPS_NEWFORMAT_2);
             SCOPE = prop.getProperty(Constants.HTTP_POST_PARAM_SCOPE);
             MODULES = prop.getProperty(Constants.ZOHO_PROPS_MODULES);
+            //for url TODO  将来需要把properties中的字段全部放入到Cache或者静态变量中
+            for(Map.Entry entry : prop.entrySet()){
+                zohoPropsMap.put(String.valueOf(entry.getKey()),String.valueOf(entry.getValue()));
+            }
         } catch(IOException e) {
             logger.error("读取zoho properties出现错误",e);
 //            System.err.println("读取zoho properties出现错误"+e.getMessage());

@@ -18,12 +18,8 @@ import darlen.crm.jaxb_xml_object.utils.JaxbUtil;
 import darlen.crm.model.common.Module;
 import darlen.crm.model.result.Invoices;
 import darlen.crm.model.result.ProductDetails;
-import darlen.crm.model.result.SO;
 import darlen.crm.model.result.User;
-import darlen.crm.util.CommonUtils;
-import darlen.crm.util.Constants;
-import darlen.crm.util.StringUtils;
-import darlen.crm.util.ThreadLocalDateUtil;
+import darlen.crm.util.*;
 import org.apache.log4j.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -104,14 +100,14 @@ public class HandleInvoices extends Module{
      * Ⅰ：这里仅仅只是组装zohoAcctObjList
      */
     @Test
-    public void testAssembleZOHOAcctObjList(){
-        handleInvoices.buildZohoObjSkeletonList();
+    public void testAssembleZOHOAcctObjList() throws Exception {
+        handleInvoices.buildSkeletonFromZohoList();
     }
 
     /**
      * 从ZOHO获取所有的XML并转化为java对象，所有的Invoices记录，并且最后组装为3组对象：erpZohoIDMap，erpIDTimeMap，delZOHOIDList
      *
-     * 1. 从ZOHO获取有效的xml ： retriveZohoRecords()
+     * 1. 从ZOHO获取有效的xml ： retrieveZohoRecords()
      * 2. xml 转 java bean : JaxbUtil.converyToJavaBean(zohoStr, Response.class);
      * 3. 组装 zohoListObj : buildZohoComponentList() -->
      *    作用是：拿出ZOHO ID、ERP ID和LastModified这三个字段，用作将来的判断是否存在于已有的DB中，并且lastModified时间是否一直
@@ -123,25 +119,41 @@ public class HandleInvoices extends Module{
      * erpIDTimeMap<ERP ID,lastEditTime> = zohoComponentObjList.get(1)
      * delZOHOIDList = = zohoComponentObjList.get(2): 里面是所有 ERP ID 为空时的 ZOHO ID
      */
-    public List buildZohoObjSkeletonList(){
+    public List buildSkeletonFromZohoList() throws Exception {
         // TODO ：：：Notice: 最大只能取到200条数据，这边可能需要另外的逻辑控制判断数据是否取完
 //       1. 从ZOHO获取有效的xml
         System.out.println("从ZOHO获取回来的所有记录的XML:::");
-        String zohoStr =  retriveZohoRecords();
-//       2. xml 转 java bean
-        Response response = JaxbUtil.converyToJavaBean(zohoStr, Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
+        String selectedColumns = "Products(Modified Time,ACCOUNTID,Account Name,ERP ID,LatestEditTime)";
+        String sortOrderString = "desc";
+        String sortColumnString = "Modified Time";
+        //注意：format 一定要为2，因为有可能需要的字段为空
+        String zohoStr =  ModuleUtils.retrieveZohoRecords(zohoPropsMap.get(Constants.FETCH_INVOICES_URL), Module.NEWFORMAT_2, selectedColumns, sortOrderString, sortColumnString);
+//       2. xml 转 java bean，注意要先转换product detail前的FL标签为pds标签
+        Response response = JaxbUtil.converyToJavaBean(ModuleUtils.convertFLToPdsXmlTag(zohoStr), Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
         System.out.println("转化ZOHO获取回来的XML:::"+response);
 //       3. 组装 zohoComponentObjList的三大对象
-        List  zohoComponentObjList = handleInvoices.buildZohoComponentList(response, "SALEInvoicesRDERID", "ERP ID");
-        Map<String,String> erpZohoIDMap = (Map)zohoComponentObjList.get(0);
-        Map<String,String> erpIDTimeMap = (Map)zohoComponentObjList.get(1);
-        List delZohoIDList = (List)zohoComponentObjList.get(2);
-        CommonUtils.printMap(erpZohoIDMap, "ERP ID 和ZOHO ID Map");
-        CommonUtils.printMap(erpIDTimeMap,"ERP ID 和LastEditTime Map");
-        CommonUtils.printList(delZohoIDList,"Remove ZOHO ID list");
+        List  zohoModuleList = new ArrayList();
+        Map<String,String> erpZohoIDMap = new HashMap<String, String>();
+        Map<String,String> erpZohoIDTimeMap = new HashMap<String, String>();
+        List delZOHOIDList = new ArrayList();
+        if(null != response.getResult()){
+            zohoModuleList = handleInvoices.buildZohoComponentList(response, "INVOICEID", "ERP ID");
+            erpZohoIDMap = (Map)zohoModuleList.get(0);
+            erpZohoIDTimeMap = (Map)zohoModuleList.get(1);
+            delZOHOIDList = (List)zohoModuleList.get(2);
+            CommonUtils.printMap(erpZohoIDMap, "ERP ID 和ZOHO ID Map");
+            CommonUtils.printMap(erpZohoIDTimeMap,"ERP ID 和LastEditTime Map");
+            CommonUtils.printList(delZOHOIDList,"Remove ZOHO ID list");
+        }else{
+            logger.debug("没有数据了：：：\n" + zohoStr);
+            zohoModuleList.add(erpZohoIDMap);
+            zohoModuleList.add(erpZohoIDTimeMap);
+            zohoModuleList.add(delZOHOIDList);
+        }
 
-        return zohoComponentObjList;
+        return zohoModuleList;
     }
+
 
     /**
      * Ⅱ：这里组装db中的AcctObjList
@@ -155,12 +167,10 @@ public class HandleInvoices extends Module{
     public List buildDBObjList() throws ParseException {
         List dbAcctList = new ArrayList();
         Map<String,Invoices> idInvoicesMap = new HashMap<String, Invoices>();
-        Invoices accounts = getInvoicesDBObj(idInvoicesMap);
-        Invoices accouts2 = getInvoicesDBObj2(idInvoicesMap);
-        accouts2.setInvoiceSubject("tree31701");
-        dbAcctList.add(accounts);
+        getDBObj(idInvoicesMap);
+        Invoices accouts2 = getDBObj2(idInvoicesMap);
         dbAcctList.add(idInvoicesMap);
-        CommonUtils.printList(dbAcctList, "DB Account obj");
+        CommonUtils.printList(dbAcctList, "打印DB对象：：：");
         return dbAcctList;
     }
 
@@ -169,7 +179,7 @@ public class HandleInvoices extends Module{
      * Ⅲ：由获得的ZOHO所有对象集合和从DB获取的对象集合，经过过滤，获取的组装需要***发送到ZOHO的对象集合骨架***
      */
     @Test
-    public void testAssembelSendToZOHOAcctList() throws ParseException {
+    public void testAssembelSendToZOHOAcctList() throws Exception {
         handleInvoices.build2ZohoObjSkeletonList();
     }
 
@@ -180,16 +190,16 @@ public class HandleInvoices extends Module{
      * 3.addAccountMap：如果dbModel中的id不存在于zohoMap中，则组装dbModel为xml并调用Zoho中的添加API：
      * @return
      */
-    public List build2ZohoObjSkeletonList() throws ParseException {
+    public List build2ZohoObjSkeletonList() throws Exception {
         //1. 获取ZOHO对象的骨架集合
-        List allZohoObjList = buildZohoObjSkeletonList();
+        List allZohoObjList = buildSkeletonFromZohoList();
         //Map<ERPID，ZOHOID>
         Map<String,String> erpZohoIDMap = (Map)allZohoObjList.get(0);
         Map<String,String> erpIDTimeMap = (Map)allZohoObjList.get(1);
         List<String> delZohoIDList = (List)allZohoObjList.get(2);
         //2.组装DB 对象List
         List dbAcctList = buildDBObjList();
-        Map<String,Invoices> idAccountsMap = (Map<String,Invoices>)dbAcctList.get(1);
+        Map<String,Invoices> idAccountsMap = (Map<String,Invoices>)dbAcctList.get(0);
 
         //3. 解析并组装addMap、updateMap、delZohoIDList
         Map<String,Invoices> addMap = new HashMap<String, Invoices>();
@@ -282,7 +292,7 @@ public class HandleInvoices extends Module{
     @Test
     public void testAddRecords(){
         try {
-            String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/SalesOrders/insertRecords";
+            String targetURL_Accounts = zohoPropsMap.get(Constants.INSERT_INVOICES_URL);
             List<String> addZohoXMLList = (List<String> ) build2ZohoXmlSkeleton().get(0);
             for(int i = 0; i < addZohoXMLList.size(); i ++){
                 System.err.println("添加第"+(i+1)+"条数据，xml为："+addZohoXMLList.get(i));
@@ -303,8 +313,7 @@ public class HandleInvoices extends Module{
     @Test
     public void testUpdateRecords(){
         try {
-            String id = "85333000000113197";//客户1ID
-            String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/SalesOrders/updateRecords";
+            String targetURL_Accounts = zohoPropsMap.get(Constants.UPDATE_INVOICES_URL);
             //TODO: qq:85333000000071039, tree3170:85333000000071001
             Map<String,String> updZohoXMLMap = (Map<String,String>) build2ZohoXmlSkeleton().get(1);
             int i = 1 ;
@@ -638,38 +647,45 @@ public class HandleInvoices extends Module{
 
     /**
      * TODO: 注意其中一些字段该放入值
-     * 1. 注意productid 和product name一定要存在与系统中
-     * 2. 注意SALEInvoicesRDERID是系统生成的，不需要设入
-     * 3.
+     * 1. 注意拥有者User一定要存在系统中
+     * 2. 注意SO中的SALESORDERID与Sales Order一定要存在系统
+     * 3. 注意Account一定要存在系统
+     * 4. 注意Product中的productid 和product name一定要存在与系统中
      * @param idInvoicesMap
      * @return
      */
-    private Invoices getInvoicesDBObj(Map<String, Invoices> idInvoicesMap) throws ParseException {
+    private Invoices getDBObj(Map<String, Invoices> idInvoicesMap) throws ParseException {
         Invoices invoices = new Invoices();
         /**DB中的Invoices id*/
         invoices.setErpID("10");
         invoices.setInvoiceSubject("PInv0004");
-        invoices.setUser(new User("85333000000071039","qq"));
+        //1. 注意拥有者User一定要存在系统中
+        User user = ModuleUtils.fetchDevUser(false);
+        invoices.setUser(user);
 //        invoices.setOwerID("85333000000071039");
 //        invoices.setOwner("qq");
         invoices.setInvoiceDate("2016-09-26 08:48:48");
         /**
-         * TODO：注意SO一定要存在，先运行SO
+         * TODO：2. 注意SO中的SALESORDERID与Sales Order一定要存在系统
          */
-        SO so = new SO();
-        so.setSubject("PSO30190412");
-        so.setSALESORDERID("");
-        invoices.setSo(so);
+//        SO so = new SO();
+//        so.setSubject("PSO30190412");
+//        so.setSALESORDERID("85333000000106003");
+        invoices.setSALESORDERID("80487000000096013");
+        invoices.setSoName("tree31701");
 
         invoices.setErp_ExchangeRate("7.77");
-        invoices.setPaymentTerm("USD");
+        invoices.setPaymentTerm("30 days credit after delivery\n");
+        invoices.setCustomerNo("test");
+        invoices.setDueDate("2016-10-16 23:59:59");
         /**
+         * 3. 注意Account一定要存在系统
          * Account id 和Name一般是同时存在的；
          * 如果只存在id，Name可以不对；
          * 如果只存在Name，那么会新创建一个客户；
          * 例外：但如果有ID，那么ID必需存在已经创建的客户中
          */
-        invoices.setACCOUNTID("85333000000106011");
+        invoices.setACCOUNTID("80487000000094005");
         /**
          * PriPac Design & Communication AB, 注意&符号，以后会改成CDATA形式
          */
@@ -679,14 +695,14 @@ public class HandleInvoices extends Module{
         invoices.setEmail("tree317035791@163.com");
         invoices.setDeliveryAddress("2111 9551");
         invoices.setMailAddress("502-6, 5/F, Stelux House, 698 Prince Rd East, San Po Kong, Kln, H.K.");
-        invoices.setFax("");
+        invoices.setFax("123456");
         invoices.setTel("2111 9551");
         invoices.setErp_Currency("USD");
         invoices.setPayMethod("Cheque");
-        invoices.setDeliveryMethod("");
+        invoices.setDeliveryMethod("test");
         /**不是直接顯示ID，要顯示PaymentTerm表中的Name字段         */
-        invoices.setPoNO("CCMKT-P12-003\n");
-        invoices.setDnNo("");
+        invoices.setPoNO("CCMKT-P12-003");
+        invoices.setDnNo("test");
         invoices.setDeposit("0");
         invoices.setOtherCharge("0");
         invoices.setFreightAmount("0");
@@ -694,17 +710,19 @@ public class HandleInvoices extends Module{
         String currentDate = ThreadLocalDateUtil.formatDate(new Date());
         invoices.setLatestEditTime(currentDate);
         invoices.setCreationTime("2016-09-01 10:10:10");
-        invoices.setLatestEditBy("qq");
+        invoices.setLatestEditBy(user.getUserName());
 
 
         /**
          * 设置product detail右下角那堆属于Invoices的字段:Discount,Sub Total,Grand Total
          */
+        invoices.setCusDiscount("100");
 //        invoices.setDiscount("100");
-//        invoices.setSubTotal("4000");//小计
-//        invoices.setGrandTotal("3000");//累计
+        invoices.setSubTotal("4000");//小计
+        invoices.setGrandTotal("3000");//累计
         /**
-         * 处理list<ProductDetail>, 根据db中的InvoicesID关联Item_Invoices表，拿出所有的product Detail,注意为空情况
+         * 4. 注意Product中的productid 和product name一定要存在与系统中
+          * 处理list<ProductDetail>, 根据db中的InvoicesID关联Item_Invoices表，拿出所有的product Detail,注意为空情况
          */
         List<ProductDetails> pds = handlePdsList("10",Double.valueOf(invoices.getErp_ExchangeRate()));
         invoices.setPds(pds);
@@ -717,22 +735,24 @@ public class HandleInvoices extends Module{
      * @param idInvoicesMap
      * @return
      */
-    private Invoices getInvoicesDBObj2(Map<String, Invoices> idInvoicesMap) throws ParseException {
+    private Invoices getDBObj2(Map<String, Invoices> idInvoicesMap) throws ParseException {
         Invoices invoices = new Invoices();
         /**DB中的Invoices id*/
-        invoices.setErpID("10");
-        invoices.setInvoiceSubject("PInv0004");
-        invoices.setUser(new User("85333000000071039","qq"));
+        invoices.setErpID("11");
+        invoices.setInvoiceSubject("PInv0005");
+        User user = ModuleUtils.fetchDevUser(false);
+        invoices.setUser(user);
 //        invoices.setOwerID("85333000000071039");
 //        invoices.setOwner("qq");
         invoices.setInvoiceDate("2016-09-26 08:48:48");
         /**
          * TODO：注意SO一定要存在，先运行SO
          */
-        SO so = new SO();
-        so.setSubject("PSO30190412");
-        so.setSALESORDERID("");
-        invoices.setSo(so);
+//        SO so = new SO();
+//        so.setSubject("PSO30190412—1");
+//        so.setSALESORDERID("");
+        invoices.setSALESORDERID("80487000000094025");
+        invoices.setSoName("PSO30190412");
 
         invoices.setErp_ExchangeRate("7.77");
         invoices.setPaymentTerm("USD");
@@ -742,11 +762,11 @@ public class HandleInvoices extends Module{
          * 如果只存在Name，那么会新创建一个客户；
          * 例外：但如果有ID，那么ID必需存在已经创建的客户中
          */
-        invoices.setACCOUNTID("85333000000106011");
+        invoices.setACCOUNTID("80487000000096005");
         /**
          * PriPac Design & Communication AB, 注意&符号，以后会改成CDATA形式
          */
-        invoices.setAcctName("富士廊紙品有限公司");
+        invoices.setAcctName("永昌紙品");
         invoices.setContact("Herris Chan");
         //TODO CusEmail如何处理
         invoices.setEmail("tree317035791@163.com");
@@ -767,7 +787,7 @@ public class HandleInvoices extends Module{
         String currentDate = ThreadLocalDateUtil.formatDate(new Date());
         invoices.setLatestEditTime(currentDate);
         invoices.setCreationTime("2016-09-01 10:10:10");
-        invoices.setLatestEditBy("qq");
+        invoices.setLatestEditBy(user.getUserName());
 
 
         /**
@@ -806,14 +826,14 @@ public class HandleInvoices extends Module{
         /**
          * 注意 product id和Name一定要是已经存在与产品里面的
          */
-        pd.setPd_Product_Id("85333000000101001");
-        pd.setPd_Product_Name("Test Item 1");//TODO 需要找ken确认ItemName为【Name】是表示什么意思？是否根据id从Item表找
+        pd.setPd_Product_Id("80487000000095003");
+        pd.setPd_Product_Name("尼龍背心環保袋");//TODO 需要找ken确认ItemName为【Name】是表示什么意思？是否根据id从Item表找
         pd.setPd_Total("86664.0");//金额
         pd.setPd_Net_Total("86666.0");//总计
 
-        ProductDetails pd2 = pd;
-        pd2.setPd_Quantity("10000");//数量
-        pds.add(pd2);
+//        ProductDetails pd2 = pd;
+//        pd2.setPd_Quantity("10000");//数量
+//        pds.add(pd2);
         pds.add(pd);
         return pds;
     }
@@ -876,24 +896,6 @@ public class HandleInvoices extends Module{
         return zohoCompList;
     }
 
-    private String retriveZohoRecords() {
-        String retZohoStr = "";
-        try {
-//            String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/Accounts/getRecordById";
-            String targetURL_Invoices = "https://crm.zoho.com.cn/crm/private/xml/SalesOrders/getRecords";
-            Map<String,String> postParams = new HashMap<String, String>();
-            postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,targetURL_Invoices);
-//            postParams.put(Constants.HTTP_POST_PARAM_ID,id_Accounts);
-            postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
-            postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
-            postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_2);
-            retZohoStr =  CommonUtils.executePostMethod(postParams);
-        } catch(Exception e) {
-            logger.error("执行搜索Module操作出现错误",e);
-        }
-        return retZohoStr;
-
-    }
 
 
 }

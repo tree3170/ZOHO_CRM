@@ -22,10 +22,11 @@
    * 关于销售订单，报价或者发票中的customer信息，id和name不能被修改，像adress/tel/mail之类的是可以修改的【已确认】
    * 滙入資料到CRM的流程應該是， Customer表 , Item表, 報價單, 訂單, 發票【已确认】
 
-   # 20160923
-   * 是如何计算SO的价格的？需要找Ken confirm
-   * LatestEditBy在ERP系统中能被修改吗？因为我看产品等module中存的是name而不是ID，那么如果修改了，产品等module中的所有模块会不会一起跟着修改？
 
+   # 20160923
+   * 是如何计算SO的价格的？需要找Ken confirm【待确认】
+   * LatestEditBy在ERP系统中能被修改吗？因为我看产品等module中存的是name而不是ID，那么如果修改了，产品等module中的所有模块会不会一起跟着修改？【待确认】
+   * 明天对SO、Invoices数据的正确性需要找用户和Ken确认正确性【待确认】
 
 
 
@@ -33,6 +34,21 @@
    * 确定UI
    * 确定账户13个账户人
 
+
+## 20160926
+* 当出错的时候，解析出错的信息【TODO】<response uri="/crm/private/xml/Products/getRecords"><nodata><code>4422</code><message>There is no data to show</message></nodata></response>
+
+## 20160926 晚
+* 1. 完成了对Account、Product、SO、Invoices的所有测试操作并且已经转移到Matrix平台上
+* 2. 明天对SO、Invoices数据的正确性进行调试，并需要找用户和Ken确认正确性
+* 3. log的记录，邮件的发送，Quatz的运用得尽快加入系统来
+
+## 20160926 早
+* 1. HandleInvoice早上完成了对数据库字段的填写，晚上完成增删改查的测试
+* 2. 今天一定要转移到matrix上并且测试完
+* 3. 如果有可能，把log也需要整理下
+* 4. 尽快在这一两天把Quatz运用进来，搭建起Spring MVC环境
+* 5. 这周如果在公司有时间先需要研究Quatz，然后研究Spring发邮件功能，尽量把发邮件功能整理进来
 ## 20160923
    * 确认将test转移到Matrix程序中
 

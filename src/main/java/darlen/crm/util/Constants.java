@@ -60,6 +60,31 @@ public interface Constants {
     public static final String ZOHO_PROPs_AUTHTOKEN_TREE="authtoken";
     public static final String ZOHO_PROPs_AUTHTOKEN_MATRIX="authtoken_matrix";
     public static final String ZOHO_PROPS_MODULES="MODULES";
+    //url for fetch
+    public static final String FETCH_INVOICES_URL="FETCH_INVOICES_URL";
+    public static final String FETCH_SO_URL="FETCH_SO_URL";
+    public static final String FETCH_QUOTES_URL="FETCH_QUOTES_URL";
+    public static final String FETCH_ACCOUTNS_URL="FETCH_ACCOUTNS_URL";
+    public static final String FETCH_PRODUCTS_URL="FETCH_PRODUCTS_URL";
+    //url for INSERT
+    public static final String INSERT_INVOICES_URL="INSERT_INVOICES_URL";
+    public static final String INSERT_SO_URL="INSERT_SO_URL";
+    public static final String INSERT_QUOTES_URL="INSERT_QUOTES_URL";
+    public static final String INSERT_ACCOUTNS_URL="INSERT_ACCOUTNS_URL";
+    public static final String INSERT_PRODUCTS_URL="INSERT_PRODUCTS_URL";
+    //url for UPDATE
+    public static final String UPDATE_INVOICES_URL="UPDATE_INVOICES_URL";
+    public static final String UPDATE_SO_URL="UPDATE_SO_URL";
+    public static final String UPDATE_QUOTES_URL="UPDATE_QUOTES_URL";
+    public static final String UPDATE_ACCOUTNS_URL="UPDATE_ACCOUTNS_URL";
+    public static final String UPDATE_PRODUCTS_URL="UPDATE_PRODUCTS_URL";
+    //url for DELETE
+    public static final String DELETE_INVOICES_URL="DELETE_INVOICES_URL";
+    public static final String DELETE_SO_URL="DELETE_SO_URL";
+    public static final String DELETE_QUOTES_URL="DELETE_QUOTES_URL";
+    public static final String DELETE_ACCOUTNS_URL="DELETE_ACCOUTNS_URL";
+    public static final String DELETE_PRODUCTS_URL="DELETE_PRODUCTS_URL";
+
 
 
 

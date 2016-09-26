@@ -8,7 +8,7 @@
  * */
 package darlen.crm.jaxb_xml_object.commjaxb;
 
-import darlen.crm.jaxb_xml_object.Invoices.Product;
+
 
 import javax.xml.bind.annotation.*;
 import java.util.List;

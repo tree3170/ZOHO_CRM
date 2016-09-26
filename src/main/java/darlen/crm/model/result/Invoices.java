@@ -31,7 +31,9 @@ public class Invoices {
 /**Invoice Date发货单日期*/
     private String invoiceDate;
 /**Sales Order销售订单,查看数据是用SOREF*/
-    private SO so;
+//    private SO so;
+    private String soName;
+    private String SALESORDERID;
 /**ERP_ExchangeRate*/
     private String erp_ExchangeRate;
 /**PaymentTerm*/
@@ -85,6 +87,15 @@ public class Invoices {
     private String creationTime;
     private String latestEditTime;
 
+    /**Customer Discount来自Customer的折扣*/
+    private String cusDiscount;//from ERP
+    /**Discount来自销售订单中的“折扣”*/
+//    private String discount;
+    /**Sub Total 来自销售订单中的“小计”*/
+    private String subTotal;
+    /**Grand Total来自销售订单中的“累计”*/
+    private String grandTotal;
+
     /**pds*/
     private List<ProductDetails> pds;
 
@@ -121,12 +132,20 @@ public class Invoices {
         this.invoiceDate = invoiceDate;
     }
 
-    public SO getSo() {
-        return so;
+    public String getSoName() {
+        return soName;
     }
 
-    public void setSo(SO so) {
-        this.so = so;
+    public void setSoName(String soName) {
+        this.soName = soName;
+    }
+
+    public String getSALESORDERID() {
+        return SALESORDERID;
+    }
+
+    public void setSALESORDERID(String SALESORDERID) {
+        this.SALESORDERID = SALESORDERID;
     }
 
     public String getErp_ExchangeRate() {
@@ -321,6 +340,30 @@ public class Invoices {
         this.latestEditTime = latestEditTime;
     }
 
+    public String getCusDiscount() {
+        return cusDiscount;
+    }
+
+    public void setCusDiscount(String cusDiscount) {
+        this.cusDiscount = cusDiscount;
+    }
+
+    public String getSubTotal() {
+        return subTotal;
+    }
+
+    public void setSubTotal(String subTotal) {
+        this.subTotal = subTotal;
+    }
+
+    public String getGrandTotal() {
+        return grandTotal;
+    }
+
+    public void setGrandTotal(String grandTotal) {
+        this.grandTotal = grandTotal;
+    }
+
     public List<ProductDetails> getPds() {
         return pds;
     }
@@ -336,7 +379,8 @@ public class Invoices {
                 ", subject='" + invoiceSubject + '\'' +
                 ", user=" + user +
                 ", invoiceDate='" + invoiceDate + '\'' +
-                ", so=" + so +
+                ", Sales Order=" + soName +
+                ", Sales Order ID=" + SALESORDERID +
                 ", erp_ExchangeRate='" + erp_ExchangeRate + '\'' +
                 ", paymentTerm='" + paymentTerm + '\'' +
                 ", dueDate='" + dueDate + '\'' +
@@ -361,6 +405,9 @@ public class Invoices {
                 ", latestEditBy='" + latestEditBy + '\'' +
                 ", creationTime='" + creationTime + '\'' +
                 ", latestEditTime='" + latestEditTime + '\'' +
+                ", Customer Discount='" + cusDiscount + '\'' +
+                ", subTotal='" + subTotal + '\'' +
+                ", grandTotal='" + grandTotal + '\'' +
                 ", pds=" + pds +
                 '}';
     }

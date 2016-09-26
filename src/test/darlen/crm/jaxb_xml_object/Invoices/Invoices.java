@@ -42,7 +42,7 @@ public class Invoices {
 
     @Override
     public String toString() {
-        return "SO{" +
+        return "Invoices{" +
                 "rows=" + rows +
                 '}';
     }

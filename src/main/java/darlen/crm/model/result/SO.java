@@ -38,11 +38,12 @@ public class SO {
     private String subject;
     /** 销售订单编号SO Number*/
     private String soNumber;
-    private String owerID;
-    /**销售订单所有者Sales Order Owner
-     * 就是DB中的lastEditBy
-     * */
-    private String owner;
+//    private String owerID;
+//    /**销售订单所有者Sales Order Owner
+//     * 就是DB中的lastEditBy
+//     * */
+//    private String owner;
+    private  User user;
     /**客户IDACCOUNTID*/
     private String ACCOUNTID;
     /**公司联络人Contact*/
@@ -156,20 +157,12 @@ public class SO {
         this.soNumber = soNumber;
     }
 
-    public String getOwerID() {
-        return owerID;
+    public User getUser() {
+        return user;
     }
 
-    public void setOwerID(String owerID) {
-        this.owerID = owerID;
-    }
-
-    public String getOwner() {
-        return owner;
-    }
-
-    public void setOwner(String owner) {
-        this.owner = owner;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public String getQuoteNO() {
@@ -362,8 +355,7 @@ public class SO {
                 "SALESORDERID='" + SALESORDERID + '\'' +
                 ", subject='" + subject + '\'' +
                 ", soNumber='" + soNumber + '\'' +
-                ", owerID='" + owerID + '\'' +
-                ", owner='" + owner + '\'' +
+                ", User(owner)='" + user + '\'' +
                 ", ACCOUNTID='" + ACCOUNTID + '\'' +
                 ", contact='" + contact + '\'' +
                 ", quoteNO='" + quoteNO + '\'' +

@@ -9,6 +9,7 @@
 package darlen.crm.util;
 
 import darlen.crm.model.common.Module;
+import darlen.crm.model.result.User;
 import org.apache.log4j.Logger;
 
 import java.lang.reflect.Field;
@@ -37,7 +38,7 @@ public class ModuleUtils {
      * @return
      * @throws Exception
      */
-    public static  String retriveZohoRecords(String url,String newFormat,String selectedColumns,String sortOrderString,String sortColumnString) throws Exception {
+    public static  String retrieveZohoRecords(String url, String newFormat, String selectedColumns, String sortOrderString, String sortColumnString) throws Exception {
         String retZohoStr = "";
         try {
             //String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/Accounts/getRecords";
@@ -89,6 +90,39 @@ public class ModuleUtils {
         }
         CommonUtils.printMap(map,"打印DBfield的map");
         return map;
+    }
+
+    /**
+     * 关于Product Detail，把product detail所在的FL标签转化为pds标签
+     * 使用范围：SO/Invoice/Quota等含有product Detail的Module
+     * @param str
+     * @return
+     */
+    public static String convertFLToPdsXmlTag(String str){
+        //1.由 Product Details之前的FL转换为pds:如何找到前后匹配的FL
+        if(str.indexOf("Product Details") != -1){
+            String prexPds = str.replace("<FL val=\"Product Details\">","<pds val=\"Product Details\">");
+    //        System.out.println("prex::"+prexPds );
+            //2. 获取最后一个</product>前面的字符串
+            String prefProduct = prexPds.substring(0,prexPds.lastIndexOf("</product>")+10);
+            String suffixProduct= prexPds.substring(prexPds.lastIndexOf("</product>")+10);
+            //3.取出suffixProduct字符串的第一个为</FL>之后的字符串
+            suffixProduct = suffixProduct.substring(suffixProduct.indexOf("</FL>")+5);
+            //4. 组装finalStr=prefProduct+"</pds>" + suffixProduct
+            String finalStr = prefProduct+"</pds>" + suffixProduct;
+            System.out.println("suffix::"+finalStr );
+            str = finalStr;
+        }
+        return str;
+    }
+
+    /**
+     * 关联拥有者，仅用做测试
+     * @param isDev
+     * @return
+     */
+    public static User fetchDevUser(boolean isDev){
+        return isDev ? new User("85333000000071039","qq"): new User("80487000000076001","marketing");
     }
 
 

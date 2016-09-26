@@ -99,35 +99,40 @@ public class HandleAccounts  extends Module {
      */
     @Test
     public void testAssembleZOHOAcctObjList() throws Exception {
-        handleAccounts.buildZohoObjSkeletonList();
+        handleAccounts.buildSkeletonFromZohoList();
     }
-    public List buildZohoObjSkeletonList() throws Exception {
+    public List buildSkeletonFromZohoList() throws Exception {
 //      1. 从ZOHO获取有效的xml
         String zohoURL = "https://crm.zoho.com.cn/crm/private/xml/Accounts/getRecords";
         String selectedColumns = "Products(Modified Time,ACCOUNTID,Account Name,ERP ID,LatestEditTime)";
         String sortOrderString = "desc";
         String sortColumnString = "Modified Time";
         //注意：format 一定要为2，因为有可能需要的字段为空
-        String zohoStr =  ModuleUtils.retriveZohoRecords(zohoURL, Module.NEWFORMAT_2, selectedColumns, sortOrderString, sortColumnString);
+        String zohoStr =  ModuleUtils.retrieveZohoRecords(zohoURL, Module.NEWFORMAT_2, selectedColumns, sortOrderString, sortColumnString);
 //       2. xml 转 java bean
         System.out.println("zohoStr:::"+zohoStr);
         Response response = JaxbUtil.converyToJavaBean(zohoStr, Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
         System.out.println("response object:::"+response);
 //     3. 组装 zohoModuleList
         List  zohoModuleList = new ArrayList();
+        Map<String,String> erpZohoIDMap = new HashMap<String, String>();
+        Map<String,String> erpZohoIDTimeMap = new HashMap<String, String>();
+        List delZOHOIDList = new ArrayList();
         //如果没有数据<response uri="/crm/private/xml/Products/getRecords"><nodata><code>4422</code><message>There is no data to show</message></nodata></response>
         if(null != response.getResult()){
             List<Row> rows = response.getResult().getAccounts().getRows();
             zohoModuleList = handleAccounts.buildZohoComponentList(rows, "ACCOUNTID", "ERP ID");
-            Map<String,String> erpZohoIDMap = (Map)zohoModuleList.get(0);
-            Map<String,String> erpZohoIDTimeMap = (Map)zohoModuleList.get(1);
-            //TODO:暂时在test测序中不处理删除数据
-            List delZOHOIDList = (List)zohoModuleList.get(2);
+            erpZohoIDMap = (Map)zohoModuleList.get(0);
+            erpZohoIDTimeMap = (Map)zohoModuleList.get(1);
+            delZOHOIDList = (List)zohoModuleList.get(2);
             CommonUtils.printMap(erpZohoIDMap,"ERPID 和ZOHOID Map");
             CommonUtils.printMap(erpZohoIDTimeMap,"ERPID 和LastEditTime Map");
             CommonUtils.printList(delZOHOIDList,"Remove ZOHO ID list");
         }else{
             logger.debug("没有数据了：：：\n" + zohoStr);
+            zohoModuleList.add(erpZohoIDMap);
+            zohoModuleList.add(erpZohoIDTimeMap);
+            zohoModuleList.add(delZOHOIDList);
         }
 
         return zohoModuleList;
@@ -172,7 +177,7 @@ public class HandleAccounts  extends Module {
      */
     public List build2ZohoObjSkeletonList() throws Exception {
 //        1. 获取ZOHO对象的骨架集合
-        List allZohoObjList = buildZohoObjSkeletonList();
+        List allZohoObjList = buildSkeletonFromZohoList();
         //Map<ERPID，ZOHOID>
         Map<String,String> erpZohoIDMap = (Map)allZohoObjList.get(0);
         Map<String,String> erpIDTimeMap = (Map)allZohoObjList.get(1);
@@ -268,7 +273,7 @@ public class HandleAccounts  extends Module {
     @Test
     public void testAddAcctRecord(){
         try {
-            String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/Accounts/insertRecords";
+            String targetURL_Accounts = zohoPropsMap.get(Constants.INSERT_ACCOUTNS_URL);//"https://crm.zoho.com.cn/crm/private/xml/Accounts/insertRecords";
             List<String> addZohoXMLList = (List<String> ) build2ZohoXmlSkeleton().get(0);
             for(int i = 0; i < addZohoXMLList.size(); i ++){
                 System.err.println("添加第"+(i+1)+"条数据，xml为："+addZohoXMLList.get(i));
@@ -594,32 +599,6 @@ public class HandleAccounts  extends Module {
 //    }
 
     /**
-     * 获取DB某个Accounts所有有效的fieldname 和value的Map
-     * @param className 包名+类名
-     * @return
-     * refer:http://blog.csdn.net/sd4000784/article/details/7448221
-     */
-    public static Map<String,String> getDBFieldNameValueMap(String className,Accounts dbFields) throws Exception {
-        Map<String,String> map = new HashMap();
-        Class clazz = Class.forName(className);
-        Field[] fields = clazz.getDeclaredFields();
-        Method[] methods = clazz.getMethods();
-        for(Field field : fields){
-            String fieldName = field.getName();
-            field.setAccessible(true) ;
-            if (field.getGenericType().toString().equals("class java.lang.String")) {// 如果type是类类型，则前面包含"class "，后面跟类名
-                String fieldValue =String.valueOf(field.get(dbFields));
-                if(!StringUtils.isEmptyString(fieldValue)){
-                    map.put(fieldName,fieldValue);
-                }
-            }
-        }
-        CommonUtils.printMap(map,"打印DBfield的map");
-        return map;
-    }
-
-
-    /**
      * TODO: 注意其中一些字段该放入值
      * 1. 注意productid 和product name一定要存在与系统中
      * 2. 注意PRODUCTSID是系统生成的，不需要设入
@@ -629,7 +608,10 @@ public class HandleAccounts  extends Module {
      */
     private Accounts getDBObj(Map<String, Accounts> idAccountsMap) throws ParseException {
         Accounts accounts = new Accounts();
-        User user = new User("85333000000071039","qq");
+        //for Tree account
+//        User user = new User("85333000000071039","qq");
+        //for Matrix Account
+        User user = new User("80487000000076001","marketing");
 //        accounts.setSMOWNERID("85333000000071039");
 //        accounts.setAcctOwner("qq");
         accounts.setUser(user);
@@ -660,13 +642,16 @@ public class HandleAccounts  extends Module {
     //for update
     private Accounts getAcctDBObj2(Map<String,Accounts> idAccountsMap) throws ParseException {
         Accounts accounts = new Accounts();
-        User user = new User("85333000000071039","qq");
+        //for Tree account
+//        User user = new User("85333000000071039","qq");
+        //for Matrix Account
+//        User user = new User("80487000000076001","marketing");
 //        accounts.setSMOWNERID("85333000000071039");
 //        accounts.setAcctOwner("qq");
-        accounts.setUser(user);
+        accounts.setUser(ModuleUtils.fetchDevUser(false));
         accounts.setErpID("2");
         accounts.setCustomerNO("Ven0002");
-        accounts.setAcctName("三一重工");
+        accounts.setAcctName("永昌紙品");
         //TODO: 数据库中Enable是1或者0，但是在ZOHO中是true或者false，需要转换下
         accounts.setEnabled("1".equals("1") ? "true" : "false");
         accounts.setPhone("12345678901");
