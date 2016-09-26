@@ -30,7 +30,7 @@ public class Invoices {
     private User user;
 /**Invoice Date发货单日期*/
     private String invoiceDate;
-/**Sales Order销售订单*/
+/**Sales Order销售订单,查看数据是用SOREF*/
     private SO so;
 /**ERP_ExchangeRate*/
     private String erp_ExchangeRate;
@@ -80,6 +80,7 @@ public class Invoices {
  * 匯入時x ExchangeRate換成港幣
  * */
     private String freightAmount;
+    private String total;
     private String latestEditBy;
     private String creationTime;
     private String latestEditTime;
@@ -280,6 +281,14 @@ public class Invoices {
         this.otherCharge = otherCharge;
     }
 
+    public String getTotal() {
+        return total;
+    }
+
+    public void setTotal(String total) {
+        this.total = total;
+    }
+
     public String getFreightAmount() {
         return freightAmount;
     }
@@ -348,6 +357,7 @@ public class Invoices {
                 ", deposit='" + deposit + '\'' +
                 ", otherCharge='" + otherCharge + '\'' +
                 ", freightAmount='" + freightAmount + '\'' +
+                ", Total='" + total + '\'' +
                 ", latestEditBy='" + latestEditBy + '\'' +
                 ", creationTime='" + creationTime + '\'' +
                 ", latestEditTime='" + latestEditTime + '\'' +

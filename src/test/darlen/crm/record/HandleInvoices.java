@@ -18,6 +18,8 @@ import darlen.crm.jaxb_xml_object.utils.JaxbUtil;
 import darlen.crm.model.common.Module;
 import darlen.crm.model.result.Invoices;
 import darlen.crm.model.result.ProductDetails;
+import darlen.crm.model.result.SO;
+import darlen.crm.model.result.User;
 import darlen.crm.util.CommonUtils;
 import darlen.crm.util.Constants;
 import darlen.crm.util.StringUtils;
@@ -155,7 +157,7 @@ public class HandleInvoices extends Module{
         Map<String,Invoices> idInvoicesMap = new HashMap<String, Invoices>();
         Invoices accounts = getInvoicesDBObj(idInvoicesMap);
         Invoices accouts2 = getInvoicesDBObj2(idInvoicesMap);
-        accouts2.setSubject("tree31701");
+        accouts2.setInvoiceSubject("tree31701");
         dbAcctList.add(accounts);
         dbAcctList.add(idInvoicesMap);
         CommonUtils.printList(dbAcctList, "DB Account obj");
@@ -644,14 +646,23 @@ public class HandleInvoices extends Module{
      */
     private Invoices getInvoicesDBObj(Map<String, Invoices> idInvoicesMap) throws ParseException {
         Invoices invoices = new Invoices();
-        invoices.setSALEInvoicesRDERID("12345678");
-        invoices.setOwerID("85333000000071039");
-        invoices.setOwner("qq");
-        invoices.setSubject("PInvoices30190412");
-        /**ZOHO生成的字段，似乎没什么作用*/
-        //invoices.setSoNumber("PInvoices30190412");
-        invoices.setQuoteNO("PQ000112");
-        invoices.setErpCurrency("USD");
+        /**DB中的Invoices id*/
+        invoices.setErpID("10");
+        invoices.setInvoiceSubject("PInv0004");
+        invoices.setUser(new User("85333000000071039","qq"));
+//        invoices.setOwerID("85333000000071039");
+//        invoices.setOwner("qq");
+        invoices.setInvoiceDate("2016-09-26 08:48:48");
+        /**
+         * TODO：注意SO一定要存在，先运行SO
+         */
+        SO so = new SO();
+        so.setSubject("PSO30190412");
+        so.setSALESORDERID("");
+        invoices.setSo(so);
+
+        invoices.setErp_ExchangeRate("7.77");
+        invoices.setPaymentTerm("USD");
         /**
          * Account id 和Name一般是同时存在的；
          * 如果只存在id，Name可以不对；
@@ -663,38 +674,39 @@ public class HandleInvoices extends Module{
          * PriPac Design & Communication AB, 注意&符号，以后会改成CDATA形式
          */
         invoices.setAcctName("富士廊紙品有限公司");
-        invoices.setContact("Mr. Johan Svard");
-        invoices.setErpCurrency("USD");
-        invoices.setMailAddress("Saltängsvägen 18, 721 32 Västerås Sweden");
+        invoices.setContact("Herris Chan");
+        //TODO CusEmail如何处理
         invoices.setEmail("tree317035791@163.com");
-        invoices.setPoNO("496");
-        invoices.setDeliveryAddress("test");
-        invoices.setTel("12345678");
-        invoices.setFax("12345678");
-        invoices.setErpExchangeRate("7.77");
+        invoices.setDeliveryAddress("2111 9551");
+        invoices.setMailAddress("502-6, 5/F, Stelux House, 698 Prince Rd East, San Po Kong, Kln, H.K.");
+        invoices.setFax("");
+        invoices.setTel("2111 9551");
+        invoices.setErp_Currency("USD");
+        invoices.setPayMethod("Cheque");
+        invoices.setDeliveryMethod("");
         /**不是直接顯示ID，要顯示PaymentTerm表中的Name字段         */
-        invoices.setPaymentTerm("2");
-        invoices.setPayMethod("T/T");
-        invoices.setDeliveryMethod("FOB Shenzhen");
-        invoices.setPaymentPeriod("0");
-        invoices.setErpDueDate("2016-09-31 10:10:10");
+        invoices.setPoNO("CCMKT-P12-003\n");
+        invoices.setDnNo("");
+        invoices.setDeposit("0");
+        invoices.setOtherCharge("0");
+        invoices.setFreightAmount("0");
+        invoices.setTotal(String.valueOf(33150*7.77));
         String currentDate = ThreadLocalDateUtil.formatDate(new Date());
         invoices.setLatestEditTime(currentDate);
         invoices.setCreationTime("2016-09-01 10:10:10");
         invoices.setLatestEditBy("qq");
-        /**DB中的Invoices id*/
-        invoices.setErpID("10");
+
 
         /**
          * 设置product detail右下角那堆属于Invoices的字段:Discount,Sub Total,Grand Total
          */
-        invoices.setDiscount("100");
-        invoices.setSubTotal("4000");//小计
-        invoices.setGrandTotal("3000");//累计
+//        invoices.setDiscount("100");
+//        invoices.setSubTotal("4000");//小计
+//        invoices.setGrandTotal("3000");//累计
         /**
          * 处理list<ProductDetail>, 根据db中的InvoicesID关联Item_Invoices表，拿出所有的product Detail,注意为空情况
          */
-        List<ProductDetails> pds = handlePdsList("10",Double.valueOf(invoices.getErpExchangeRate()));
+        List<ProductDetails> pds = handlePdsList("10",Double.valueOf(invoices.getErp_ExchangeRate()));
         invoices.setPds(pds);
         idInvoicesMap.put(invoices.getErpID(),invoices);
         return invoices;
@@ -707,14 +719,23 @@ public class HandleInvoices extends Module{
      */
     private Invoices getInvoicesDBObj2(Map<String, Invoices> idInvoicesMap) throws ParseException {
         Invoices invoices = new Invoices();
-        invoices.setSALEInvoicesRDERID("12345678");
-        invoices.setOwerID("85333000000071039");
-        invoices.setOwner("qq");
-        invoices.setSubject("PInvoices30190412-Test");
-        /**ZOHO生成的字段，似乎没什么作用*/
-        //invoices.setSoNumber("PInvoices30190412");
-        invoices.setQuoteNO("PQ000112");
-        invoices.setErpCurrency("USD");
+        /**DB中的Invoices id*/
+        invoices.setErpID("10");
+        invoices.setInvoiceSubject("PInv0004");
+        invoices.setUser(new User("85333000000071039","qq"));
+//        invoices.setOwerID("85333000000071039");
+//        invoices.setOwner("qq");
+        invoices.setInvoiceDate("2016-09-26 08:48:48");
+        /**
+         * TODO：注意SO一定要存在，先运行SO
+         */
+        SO so = new SO();
+        so.setSubject("PSO30190412");
+        so.setSALESORDERID("");
+        invoices.setSo(so);
+
+        invoices.setErp_ExchangeRate("7.77");
+        invoices.setPaymentTerm("USD");
         /**
          * Account id 和Name一般是同时存在的；
          * 如果只存在id，Name可以不对；
@@ -726,40 +747,42 @@ public class HandleInvoices extends Module{
          * PriPac Design & Communication AB, 注意&符号，以后会改成CDATA形式
          */
         invoices.setAcctName("富士廊紙品有限公司");
-        invoices.setContact("Mr. Johan Svard");
-        invoices.setErpCurrency("USD");
-        invoices.setMailAddress("Saltängsvägen 18, 721 32 Västerås Sweden");
+        invoices.setContact("Herris Chan");
+        //TODO CusEmail如何处理
         invoices.setEmail("tree317035791@163.com");
-        invoices.setPoNO("496");
-        invoices.setDeliveryAddress("test");
-        invoices.setTel("12345678");
-        invoices.setFax("12345678");
-        invoices.setErpExchangeRate("7.77");
+        invoices.setDeliveryAddress("2111 9551");
+        invoices.setMailAddress("502-6, 5/F, Stelux House, 698 Prince Rd East, San Po Kong, Kln, H.K.");
+        invoices.setFax("");
+        invoices.setTel("2111 9551");
+        invoices.setErp_Currency("USD");
+        invoices.setPayMethod("Cheque");
+        invoices.setDeliveryMethod("");
         /**不是直接顯示ID，要顯示PaymentTerm表中的Name字段         */
-        invoices.setPaymentTerm("2");
-        invoices.setPayMethod("T/T");
-        invoices.setDeliveryMethod("FOB Shenzhen");
-        invoices.setPaymentPeriod("0");
-        invoices.setErpDueDate("2016-09-31 10:10:10");
+        invoices.setPoNO("CCMKT-P12-003\n");
+        invoices.setDnNo("");
+        invoices.setDeposit("0");
+        invoices.setOtherCharge("0");
+        invoices.setFreightAmount("0");
+        invoices.setTotal(String.valueOf(33150*7.77));
         String currentDate = ThreadLocalDateUtil.formatDate(new Date());
         invoices.setLatestEditTime(currentDate);
         invoices.setCreationTime("2016-09-01 10:10:10");
         invoices.setLatestEditBy("qq");
-        /**DB中的Invoices id*/
-        invoices.setErpID("11");
+
 
         /**
          * 设置product detail右下角那堆属于Invoices的字段:Discount,Sub Total,Grand Total
          */
-        invoices.setDiscount("100");
-        invoices.setSubTotal("4000");//小计
-        invoices.setGrandTotal("3000");//累计
+//        invoices.setDiscount("100");
+//        invoices.setSubTotal("4000");//小计
+//        invoices.setGrandTotal("3000");//累计
         /**
          * 处理list<ProductDetail>, 根据db中的InvoicesID关联Item_Invoices表，拿出所有的product Detail,注意为空情况
          */
-        List<ProductDetails> pds = handlePdsList("10",Double.valueOf(invoices.getErpExchangeRate()));
+        List<ProductDetails> pds = handlePdsList("10",Double.valueOf(invoices.getErp_ExchangeRate()));
         invoices.setPds(pds);
         idInvoicesMap.put(invoices.getErpID(),invoices);
+
         return invoices;
     }
 
@@ -815,7 +838,7 @@ public class HandleInvoices extends Module{
         zohoCompList.add(erpZohoIDMap);
         zohoCompList.add(erpIDTimeMap);
         zohoCompList.add(delZohoIDList);
-        List<Row> rows = response.getResult().setInvoices().getRows();
+        List<Row> rows = response.getResult().getInvoices().getRows();
         for (int i = 0; i < rows.size() ; i++){
             logger.debug("遍历第"+(i+1)+"条数据:::"+rows.get(i));
             String zohoID = "";
