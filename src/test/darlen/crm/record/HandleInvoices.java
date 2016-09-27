@@ -15,7 +15,6 @@ import darlen.crm.jaxb_xml_object.commjaxb.FL;
 import darlen.crm.jaxb_xml_object.commjaxb.ProdDetails;
 import darlen.crm.jaxb_xml_object.commjaxb.Product;
 import darlen.crm.jaxb_xml_object.utils.JaxbUtil;
-import darlen.crm.model.common.Module;
 import darlen.crm.model.result.Invoices;
 import darlen.crm.model.result.ProductDetails;
 import darlen.crm.model.result.User;

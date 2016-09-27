@@ -13,17 +13,11 @@ import darlen.crm.jaxb_xml_object.leads.Response;
 import darlen.crm.jaxb_xml_object.leads.Result;
 import darlen.crm.jaxb_xml_object.leads.Row;
 import darlen.crm.jaxb_xml_object.utils.JaxbUtil;
-import darlen.crm.model.fields.common.Fields;
 import darlen.crm.model.result.Leads;
 import darlen.crm.util.CommonUtils;
 import darlen.crm.util.Constants;
 import darlen.crm.util.StringUtils;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.junit.Test;
 
-import java.io.File;
-import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;

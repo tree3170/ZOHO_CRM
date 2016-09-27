@@ -5,7 +5,6 @@ import darlen.crm.jaxb_xml_object.commjaxb.FieldRows;
 import darlen.crm.jaxb_xml_object.commjaxb.Response;
 import darlen.crm.jaxb_xml_object.commjaxb.Row;
 import darlen.crm.jaxb_xml_object.utils.JaxbUtil;
-import darlen.crm.util.CommonUtils;
 import org.junit.Test;
 
 import javax.xml.bind.JAXBContext;

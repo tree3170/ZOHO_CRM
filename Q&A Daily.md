@@ -34,6 +34,11 @@
    * 确定UI
    * 确定账户13个账户人
 
+# 20160927
+* 1. 白天遇到了困难关于发送邮件，明天继续研究
+* 2. 明天白天需要研究IST中的适配器模式，晚上应用到自己的项目
+* 3. 4大功能已经移到了正式环境中，并且晚上refactory 项目，明天早上有时间的话继续refacory项目
+* 4. 关于log在不同形式下需要记不同的log，这个需要加快完成（比如分module，分error case，分时段等）
 
 ## 20160926
 * 当出错的时候，解析出错的信息【TODO】<response uri="/crm/private/xml/Products/getRecords"><nodata><code>4422</code><message>There is no data to show</message></nodata></response>

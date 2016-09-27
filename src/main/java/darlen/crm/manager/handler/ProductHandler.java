@@ -6,18 +6,17 @@
  *    注意： 本内容仅限于XXX公司内部使用，禁止转发
  * ** ** ** ** ** ** ** **** ** ** ** ** ** ** **** ** ** ** ** ** ** **
  * */
-package darlen.crm.record;
+package darlen.crm.manager.handler;
 
-import darlen.crm.jaxb_xml_object.Products.FL;
-import darlen.crm.jaxb_xml_object.Products.Response;
-import darlen.crm.jaxb_xml_object.Products.Result;
-import darlen.crm.jaxb_xml_object.Products.Row;
-import darlen.crm.jaxb_xml_object.utils.JaxbUtil;
+import darlen.crm.jaxb.Products.Response;
+import darlen.crm.jaxb.Products.Result;
+import darlen.crm.jaxb.common.FL;
+import darlen.crm.jaxb.common.ProdRow;
+import darlen.crm.manager.AbstractModule;
 import darlen.crm.model.result.Products;
 import darlen.crm.model.result.User;
 import darlen.crm.util.*;
 import org.apache.log4j.Logger;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
@@ -73,16 +72,16 @@ import java.util.*;
  *
  * @author Darlen liu
  */
-public class HandleProduct extends Module{
-    private static HandleProduct handleProduct;
-    private static Logger logger =  Logger.getLogger(HandleModules.class);
-    /**
-     * BeforeClass 与Before的区别
-     */
-    @BeforeClass
-    public static void getInstance(){
-        handleProduct = new HandleProduct();
-        handleProduct.getProperties();
+public class ProductHandler extends AbstractModule{
+    private static ProductHandler handleProduct;
+    private static Logger logger =  Logger.getLogger(ProductHandler.class);
+
+    public synchronized  static ProductHandler getInstance(){
+        if(handleProduct == null){
+            handleProduct = new ProductHandler();
+            handleProduct.getProperties();
+        }
+        return handleProduct;
     }
 
     /**
@@ -102,10 +101,8 @@ public class HandleProduct extends Module{
 //        1. 从ZOHO获取有效的xml
         String zohoURL = zohoPropsMap.get(Constants.FETCH_PRODUCTS_URL);//"https://crm.zoho.com.cn/crm/private/xml/Products/getRecords";
         String selectedColumns = "Products(Modified Time,PRODUCTID,Product Name,ERP ID,LatestEditTime)";
-        String sortOrderString = "desc";
-        String sortColumnString = "Modified Time";
         //注意：format 一定要为2，因为有可能需要的字段为空
-        String zohoStr = ModuleUtils.retrieveZohoRecords(zohoURL, Module.NEWFORMAT_2, selectedColumns, sortOrderString, sortColumnString);
+        String zohoStr = retrieveZohoRecords(zohoURL, NEWFORMAT_2, selectedColumns);
 //       2. xml 转 java bean
         logger.debug("zohoStr:::\n" + zohoStr);
         Response response = JaxbUtil.converyToJavaBean(zohoStr, Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
@@ -117,7 +114,7 @@ public class HandleProduct extends Module{
         List delZOHOIDList = new ArrayList();
         //如果没有数据<response uri="/crm/private/xml/Products/getRecords"><nodata><code>4422</code><message>There is no data to show</message></nodata></response>
         if(null != response.getResult()){
-            List<Row> rows = response.getResult().getProducts().getRows();
+            List<ProdRow> rows = response.getResult().getProducts().getRows();
             zohoModuleList = handleProduct.buildZohoComponentList(rows, "PRODUCTID", "ERP ID");
             erpZohoIDMap = (Map)zohoModuleList.get(0);
             erpZohoIDTimeMap = (Map)zohoModuleList.get(1);
@@ -322,8 +319,8 @@ public class HandleProduct extends Module{
         List<String> addZohoXmlList= new ArrayList<String>();
         Response response = new Response();
         Result result = new Result();
-        darlen.crm.jaxb_xml_object.Products.Products products = new darlen.crm.jaxb_xml_object.Products.Products();
-        Map<Integer,List<Row>> addRowsMap = getAddRowsMap(accountMap);
+        darlen.crm.jaxb.Products.Products products = new darlen.crm.jaxb.Products.Products();
+        Map<Integer,List<ProdRow>> addRowsMap = getAddRowsMap(accountMap);
         if(addRowsMap==null || addRowsMap.size() == 0){
             return addZohoXmlList;
         }else{
@@ -350,8 +347,8 @@ public class HandleProduct extends Module{
         String str = "";
         Response response = new Response();
         Result result = new Result();
-        darlen.crm.jaxb_xml_object.Products.Products products = new darlen.crm.jaxb_xml_object.Products.Products();
-        List<Row> rows = getUpdRowByMap(accountMap);
+        darlen.crm.jaxb.Products.Products products = new darlen.crm.jaxb.Products.Products();
+        List<ProdRow> rows = getUpdRowByMap(accountMap);
         if(rows==null || rows.size() == 0){
             return updateZphoXmlMap;
         }else{
@@ -380,12 +377,12 @@ public class HandleProduct extends Module{
      * @return
      * @throws Exception
      */
-    private List<Row> getUpdRowByMap(Map<String, Products> accountMap) throws Exception {
-        List<Row> rows = new ArrayList<Row>();
+    private List<ProdRow> getUpdRowByMap(Map<String, Products> accountMap) throws Exception {
+        List<ProdRow> rows = new ArrayList<ProdRow>();
 
         int i = 1;
         for(Map.Entry<String,Products> entry : accountMap.entrySet()){
-            Row row = new Row();
+            ProdRow row = new ProdRow();
             String key = entry.getKey();
             Products products  = entry.getValue();
             List fls = getAllFLList(products);
@@ -403,12 +400,12 @@ public class HandleProduct extends Module{
      * @return
      * @throws Exception
      */
-    private Map<Integer,List<Row>> getAddRowsMap(Map<String, Products> accountMap) throws Exception {
-        List<Row> rows = new ArrayList<Row>();
-        Map<Integer,List<Row>>  rowsMap = new HashMap<Integer, List<Row>>();
+    private Map<Integer,List<ProdRow>> getAddRowsMap(Map<String, Products> accountMap) throws Exception {
+        List<ProdRow> rows = new ArrayList<ProdRow>();
+        Map<Integer,List<ProdRow>>  rowsMap = new HashMap<Integer, List<ProdRow>>();
         int i = 1;
         for(Map.Entry<String,Products> entry : accountMap.entrySet()){
-            Row row = new Row();
+            ProdRow row = new ProdRow();
             String key = entry.getKey();
             Products products  = entry.getValue();
             List fls = getAllFLList(products);
@@ -419,7 +416,7 @@ public class HandleProduct extends Module{
             if(i == Constants.MAX_ADD_SIZE){
                 logger.debug("Add Rows的size达到了100，需要放到Map中，然后重新计算rows的条数...");
                 rowsMap.put(rowsMap.size(),rows);
-                rows = new ArrayList<Row>();
+                rows = new ArrayList<ProdRow>();
                 i = 1;
             }else{
                 i++;
@@ -440,7 +437,7 @@ public class HandleProduct extends Module{
      */
     private List getAllFLList(Products products) throws Exception {
         //通过反射拿到Products对应的所有ERP字段
-        Map<String,Object> dbFieldNameValueMap = ModuleUtils.getDBFieldNameValueMap("darlen.crm.model.result.Products", products);
+        Map<String,Object> dbFieldNameValueMap = getDBFieldNameValueMap("darlen.crm.model.result.Products", products);
         // 通过properties过滤不包含在里面的所有需要发送的ZOHO字段
         List zohoFieldList = getZOHOFLsByProps(CommonUtils.readProperties("/mapping/dbRdProductsFieldMapping.properties"), dbFieldNameValueMap);
         return zohoFieldList;
@@ -514,7 +511,7 @@ public class HandleProduct extends Module{
 //        User user = new User();
 //        user.setUserID("85333000000071039");
 //        user.setUserName("qq");
-        User user = ModuleUtils.fetchDevUser(false);
+        User user = fetchDevUser(false);
         products.setUser(user);
         products.setEnabled("true");
         //产品分类
@@ -544,7 +541,7 @@ public class HandleProduct extends Module{
 //        User user = new User();
 //        user.setUserID("85333000000071039");
 //        user.setUserName("qq");
-        User user = ModuleUtils.fetchDevUser(false);
+        User user = fetchDevUser(false);
         products.setUser(user);
         products.setEnabled("true");
         products.setLatestEditBy(user.getUserName());
@@ -564,7 +561,7 @@ public class HandleProduct extends Module{
      * @param erpIDName ERP ID-->
      * @return  zohoCompList
      */
-    private List buildZohoComponentList(List<Row> rows, String zohoIDName, String erpIDName) {
+    private List buildZohoComponentList(List<ProdRow> rows, String zohoIDName, String erpIDName) {
         List  zohoCompList = new ArrayList();
 
         Map<String,String> erpZohoIDMap = new HashMap<String, String>();

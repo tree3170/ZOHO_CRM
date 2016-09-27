@@ -8,7 +8,6 @@
  * */
 package darlen.crm.velocitymodule;
 
-import darlen.crm.util.CommonUtils;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;

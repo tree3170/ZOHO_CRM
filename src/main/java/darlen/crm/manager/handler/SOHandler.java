@@ -6,16 +6,20 @@
  *    注意： 本内容仅限于XXX公司内部使用，禁止转发
  * ** ** ** ** ** ** ** **** ** ** ** ** ** ** **** ** ** ** ** ** ** **
  * */
-package darlen.crm.record;
+package darlen.crm.manager.handler;
 
-import darlen.crm.jaxb_xml_object.SO.*;
-import darlen.crm.jaxb_xml_object.utils.JaxbUtil;
+import darlen.crm.jaxb.SO.Response;
+import darlen.crm.jaxb.SO.Result;
+import darlen.crm.jaxb.common.FL;
+import darlen.crm.jaxb.common.ProdDetails;
+import darlen.crm.jaxb.common.ProdRow;
+import darlen.crm.jaxb.common.Product;
+import darlen.crm.manager.AbstractModule;
 import darlen.crm.model.result.ProductDetails;
 import darlen.crm.model.result.SO;
 import darlen.crm.model.result.User;
 import darlen.crm.util.*;
 import org.apache.log4j.Logger;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
@@ -70,20 +74,19 @@ import java.util.*;
  *
  * @author Darlen liu
  */
-public class HandleSO extends Module{
-    private static HandleSO handleSO;
+public class SOHandler extends AbstractModule{
+    private static SOHandler handleSO;
     //
 //    Ⅰ：或者ZOHO xml并组装到zohoMap(id,lastEditTime)中： 参考（JaxbAccountsTest.java/JaxbSOTest.java/JaxbLeadsTest.java）
 //
-    private static Logger logger =  Logger.getLogger(HandleModules.class);
+    private static Logger logger =  Logger.getLogger(SOHandler.class);
 
-    /**
-     * BeforeClass 与Before的区别
-     */
-    @BeforeClass
-    public static void getInstance(){
-        handleSO = new HandleSO();
-        handleSO.getProperties();
+    public synchronized  static SOHandler getInstance(){
+        if(handleSO == null){
+            handleSO = new SOHandler();
+            handleSO.getProperties();
+        }
+        return handleSO;
     }
 
 
@@ -91,7 +94,7 @@ public class HandleSO extends Module{
      * Ⅰ：这里仅仅只是组装zohoAcctObjList
      */
     @Test
-    public void testAssembleZOHOAcctObjList(){
+    public void testAssembleZOHOAcctObjList() throws Exception {
         handleSO.buildSkeletonFromZohoList();
     }
 
@@ -110,13 +113,16 @@ public class HandleSO extends Module{
      * erpIDTimeMap<ERP ID,lastEditTime> = zohoComponentObjList.get(1)
      * delZOHOIDList = = zohoComponentObjList.get(2): 里面是所有 ERP ID 为空时的 ZOHO ID
      */
-    public List buildSkeletonFromZohoList(){
+    public List buildSkeletonFromZohoList() throws Exception {
         //因为这里仅仅是测试数据这里仅仅只演示一条record，免得ZOHO的数据
 //        String id = "85333000000106003";//ID：中联重科
         // TODO ：：：Notice: 最大只能取到200条数据，这边可能需要另外的逻辑控制判断数据是否取完
 //       1. 从ZOHO获取有效的xml
         System.out.println("从ZOHO获取回来的所有记录的XML:::");
-        String zohoStr =  retriveZohoSORecords();
+        String zohoURL = zohoPropsMap.get(Constants.FETCH_SO_URL);//"https://crm.zoho.com.cn/crm/private/xml/Accounts/getRecords";
+        String selectedColumns = "SalesOrders(Modified Time,SALESORDERID,Subject,ERP ID,LatestEditTime)";
+        //注意：format 一定要为2，因为有可能需要的字段为空
+        String zohoStr =  retrieveZohoRecords(zohoURL, NEWFORMAT_2, selectedColumns,"");
 //       2. xml 转 java bean
         Response response = JaxbUtil.converyToJavaBean(zohoStr, Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
         System.out.println("转化ZOHO获取回来的XML:::"+response);
@@ -126,7 +132,7 @@ public class HandleSO extends Module{
         Map<String,String> erpZohoIDTimeMap = new HashMap<String, String>();
         List delZOHOIDList = new ArrayList();
         if(null != response.getResult()){
-            List<Row> rows = response.getResult().getSo().getRows();
+            List<ProdRow> rows = response.getResult().getSo().getRows();
             zohoModuleList = handleSO.buildZohoComponentList(rows, "SALESORDERID", "ERP ID");
             erpZohoIDMap = (Map)zohoModuleList.get(0);
             erpZohoIDTimeMap = (Map)zohoModuleList.get(1);
@@ -170,7 +176,7 @@ public class HandleSO extends Module{
      * Ⅲ：由获得的ZOHO所有对象集合和从DB获取的对象集合，经过过滤，获取的组装需要***发送到ZOHO的对象集合骨架***
      */
     @Test
-    public void testAssembelSendToZOHOAcctList() throws ParseException {
+    public void testAssembelSendToZOHOAcctList() throws Exception {
         handleSO.build2ZohoObjSkeletonList();
     }
 
@@ -181,7 +187,7 @@ public class HandleSO extends Module{
      * 3.addAccountMap：如果dbModel中的id不存在于zohoMap中，则组装dbModel为xml并调用Zoho中的添加API：
      * @return
      */
-    public List build2ZohoObjSkeletonList() throws ParseException {
+    public List build2ZohoObjSkeletonList() throws Exception {
         //1. 获取ZOHO对象的骨架集合
         List allZohoObjList = buildSkeletonFromZohoList();
         //Map<ERPID，ZOHOID>
@@ -366,8 +372,8 @@ public class HandleSO extends Module{
         List<String> addZohoXmlList= new ArrayList<String>();
         Response response = new Response();
         Result result = new Result();
-        darlen.crm.jaxb_xml_object.SO.SO so = new darlen.crm.jaxb_xml_object.SO.SO();
-        Map<Integer,List<Row>> addRowsMap = getAddRowsMap(accountMap);
+        darlen.crm.jaxb.SO.SO so = new darlen.crm.jaxb.SO.SO();
+        Map<Integer,List<ProdRow>> addRowsMap = getAddRowsMap(accountMap);
         if(addRowsMap==null || addRowsMap.size() == 0){
             return addZohoXmlList;
         }else{
@@ -390,12 +396,12 @@ public class HandleSO extends Module{
      * @return
      * @throws Exception
      */
-    private Map<Integer,List<Row>> getAddRowsMap(Map<String, SO> accountMap) throws Exception {
-        List<Row> rows = new ArrayList<Row>();
-        Map<Integer,List<Row>>  rowsMap = new HashMap<Integer, List<Row>>();
+    private Map<Integer,List<ProdRow>> getAddRowsMap(Map<String, SO> accountMap) throws Exception {
+        List<ProdRow> rows = new ArrayList<ProdRow>();
+        Map<Integer,List<ProdRow>>  rowsMap = new HashMap<Integer, List<ProdRow>>();
         int i = 1;
         for(Map.Entry<String,SO> entry : accountMap.entrySet()){
-            Row row = new Row();
+            ProdRow row = new ProdRow();
             String key = entry.getKey();
             SO so  = entry.getValue();
             //1. 获取所有的FL集合
@@ -414,7 +420,7 @@ public class HandleSO extends Module{
             if(i == Constants.MAX_ADD_SIZE){
                 logger.debug("Add Rows的size达到了100，需要放到Map中，然后重新计算rows的条数...");
                 rowsMap.put(rowsMap.size(),rows);
-                rows = new ArrayList<Row>();
+                rows = new ArrayList<ProdRow>();
                 i = 1;
             }else{
                  i++;
@@ -437,8 +443,8 @@ public class HandleSO extends Module{
         String str = "";
         Response response = new Response();
         Result result = new Result();
-        darlen.crm.jaxb_xml_object.SO.SO so = new darlen.crm.jaxb_xml_object.SO.SO();
-        List<Row> rows = getUpdRowByMap(accountMap);
+        darlen.crm.jaxb.SO.SO so = new darlen.crm.jaxb.SO.SO();
+        List<ProdRow> rows = getUpdRowByMap(accountMap);
         if(rows==null || rows.size() == 0){
             return updateZphoXmlMap;
         }else{
@@ -467,12 +473,12 @@ public class HandleSO extends Module{
      * @return
      * @throws Exception
      */
-    private List<Row> getUpdRowByMap(Map<String, SO> accountMap) throws Exception {
-        List<Row> rows = new ArrayList<Row>();
+    private List<ProdRow> getUpdRowByMap(Map<String, SO> accountMap) throws Exception {
+        List<ProdRow> rows = new ArrayList<ProdRow>();
 
         int i = 1;
         for(Map.Entry<String,SO> entry : accountMap.entrySet()){
-            Row row = new Row();
+            ProdRow row = new ProdRow();
             String key = entry.getKey();
             SO so  = entry.getValue();
             List fls = getAllFLList(so);
@@ -750,7 +756,7 @@ public class HandleSO extends Module{
         //销售拥有者
 //        so.setOwerID("85333000000071039");
 //        so.setOwner("qq");
-        User user = ModuleUtils.fetchDevUser(false);
+        User user = fetchDevUser(false);
         so.setUser(user);
         so.setSubject("PSO30190412");
         /**ZOHO生成的字段，似乎没什么作用*/
@@ -816,7 +822,7 @@ public class HandleSO extends Module{
         //销售拥有者
 //        so.setOwerID("85333000000071039");
 //        so.setOwner("qq");
-        User user = ModuleUtils.fetchDevUser(false);
+        User user = fetchDevUser(false);
         so.setUser(user);
         so.setSubject("PSO30190412-Test");
         /**ZOHO生成的字段，似乎没什么作用*/
@@ -914,7 +920,7 @@ public class HandleSO extends Module{
      * @param erpIDName
      * @return  zohoCompList
      */
-    private List buildZohoComponentList(List<Row> rows, String zohoIDName, String erpIDName) {
+    private List buildZohoComponentList(List<ProdRow> rows, String zohoIDName, String erpIDName) {
         List  zohoCompList = new ArrayList();
 
         Map<String,String> erpZohoIDMap = new HashMap<String, String>();
@@ -960,24 +966,6 @@ public class HandleSO extends Module{
         return zohoCompList;
     }
 
-    private String retriveZohoSORecords() {
-        String retZohoStr = "";
-        try {
-//            String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/Accounts/getRecordById";
-            String targetURL_SO = "https://crm.zoho.com.cn/crm/private/xml/SalesOrders/getRecords";
-            Map<String,String> postParams = new HashMap<String, String>();
-            postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,targetURL_SO);
-//            postParams.put(Constants.HTTP_POST_PARAM_ID,id_Accounts);
-            postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
-            postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
-            postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_2);
-            retZohoStr =  CommonUtils.executePostMethod(postParams);
-        } catch(Exception e) {
-            logger.error("执行搜索Module操作出现错误",e);
-        }
-        return retZohoStr;
-
-    }
 
 
 }

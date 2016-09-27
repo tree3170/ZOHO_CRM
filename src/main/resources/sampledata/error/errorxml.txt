@@ -1,0 +1,9 @@
+1. <response uri="/crm/private/xml/Accounts/getRecords"><error><code>4834</code><message>Invalid Ticket Id</message></error></response>
+2.//如果没有数据<response uri="/crm/private/xml/Products/getRecords"><nodata><code>4422</code><message>There is no data to show</message></nodata></response>
+
+
+
+
+
+
+

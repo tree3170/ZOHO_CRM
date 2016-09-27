@@ -6,10 +6,12 @@
  *    注意： 本内容仅限于XXX公司内部使用，禁止转发
  * ** ** ** ** ** ** ** **** ** ** ** ** ** ** **** ** ** ** ** ** ** **
  * */
-package darlen.crm.util;
+package darlen.crm.record;
 
-import darlen.crm.model.common.Module;
 import darlen.crm.model.result.User;
+import darlen.crm.util.CommonUtils;
+import darlen.crm.util.Constants;
+import darlen.crm.util.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.lang.reflect.Field;
