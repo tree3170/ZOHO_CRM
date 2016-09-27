@@ -125,7 +125,7 @@ public class InvoicesManager_junitTest extends AbstractModule{
         String sortOrderString = "desc";
         String sortColumnString = "Modified Time";
         //注意：format 一定要为2，因为有可能需要的字段为空
-        String zohoStr =  retrieveZohoRecords(zohoPropsMap.get(Constants.FETCH_INVOICES_URL), NEWFORMAT_2, selectedColumns, sortOrderString, sortColumnString);
+        String zohoStr =  retrieveZohoRecords(zohoPropsMap.get(Constants.FETCH_INVOICES_URL), NEWFORMAT_2, selectedColumns);
 //       2. xml 转 java bean，注意要先转换product detail前的FL标签为pds标签
         Response response = JaxbUtil.converyToJavaBean(convertFLToPdsXmlTag(zohoStr), Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
         System.out.println("转化ZOHO获取回来的XML:::"+response);

@@ -122,7 +122,7 @@ public class SOHandler extends AbstractModule{
         String zohoURL = zohoPropsMap.get(Constants.FETCH_SO_URL);//"https://crm.zoho.com.cn/crm/private/xml/Accounts/getRecords";
         String selectedColumns = "SalesOrders(Modified Time,SALESORDERID,Subject,ERP ID,LatestEditTime)";
         //注意：format 一定要为2，因为有可能需要的字段为空
-        String zohoStr =  retrieveZohoRecords(zohoURL, NEWFORMAT_2, selectedColumns,"");
+        String zohoStr =  retrieveZohoRecords(zohoURL, NEWFORMAT_2, selectedColumns);
 //       2. xml 转 java bean
         Response response = JaxbUtil.converyToJavaBean(zohoStr, Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
         System.out.println("转化ZOHO获取回来的XML:::"+response);
