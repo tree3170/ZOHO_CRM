@@ -117,10 +117,10 @@ public class InvoicesHandler extends AbstractModule {
     public List buildSkeletonFromZohoList() throws Exception {
         // TODO ：：：Notice: 最大只能取到200条数据，这边可能需要另外的逻辑控制判断数据是否取完
 //       1. 从ZOHO获取有效的xml
-        System.out.println("从ZOHO获取回来的所有记录的XML:::");
-        String selectedColumns = "Products(Modified Time,ACCOUNTID,Account Name,ERP ID,LatestEditTime)";
+//        System.out.println("从ZOHO获取回来的所有记录的XML:::");
+//        String selectedColumns = "Invoices(Modified Time,INVOICEID,Subject,ERP ID,LatestEditTime)";
         //注意：format 一定要为2，因为有可能需要的字段为空
-        String zohoStr =  retrieveZohoRecords(zohoPropsMap.get(Constants.FETCH_INVOICES_URL), NEWFORMAT_2, selectedColumns);
+        String zohoStr =  retrieveZohoRecords(ModuleNameKeys.Invoices.toString());
 //       2. xml 转 java bean，注意要先转换product detail前的FL标签为pds标签
         Response response = JaxbUtil.converyToJavaBean(convertFLToPdsXmlTag(zohoStr), Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
         System.out.println("转化ZOHO获取回来的XML:::"+response);

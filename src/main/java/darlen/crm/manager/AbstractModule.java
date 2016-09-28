@@ -11,6 +11,7 @@ package darlen.crm.manager;
 import darlen.crm.model.result.User;
 import darlen.crm.util.CommonUtils;
 import darlen.crm.util.Constants;
+import darlen.crm.util.ModuleNameKeys;
 import darlen.crm.util.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -88,18 +89,32 @@ public abstract  class AbstractModule  implements IModule{
 
     /**
      * 获取ZOHO某个module的XML数据
-     * @param url
-     * @param newFormat
+     * @param moduleName
      * @return
      * @throws Exception
      */
-    public static  String retrieveZohoRecords(String url, String newFormat, String selectedColumns) throws Exception {//,String moduleName
+    public static  String retrieveZohoRecords(String moduleName) throws Exception {//,String moduleName
         //TODO remove url and selectedColums and newFormat三个参数
         String retZohoStr = "";
-//        if("".equalsIgnoreCase(moduleName)){
-//            url = "";
-//            selectedColumns = "";
-//        }
+        String url = "";
+        String selectedColumns = "";
+        if(ModuleNameKeys.Accounts.toString().equalsIgnoreCase(moduleName)){
+            url = zohoPropsMap.get(Constants.FETCH_ACCOUTNS_URL);
+            selectedColumns = "Accounts(Modified Time,ACCOUNTID,Account Name,ERP ID,LatestEditTime)";
+        }
+        if(ModuleNameKeys.Products.toString().equalsIgnoreCase(moduleName)){
+            url = zohoPropsMap.get(Constants.FETCH_PRODUCTS_URL);
+            selectedColumns = "Products(Modified Time,PRODUCTID,Product Name,ERP ID,LatestEditTime)";
+        }
+        if(ModuleNameKeys.SalesOrders.toString().equalsIgnoreCase(moduleName)){
+            url = zohoPropsMap.get(Constants.FETCH_SO_URL);
+            selectedColumns = "SalesOrders(Modified Time,SALESORDERID,Subject,ERP ID,LatestEditTime)";
+        }
+        if(ModuleNameKeys.Invoices.toString().equalsIgnoreCase(moduleName)){
+            url = zohoPropsMap.get(Constants.FETCH_INVOICES_URL);
+            selectedColumns = "Invoices(Modified Time,INVOICEID,Subject,ERP ID,LatestEditTime)";
+        }
+        System.out.println("从ZOHO获取回来的所有记录的XML:::moduleName = "+moduleName+", url ="+url);
         try {
             String sortOrderString = "desc";
             String sortColumnString = "Modified Time";
@@ -108,7 +123,8 @@ public abstract  class AbstractModule  implements IModule{
             postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,url);
             postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN, AUTHTOKEN);
             postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
-            postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, newFormat);
+            //default set the newFormat as 2
+            postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, zohoPropsMap.get(Constants.ZOHO_PROPS_NEWFORMAT_2));
             if(!StringUtils.isEmptyString(selectedColumns)){
                 postParams.put(Constants.HTTP_POST_PARAM_SELECTCOLS,selectedColumns);
             }

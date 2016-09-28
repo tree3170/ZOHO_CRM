@@ -99,10 +99,10 @@ public class ProductHandler extends AbstractModule{
     }
     public List buildSkeletonFromZohoList() throws Exception {
 //        1. 从ZOHO获取有效的xml
-        String zohoURL = zohoPropsMap.get(Constants.FETCH_PRODUCTS_URL);//"https://crm.zoho.com.cn/crm/private/xml/Products/getRecords";
-        String selectedColumns = "Products(Modified Time,PRODUCTID,Product Name,ERP ID,LatestEditTime)";
+//        String zohoURL = zohoPropsMap.get(Constants.FETCH_PRODUCTS_URL);//"https://crm.zoho.com.cn/crm/private/xml/Products/getRecords";
+//        String selectedColumns = "Products(Modified Time,PRODUCTID,Product Name,ERP ID,LatestEditTime)";
         //注意：format 一定要为2，因为有可能需要的字段为空
-        String zohoStr = retrieveZohoRecords(zohoURL, NEWFORMAT_2, selectedColumns);
+        String zohoStr = retrieveZohoRecords(ModuleNameKeys.Products.toString());
 //       2. xml 转 java bean
         logger.debug("zohoStr:::\n" + zohoStr);
         Response response = JaxbUtil.converyToJavaBean(zohoStr, Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()

@@ -13,8 +13,9 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
  *
  * @author Darlen liu
  */
+
 public interface Constants {
-    public static  enum ModuleNameKeys{Leads,Accounts,Contacts,Invoices,Products,Quotes,SalesOrders};
+//    public static  enum ModuleNameKeys{Leads,Accounts,Contacts,Invoices,Products,Quotes,SalesOrders};
     public static  String MODULE_NAME_KEYS_ALL = "Leads,Accounts,Contacts,Invoices,Products,Quotes,SalesOrders";
 
     /**定义result中每个module的key , for 每一个result的xml*/

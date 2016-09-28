@@ -118,11 +118,11 @@ public class SOHandler extends AbstractModule{
 //        String id = "85333000000106003";//ID：中联重科
         // TODO ：：：Notice: 最大只能取到200条数据，这边可能需要另外的逻辑控制判断数据是否取完
 //       1. 从ZOHO获取有效的xml
-        System.out.println("从ZOHO获取回来的所有记录的XML:::");
-        String zohoURL = zohoPropsMap.get(Constants.FETCH_SO_URL);//"https://crm.zoho.com.cn/crm/private/xml/Accounts/getRecords";
-        String selectedColumns = "SalesOrders(Modified Time,SALESORDERID,Subject,ERP ID,LatestEditTime)";
+//        System.out.println("从ZOHO获取回来的所有记录的XML:::");
+//        String zohoURL = zohoPropsMap.get(Constants.FETCH_SO_URL);//"https://crm.zoho.com.cn/crm/private/xml/Accounts/getRecords";
+//        String selectedColumns = "SalesOrders(Modified Time,SALESORDERID,Subject,ERP ID,LatestEditTime)";
         //注意：format 一定要为2，因为有可能需要的字段为空
-        String zohoStr =  retrieveZohoRecords(zohoURL, NEWFORMAT_2, selectedColumns);
+        String zohoStr =  retrieveZohoRecords(ModuleNameKeys.SalesOrders.toString());
 //       2. xml 转 java bean
         Response response = JaxbUtil.converyToJavaBean(zohoStr, Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
         System.out.println("转化ZOHO获取回来的XML:::"+response);

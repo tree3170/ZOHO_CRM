@@ -12,6 +12,7 @@ import darlen.crm.manager.handler.AccountsHandler;
 import darlen.crm.manager.handler.InvoicesHandler;
 import darlen.crm.manager.handler.ProductHandler;
 import darlen.crm.manager.handler.SOHandler;
+import darlen.crm.util.ModuleNameKeys;
 
 /**
  * darlen.crm.jaxb
@@ -46,7 +47,7 @@ public class ModuleManager {
         //1.add
         //2.update
         //3.delete
-        System.out.println("第N次执行结果，｛add/update/delete｝成功多少，失败多少");
+        System.out.println("第N次执行结果，｛add/update/delete｝成功多少，失败多少"+ ModuleNameKeys.Accounts);
     }
 
     public static void exeAccounts() throws Exception {
@@ -76,10 +77,10 @@ public class ModuleManager {
     }
 
     public static void main(String[] args) throws Exception {
-        exeAccounts();
+//        exeAccounts();
 //        exeProducts();
 //        exeSO();
-//        exeInvoice();
+        exeInvoice();
 
         exe();
     }

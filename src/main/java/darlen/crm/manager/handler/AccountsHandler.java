@@ -101,10 +101,10 @@ public class AccountsHandler  extends AbstractModule {
     }
     public List buildSkeletonFromZohoList() throws Exception {
 //      1. 从ZOHO获取有效的xml
-        String zohoURL = "https://crm.zoho.com.cn/crm/private/xml/Accounts/getRecords";
-        String selectedColumns = "Products(Modified Time,ACCOUNTID,Account Name,ERP ID,LatestEditTime)";
+//        String zohoURL = "https://crm.zoho.com.cn/crm/private/xml/Accounts/getRecords";
+//        String selectedColumns = "Products(Modified Time,ACCOUNTID,Account Name,ERP ID,LatestEditTime)";
         //注意：format 一定要为2，因为有可能需要的字段为空
-        String zohoStr =  retrieveZohoRecords(zohoURL, NEWFORMAT_2, selectedColumns);
+        String zohoStr =  retrieveZohoRecords(ModuleNameKeys.Accounts.toString());
 //       2. xml 转 java bean
         System.out.println("zohoStr:::"+zohoStr);
         Response response = JaxbUtil.converyToJavaBean(zohoStr, Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
