@@ -87,7 +87,12 @@ public interface Constants {
     public static final String DELETE_PRODUCTS_URL="DELETE_PRODUCTS_URL";
 
 
-
+    //ID for ZOHO Modules
+    public static final String MODULE_ACCOUNTS_ID="ACCOUNTID";
+    public static final String MODULE_PRODUCTS_ID="PRODUCTID";
+    public static final String MODULE_SO_ID="SALESORDERID";
+    public static final String MODULE_INVOICES_ID="INVOICEID";
+    public static final String ERPID="ERP ID";
 
     /**Max Add size*/
     public static final int MAX_ADD_SIZE = 1;

@@ -99,37 +99,47 @@ public class ProductHandler extends AbstractModule{
     }
     public List buildSkeletonFromZohoList() throws Exception {
 //        1. 从ZOHO获取有效的xml
-//        String zohoURL = zohoPropsMap.get(Constants.FETCH_PRODUCTS_URL);//"https://crm.zoho.com.cn/crm/private/xml/Products/getRecords";
-//        String selectedColumns = "Products(Modified Time,PRODUCTID,Product Name,ERP ID,LatestEditTime)";
-        //注意：format 一定要为2，因为有可能需要的字段为空
         String zohoStr = retrieveZohoRecords(ModuleNameKeys.Products.toString());
+
 //       2. xml 转 java bean
-        logger.debug("zohoStr:::\n" + zohoStr);
         Response response = JaxbUtil.converyToJavaBean(zohoStr, Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
-        logger.debug("response object:::\n" + response);
+        logger.debug("转化ZOHO获取XML回来的Java对象\n#" + response);
+
 //     3. 组装 zohoAcctObjList
-        List  zohoModuleList = new ArrayList();
-        Map<String,String> erpZohoIDMap = new HashMap<String, String>();
-        Map<String,String> erpZohoIDTimeMap = new HashMap<String, String>();
-        List delZOHOIDList = new ArrayList();
-        //如果没有数据<response uri="/crm/private/xml/Products/getRecords"><nodata><code>4422</code><message>There is no data to show</message></nodata></response>
+        List  zohoModuleList;
+        //TODO 如果没有数据<response uri="/crm/private/xml/Products/getRecords"><nodata><code>4422</code><message>There is no data to show</message></nodata></response>
         if(null != response.getResult()){
             List<ProdRow> rows = response.getResult().getProducts().getRows();
-            zohoModuleList = handleProduct.buildZohoComponentList(rows, "PRODUCTID", "ERP ID");
-            erpZohoIDMap = (Map)zohoModuleList.get(0);
-            erpZohoIDTimeMap = (Map)zohoModuleList.get(1);
-            delZOHOIDList = (List)zohoModuleList.get(2);
-            CommonUtils.printMap(erpZohoIDMap,"ERPID 和ZOHOID Map");
-            CommonUtils.printMap(erpZohoIDTimeMap,"ERPID 和LastEditTime Map");
-            CommonUtils.printList(delZOHOIDList,"Remove ZOHO ID list");
-
+            zohoModuleList = buildZohoComponentList(rows, Constants.MODULE_PRODUCTS_ID, Constants.ERPID);
         }else{
-            logger.debug("没有数据了：：：\n"+zohoStr);
-            zohoModuleList.add(erpZohoIDMap);
-            zohoModuleList.add(erpZohoIDTimeMap);
-            zohoModuleList.add(delZOHOIDList);
+            //TODO 解析response ， 出了错
+            logger.debug("没有数据了：：：\n" + zohoStr);
+            zohoModuleList = new ArrayList();
         }
+
         return zohoModuleList;
+//        List  zohoModuleList = new ArrayList();
+//        Map<String,String> erpZohoIDMap = new HashMap<String, String>();
+//        Map<String,String> erpZohoIDTimeMap = new HashMap<String, String>();
+//        List delZOHOIDList = new ArrayList();
+//        //如果没有数据<response uri="/crm/private/xml/Products/getRecords"><nodata><code>4422</code><message>There is no data to show</message></nodata></response>
+//        if(null != response.getResult()){
+//            List<ProdRow> rows = response.getResult().getProducts().getRows();
+//            zohoModuleList = handleProduct.buildZohoComponentList(rows, Constants.MODULE_PRODUCTS_ID, Constants.ERPID);
+//            erpZohoIDMap = (Map)zohoModuleList.get(0);
+//            erpZohoIDTimeMap = (Map)zohoModuleList.get(1);
+//            delZOHOIDList = (List)zohoModuleList.get(2);
+//            CommonUtils.printMap(erpZohoIDMap,"ERPID 和ZOHOID Map");
+//            CommonUtils.printMap(erpZohoIDTimeMap,"ERPID 和LastEditTime Map");
+//            CommonUtils.printList(delZOHOIDList,"Remove ZOHO ID list");
+//
+//        }else{
+//            logger.debug("没有数据了：：：\n"+zohoStr);
+//            zohoModuleList.add(erpZohoIDMap);
+//            zohoModuleList.add(erpZohoIDTimeMap);
+//            zohoModuleList.add(delZOHOIDList);
+//        }
+//        return zohoModuleList;
     }
     /**
      * Ⅱ：这里组装db中的AcctObjList
@@ -168,45 +178,53 @@ public class ProductHandler extends AbstractModule{
     public List build2ZohoObjSkeletonList() throws Exception {
         //1. 获取ZOHO对象的骨架集合
         List allZohoObjList = buildSkeletonFromZohoList();
-        //Map<ERPID，ZOHOID>
-        Map<String,String> erpZohoIDMap = (Map)allZohoObjList.get(0);
-        Map<String,String> erpIDTimeMap = (Map)allZohoObjList.get(1);
-        List<String> delZohoIDList = (List)allZohoObjList.get(2);
+        Map<String,String> erpZohoIDMap = new HashMap<String, String>();
+        Map<String,String> erpIDTimeMap =  new HashMap<String, String>();
+        //get delZohoIDList when ZOHO erp id is null
+        List<String> delZohoIDList = new ArrayList<String>();
+        if(allZohoObjList != null && allZohoObjList.size() > 0){
+            erpZohoIDMap = (Map)allZohoObjList.get(0);
+            erpIDTimeMap =  (Map)allZohoObjList.get(1);
+            delZohoIDList = (List)allZohoObjList.get(2);
+        }
+
+
         //2.组装DB 对象List
         List dbAcctList = buildDBObjList();
-        Map<String,Products> idProductsMap = (Map<String,Products>)dbAcctList.get(0);
+        Map<String,Object> idProductsMap = (Map<String,Object>)dbAcctList.get(0);
 
-        //3. 解析并组装addMap、updateMap、delZohoIDList
-        Map<String,Products> addMap = new HashMap<String, Products>();
-        Map<String,Products> updateMap = new HashMap<String, Products>();
-
-        for(Map.Entry<String,String> entry : erpIDTimeMap.entrySet()){
-            String erpID = entry.getKey();
-            if(idProductsMap.containsKey(erpID)){//update
-                updateMap.put(erpZohoIDMap.get(erpID), idProductsMap.get(erpID));
-            }else{ //delete
-                if(!delZohoIDList.contains(erpZohoIDMap.get(erpID))){
-                    delZohoIDList.add(erpZohoIDMap.get(erpID));
-                }
-            }
-        }
-
-        for(Map.Entry<String,Products> entry : idProductsMap.entrySet()){
-            String dbID = entry.getKey();
-            if(!erpIDTimeMap.containsKey(dbID)){//add
-                addMap.put(dbID, entry.getValue());
-            }
-        }
-
-        List sendToZohoList = new ArrayList();
-        CommonUtils.printMap(addMap,"addSOMap组装到ZOHO的对象的集合：：：\n");
-        sendToZohoList.add(addMap);
-        CommonUtils.printMap(updateMap, "updateSOMap组装到ZOHO的对象的集合：：：\n");
-        sendToZohoList.add(updateMap);
-        CommonUtils.printList(delZohoIDList, "delZOHOSOIDList组装到ZOHO的对象的集合：：：\n");
-        sendToZohoList.add(delZohoIDList);
-
-        return sendToZohoList;
+        //        3. 组装发送到ZOHO的三大对象并放入到List中:addMap、updateMap、delZohoIDList
+        return build2Zoho3PartObj(erpZohoIDMap,erpIDTimeMap,delZohoIDList,idProductsMap);
+//        Map<String,Products> addMap = new HashMap<String, Products>();
+//        Map<String,Products> updateMap = new HashMap<String, Products>();
+//
+//        for(Map.Entry<String,String> entry : erpIDTimeMap.entrySet()){
+//            String erpID = entry.getKey();
+//            if(idProductsMap.containsKey(erpID)){//update
+//                updateMap.put(erpZohoIDMap.get(erpID), idProductsMap.get(erpID));
+//            }else{ //delete
+//                if(!delZohoIDList.contains(erpZohoIDMap.get(erpID))){
+//                    delZohoIDList.add(erpZohoIDMap.get(erpID));
+//                }
+//            }
+//        }
+//
+//        for(Map.Entry<String,Products> entry : idProductsMap.entrySet()){
+//            String dbID = entry.getKey();
+//            if(!erpIDTimeMap.containsKey(dbID)){//add
+//                addMap.put(dbID, entry.getValue());
+//            }
+//        }
+//
+//        List sendToZohoList = new ArrayList();
+//        CommonUtils.printMap(addMap,"addSOMap组装到ZOHO的对象的集合：：：\n");
+//        sendToZohoList.add(addMap);
+//        CommonUtils.printMap(updateMap, "updateSOMap组装到ZOHO的对象的集合：：：\n");
+//        sendToZohoList.add(updateMap);
+//        CommonUtils.printList(delZohoIDList, "delZOHOSOIDList组装到ZOHO的对象的集合：：：\n");
+//        sendToZohoList.add(delZohoIDList);
+//
+//        return sendToZohoList;
     }
 
     /**
@@ -234,15 +252,18 @@ public class ProductHandler extends AbstractModule{
         Map<String,Products> addMap =  (Map<String,Products> )zohoComponentList.get(0);
         Map<String,Products> updateMap =(Map<String,Products> )zohoComponentList.get(1);
 
+
+        String className = "darlen.crm.model.result.Products";
+        Properties fieldMappingProps =CommonUtils.readProperties("/mapping/dbRdProductsFieldMapping.properties");
         //TODO add最大条数为100，
 //        2. 添加
         logger.debug("begin组装 AddZOHOXML...\n");
-        List<String> addZohoXmlList = buildAdd2ZohoXml(addMap);
+        List<String> addZohoXmlList = buildAdd2ZohoXml(addMap,className,fieldMappingProps);
         logger.debug("end组装 AddZOHOXML..size:::."+addZohoXmlList.size());
 
 //        3. 更新
         logger.debug("begin组装 updateZOHOXml...\n");
-        Map<String,String> updateZOHOXmlMap  = buildUpd2ZohoXml(updateMap);
+        Map<String,String> updateZOHOXmlMap  = buildUpd2ZohoXml(updateMap,className,fieldMappingProps);
         logger.debug("end组装 updateZOHOXml...size:::"+updateZOHOXmlMap.size());
 
         List zohoXMLList = new ArrayList();
@@ -311,16 +332,16 @@ public class ProductHandler extends AbstractModule{
      * 根据accountMap 组装成每100条数据的addZohoXmlList中
      * 注意：getAddRowsMap
      *
-     * @param accountMap
+     * @param accountMap<String, Products>
      * @return
      * @throws Exception
      */
-    private List<String> buildAdd2ZohoXml(Map<String, Products> accountMap) throws Exception {
+    private List<String> buildAdd2ZohoXml(Map accountMap,String className,Properties fieldMappingProps) throws Exception {
         List<String> addZohoXmlList= new ArrayList<String>();
         Response response = new Response();
         Result result = new Result();
         darlen.crm.jaxb.Products.Products products = new darlen.crm.jaxb.Products.Products();
-        Map<Integer,List<ProdRow>> addRowsMap = getAddRowsMap(accountMap);
+        Map<Integer,List<ProdRow>> addRowsMap = getAddRowsMap(accountMap,className,fieldMappingProps);
         if(addRowsMap==null || addRowsMap.size() == 0){
             return addZohoXmlList;
         }else{
@@ -338,28 +359,32 @@ public class ProductHandler extends AbstractModule{
 
     /**
      * 根据accountMap 组装成updateZphoXmlMap <zohoID,updateXml>
-     * @param accountMap
+     * @param accountMap<String, Products>
      * @return
      * @throws Exception
      */
-    private Map<String,String> buildUpd2ZohoXml(Map<String, Products> accountMap) throws Exception {
+    private Map<String,String> buildUpd2ZohoXml(Map accountMap,String className,Properties fieldMappingProps) throws Exception {
         Map<String,String> updateZphoXmlMap = new HashMap<String, String>();
         String str = "";
         Response response = new Response();
         Result result = new Result();
         darlen.crm.jaxb.Products.Products products = new darlen.crm.jaxb.Products.Products();
-        List<ProdRow> rows = getUpdRowByMap(accountMap);
+        List<ProdRow> rows = getUpdRowByMap(accountMap,className,fieldMappingProps);
         if(rows==null || rows.size() == 0){
             return updateZphoXmlMap;
         }else{
             int i = 0;
-            for (Map.Entry<String,Products> zohoIDAccountEntry : accountMap.entrySet()){
+//            for (Map.Entry<String,Products> zohoIDAccountEntry : accountMap.entrySet()){
+            Iterator it = accountMap.keySet().iterator();
+            while(it.hasNext()){
+                Object key = it.next( );
+                Object value = accountMap.get(key);
                 products.setRows(Arrays.asList(rows.get(i)));
                 result.setProducts(products);
                 response.setResult(result);
                 logger.debug("组装更新的第"+(i+1)+"条数据：：：");
                 str = JaxbUtil.convertToXml(response);
-                updateZphoXmlMap.put(zohoIDAccountEntry.getKey(),str);
+                updateZphoXmlMap.put(String.valueOf(key),str);
                 i++;
             }
 
@@ -377,22 +402,22 @@ public class ProductHandler extends AbstractModule{
      * @return
      * @throws Exception
      */
-    private List<ProdRow> getUpdRowByMap(Map<String, Products> accountMap) throws Exception {
-        List<ProdRow> rows = new ArrayList<ProdRow>();
-
-        int i = 1;
-        for(Map.Entry<String,Products> entry : accountMap.entrySet()){
-            ProdRow row = new ProdRow();
-            String key = entry.getKey();
-            Products products  = entry.getValue();
-            List fls = getAllFLList(products);
-            row.setNo(i);
-            row.setFls(fls);
-            rows.add(row);
-            i++;
-        }
-        return rows;
-    }
+//    private List<ProdRow> getUpdRowByMap(Map<String, Products> accountMap) throws Exception {
+//        List<ProdRow> rows = new ArrayList<ProdRow>();
+//
+//        int i = 1;
+//        for(Map.Entry<String,Products> entry : accountMap.entrySet()){
+//            ProdRow row = new ProdRow();
+//            String key = entry.getKey();
+//            Products products  = entry.getValue();
+//            List fls = getAllFLList(products);
+//            row.setNo(i);
+//            row.setFls(fls);
+//            rows.add(row);
+//            i++;
+//        }
+//        return rows;
+//    }
 
     /**
      * 获取Add的row的Map： 每100条rows放入Map，最后不满100条rows的放到最后的Map中
@@ -400,33 +425,33 @@ public class ProductHandler extends AbstractModule{
      * @return
      * @throws Exception
      */
-    private Map<Integer,List<ProdRow>> getAddRowsMap(Map<String, Products> accountMap) throws Exception {
-        List<ProdRow> rows = new ArrayList<ProdRow>();
-        Map<Integer,List<ProdRow>>  rowsMap = new HashMap<Integer, List<ProdRow>>();
-        int i = 1;
-        for(Map.Entry<String,Products> entry : accountMap.entrySet()){
-            ProdRow row = new ProdRow();
-            String key = entry.getKey();
-            Products products  = entry.getValue();
-            List fls = getAllFLList(products);
-            row.setNo(i);
-            row.setFls(fls);
-            rows.add(row);
-            //当row的size达到了100，那么需要放入
-            if(i == Constants.MAX_ADD_SIZE){
-                logger.debug("Add Rows的size达到了100，需要放到Map中，然后重新计算rows的条数...");
-                rowsMap.put(rowsMap.size(),rows);
-                rows = new ArrayList<ProdRow>();
-                i = 1;
-            }else{
-                i++;
-            }
-
-        }
-        //最后不满100条的，放入最后的Map中,如果刚好则不添加
-        if(rows.size()>0) rowsMap.put(rowsMap.size()+1,rows);
-        return rowsMap;
-    }
+//    private Map<Integer,List<ProdRow>> getAddRowsMap(Map<String, Products> accountMap) throws Exception {
+//        List<ProdRow> rows = new ArrayList<ProdRow>();
+//        Map<Integer,List<ProdRow>>  rowsMap = new HashMap<Integer, List<ProdRow>>();
+//        int i = 1;
+//        for(Map.Entry<String,Products> entry : accountMap.entrySet()){
+//            ProdRow row = new ProdRow();
+//            String key = entry.getKey();
+//            Products products  = entry.getValue();
+//            List fls = getAllFLList(products);
+//            row.setNo(i);
+//            row.setFls(fls);
+//            rows.add(row);
+//            //当row的size达到了100，那么需要放入
+//            if(i == Constants.MAX_ADD_SIZE){
+//                logger.debug("Add Rows的size达到了100，需要放到Map中，然后重新计算rows的条数...");
+//                rowsMap.put(rowsMap.size(),rows);
+//                rows = new ArrayList<ProdRow>();
+//                i = 1;
+//            }else{
+//                i++;
+//            }
+//
+//        }
+//        //最后不满100条的，放入最后的Map中,如果刚好则不添加
+//        if(rows.size()>0) rowsMap.put(rowsMap.size()+1,rows);
+//        return rowsMap;
+//    }
     /**
      * 获取所有FL的集合，返回的List中存在2大对象：commonFls，products
      *  1. commonFls --> Common FL 集合
@@ -435,13 +460,13 @@ public class ProductHandler extends AbstractModule{
      * @return
      * @throws Exception
      */
-    private List getAllFLList(Products products) throws Exception {
-        //通过反射拿到Products对应的所有ERP字段
-        Map<String,Object> dbFieldNameValueMap = getDBFieldNameValueMap("darlen.crm.model.result.Products", products);
-        // 通过properties过滤不包含在里面的所有需要发送的ZOHO字段
-        List zohoFieldList = getZOHOFLsByProps(CommonUtils.readProperties("/mapping/dbRdProductsFieldMapping.properties"), dbFieldNameValueMap);
-        return zohoFieldList;
-    }
+//    private List getAllFLList(Products products) throws Exception {
+//        //通过反射拿到Products对应的所有ERP字段
+//        Map<String,Object> dbFieldNameValueMap = getDBFieldNameValueMap("darlen.crm.model.result.Products", products);
+//        // 通过properties过滤不包含在里面的所有需要发送的ZOHO字段
+//        List zohoFieldList = getZOHOFLsByProps(CommonUtils.readProperties("/mapping/dbRdProductsFieldMapping.properties"), dbFieldNameValueMap);
+//        return zohoFieldList;
+//    }
 
 
     /**
@@ -450,49 +475,49 @@ public class ProductHandler extends AbstractModule{
      * @param dbFieldNameValueMap
      * @return
      */
-    private List<FL> getZOHOFLsByProps(Properties properties, Map dbFieldNameValueMap) {
-        logger.debug("开始properties的过滤...");
-        List<FL> fls = new ArrayList<FL>();
-
-        for(Map.Entry entry : properties.entrySet()){
-            if(dbFieldNameValueMap.containsKey(entry.getKey())){
-                FL fl = new FL();
-                fl.setFieldName((String)entry.getValue());
-                fl.setFieldValue((String)dbFieldNameValueMap.get(entry.getKey()));
-                fls.add(fl);
-            }
-        }
-        CommonUtils.printList(fls, "过滤后的 所有FL的集合:");
-        return fls;
-
-    }
+//    public List<FL> getZOHOFLsByProps(Properties properties, Map dbFieldNameValueMap) {
+//        logger.debug("开始properties的过滤...");
+//        List<FL> fls = new ArrayList<FL>();
+//
+//        for(Map.Entry entry : properties.entrySet()){
+//            if(dbFieldNameValueMap.containsKey(entry.getKey())){
+//                FL fl = new FL();
+//                fl.setFieldName((String)entry.getValue());
+//                fl.setFieldValue((String)dbFieldNameValueMap.get(entry.getKey()));
+//                fls.add(fl);
+//            }
+//        }
+//        CommonUtils.printList(fls, "过滤后的 所有FL的集合:");
+//        return fls;
+//
+//    }
     /**
      * 获取DB某个Accounts所有有效的fieldname 和value的Map
      * @param className 包名+类名
      * @return
      * refer:http://blog.csdn.net/sd4000784/article/details/7448221
      */
-    public static Map<String,Object> getDBFieldNameValueMap(String className,Object dbFields) throws Exception {
-        Map<String,Object> map = new HashMap();
-        Class clazz = Class.forName(className);
-        Field[] fields = clazz.getDeclaredFields();
-        Method[] methods = clazz.getMethods();
-        for(Field field : fields){
-            String fieldName = field.getName();
-            field.setAccessible(true) ;
-            if (field.getGenericType().toString().equals("class java.lang.String")
-                    ||"".equals("class darlen.crm.model.result.User") ) {// 如果type是类类型，则前面包含"class "，后面跟类名
-                String fieldValue =String.valueOf(field.get(dbFields));
-                if(!StringUtils.isEmptyString(fieldValue)){
-                    map.put(fieldName,fieldValue);
-                }
-            }else if(field.getGenericType().toString().equals("class darlen.crm.model.result.User")){//处理User对象:拥有者
-                map.putAll(getDBFieldNameValueMap("darlen.crm.model.result.User", field.get(dbFields)));
-            }
-        }
-        CommonUtils.printMap(map,"打印DBfield的map");
-        return map;
-    }
+//    public static Map<String,Object> getDBFieldNameValueMap(String className,Object dbFields) throws Exception {
+//        Map<String,Object> map = new HashMap();
+//        Class clazz = Class.forName(className);
+//        Field[] fields = clazz.getDeclaredFields();
+//        Method[] methods = clazz.getMethods();
+//        for(Field field : fields){
+//            String fieldName = field.getName();
+//            field.setAccessible(true) ;
+//            if (field.getGenericType().toString().equals("class java.lang.String")
+//                    ||"".equals("class darlen.crm.model.result.User") ) {// 如果type是类类型，则前面包含"class "，后面跟类名
+//                String fieldValue =String.valueOf(field.get(dbFields));
+//                if(!StringUtils.isEmptyString(fieldValue)){
+//                    map.put(fieldName,fieldValue);
+//                }
+//            }else if(field.getGenericType().toString().equals("class darlen.crm.model.result.User")){//处理User对象:拥有者
+//                map.putAll(getDBFieldNameValueMap("darlen.crm.model.result.User", field.get(dbFields)));
+//            }
+//        }
+//        CommonUtils.printMap(map,"打印DBfield的map");
+//        return map;
+//    }
 
     /**
      * TODO: 注意其中一些字段该放入值
@@ -561,51 +586,51 @@ public class ProductHandler extends AbstractModule{
      * @param erpIDName ERP ID-->
      * @return  zohoCompList
      */
-    private List buildZohoComponentList(List<ProdRow> rows, String zohoIDName, String erpIDName) {
-        List  zohoCompList = new ArrayList();
-
-        Map<String,String> erpZohoIDMap = new HashMap<String, String>();
-        Map<String,String> erpIDTimeMap = new HashMap<String, String>();
-        List delZohoIDList = new ArrayList();
-        zohoCompList.add(erpZohoIDMap);
-        zohoCompList.add(erpIDTimeMap);
-        zohoCompList.add(delZohoIDList);
-
-        for (int i = 0; i < rows.size() ; i++){
-            logger.debug("遍历第"+(i+1)+"条数据:::"+rows.get(i));
-            String zohoID = "";
-            String erpID = "";
-            String lastEditTime = "";
-            List<FL> fls = rows.get(i).getFls();
-            boolean hasERPID = true;
-            for(FL fl : fls){
-                String fieldName = fl.getFieldName();
-                String fieldVal = fl.getFieldValue();
-                if(zohoIDName.equals(fieldName) && !StringUtils.isEmptyString(fieldVal)){
-                    zohoID = fieldVal;
-                }
-                if(erpIDName.equals(fieldName)){
-                    if(StringUtils.isEmptyString(fieldVal)){
-                        fieldVal = "emptyERPID_"+i;
-                        hasERPID = false;
-                    }
-                    erpID = fieldVal;
-                    //如果出现重复的erpID，那么删除其中一条
-                    if(erpZohoIDMap.containsKey(erpID)){
-                        hasERPID = false;
-                        erpID = "dulERPID_"+erpID+"_"+i;
-                    }
-                }
-                if("LatestEditTime".equals(fieldName)){
-                    lastEditTime = fieldVal;
-                }
-            }
-            erpZohoIDMap.put(erpID, zohoID);
-            erpIDTimeMap.put(erpID, lastEditTime);
-            //如果ERPID为空，那么加入到删除列表中
-            if(!hasERPID) delZohoIDList.add(zohoID);
-        }
-        return zohoCompList;
-    }
+//    public List buildZohoComponentList(List<ProdRow> rows, String zohoIDName, String erpIDName) {
+//        List  zohoCompList = new ArrayList();
+//
+//        Map<String,String> erpZohoIDMap = new HashMap<String, String>();
+//        Map<String,String> erpIDTimeMap = new HashMap<String, String>();
+//        List delZohoIDList = new ArrayList();
+//        zohoCompList.add(erpZohoIDMap);
+//        zohoCompList.add(erpIDTimeMap);
+//        zohoCompList.add(delZohoIDList);
+//
+//        for (int i = 0; i < rows.size() ; i++){
+//            logger.debug("遍历第"+(i+1)+"条数据:::"+rows.get(i));
+//            String zohoID = "";
+//            String erpID = "";
+//            String lastEditTime = "";
+//            List<FL> fls = rows.get(i).getFls();
+//            boolean hasERPID = true;
+//            for(FL fl : fls){
+//                String fieldName = fl.getFieldName();
+//                String fieldVal = fl.getFieldValue();
+//                if(zohoIDName.equals(fieldName) && !StringUtils.isEmptyString(fieldVal)){
+//                    zohoID = fieldVal;
+//                }
+//                if(erpIDName.equals(fieldName)){
+//                    if(StringUtils.isEmptyString(fieldVal)){
+//                        fieldVal = "emptyERPID_"+i;
+//                        hasERPID = false;
+//                    }
+//                    erpID = fieldVal;
+//                    //如果出现重复的erpID，那么删除其中一条
+//                    if(erpZohoIDMap.containsKey(erpID)){
+//                        hasERPID = false;
+//                        erpID = "dulERPID_"+erpID+"_"+i;
+//                    }
+//                }
+//                if("LatestEditTime".equals(fieldName)){
+//                    lastEditTime = fieldVal;
+//                }
+//            }
+//            erpZohoIDMap.put(erpID, zohoID);
+//            erpIDTimeMap.put(erpID, lastEditTime);
+//            //如果ERPID为空，那么加入到删除列表中
+//            if(!hasERPID) delZohoIDList.add(zohoID);
+//        }
+//        return zohoCompList;
+//    }
 
 }

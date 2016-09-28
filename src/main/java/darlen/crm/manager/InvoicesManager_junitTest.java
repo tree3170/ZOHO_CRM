@@ -515,7 +515,7 @@ public class InvoicesManager_junitTest extends AbstractModule{
      * @param dbFieldNameValueMap
      * @return
      */
-    private List getZOHOFLsByProps(Properties properties, Map dbFieldNameValueMap) {
+    public List getZOHOFLsByProps(Properties properties, Map dbFieldNameValueMap) {
         List allFls = new ArrayList();
         List<Product> products = new ArrayList<Product>();
         List<FL> commonFls = new ArrayList<FL>();

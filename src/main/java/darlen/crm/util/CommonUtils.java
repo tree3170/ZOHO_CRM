@@ -284,12 +284,13 @@ public class CommonUtils {
     /**
      * 读取properties 文件 根据相对路径
      */
-    public static Properties readProperties(String relativePath){
+    public static Properties readProperties(String relativePath) throws IOException {
         Properties prop = new Properties();
         try {
             prop.load(CommonUtils.class.getResourceAsStream(relativePath));// "/secure/db.properties"
         } catch(IOException e) {
-            e.printStackTrace();
+            logger.error("读取properties文件出错【"+relativePath+"】",e);
+            throw e;
         }
 
         //TODO 开发环境中禁止打印

@@ -25,6 +25,9 @@ import darlen.crm.util.ModuleNameKeys;
  * 3. 实例化本类以后将使用Spring
  * 4. 不同module生成的log放到不同的日志文件中
  * 5. 使用适配器模式、单例模式等改造
+ * 6. 当超过13人该怎么办,会出现怎样的Error
+ * 7. 当API使用次数超过，会出现怎样的Error
+ *
  * -------------------------------------------------------------------------
  * 版本     修改时间        作者         修改内容 
  * 1.0.0        21：39   Darlen              create
@@ -73,14 +76,15 @@ public class ModuleManager {
     public static void exeInvoice() throws Exception {
         //for invoice
         module = InvoicesHandler.getInstance();
-        module.build2ZohoXmlSkeleton();
+//        module.build2ZohoXmlSkeleton();
+//        module.build2ZohoXmlSkeleton();
     }
 
     public static void main(String[] args) throws Exception {
 //        exeAccounts();
-//        exeProducts();
+        exeProducts();
 //        exeSO();
-        exeInvoice();
+//        exeInvoice();
 
         exe();
     }
