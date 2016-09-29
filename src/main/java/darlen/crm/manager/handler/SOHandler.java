@@ -163,10 +163,10 @@ public class SOHandler extends AbstractModule{
      * 1.Accounts --> dbAcctList.get(0)
      * 2.idAccountsMap<CustomerID,Accounts> --> dbAcctList.get(1)
      */
-    @Test
-    public void testAssembleDBAcctObjList() throws ParseException {
-        handleSO.buildDBObjList();
-    }
+//    @Test
+//    public void testAssembleDBAcctObjList() throws ParseException {
+//        handleSO.buildDBObjList();
+//    }
     public List buildDBObjList() throws ParseException {
         List dbAcctList = new ArrayList();
         Map<String,SO> idSOMap = new HashMap<String, SO>();
@@ -183,10 +183,10 @@ public class SOHandler extends AbstractModule{
     /**
      * Ⅲ：由获得的ZOHO所有对象集合和从DB获取的对象集合，经过过滤，获取的组装需要***发送到ZOHO的对象集合骨架***
      */
-    @Test
-    public void testAssembelSendToZOHOAcctList() throws Exception {
-        handleSO.build2ZohoObjSkeletonList();
-    }
+//    @Test
+//    public void testAssembelSendToZOHOAcctList() throws Exception {
+//        handleSO.build2ZohoObjSkeletonList();
+//    }
 
     /**
      * 由获得的ZOHO所有对象集合和从DB获取的对象集合，经过过滤，获取的组装需要***发送到ZOHO的对象集合骨架***
@@ -252,10 +252,10 @@ public class SOHandler extends AbstractModule{
      * updateZOHOXml：一次只能更新1条
      * deleteZOHOIDsList：转换为以逗号分割ZOHO ID的字符串
      */
-    @Test
-    public void testAssembleZOHOXml() throws Exception {
-        handleSO.build2ZohoXmlSkeleton();
-    }
+//    @Test
+//    public void testAssembleZOHOXml() throws Exception {
+//        handleSO.build2ZohoXmlSkeleton();
+//    }
 
     /**
      * 由发送到ZOHO的骨架对象，组装发送到ZOHO 的XML，分别为添加、更新、删除三个对象集合

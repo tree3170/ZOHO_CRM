@@ -90,21 +90,20 @@ public class AccountsHandler  extends AbstractModule {
      * Ⅰ：这里仅仅只是组装zohoAcctObjList
      * 1. 从ZOHO获取有效的xml
      * 2. xml 转 java bean
-     * 3. 组装 zohoListObj ，其中里面的element有：
-     * zohoIDMap<ERPID,ZOHOID> = zohoListObj.get(0)
-     * zohoTimeMap<ERPID,lastEditTime> = zohoListObj.get(1)
-     * delZOHOIDList:里面是所有 ERP ID 为空时的 ZOHO ID
+     * 3. 组装 zohoModuleList ，其中里面的element有：
+     * 1. erpZohoIDMap<erpID,zohoID> = zohoListObj.get(0)
+     * 2. erpIDTimeMap<erpID,lastEditTime> = zohoListObj.get(1)
+     * 3. delZohoIDList = zohoListObj.get(2) ：zoho ID list-->ERP ID 为空时的 加入删除列表
      */
-    @Test
-    public void testAssembleZOHOAcctObjList() throws Exception {
-        handleAccounts.buildSkeletonFromZohoList();
-    }
+//    @Test
+//    public void testAssembleZOHOAcctObjList() throws Exception {
+//        handleAccounts.buildSkeletonFromZohoList();
+//    }
     public List buildSkeletonFromZohoList() throws Exception {
 //      1. 从ZOHO获取有效的xml
         String zohoStr =  handleAccounts.retrieveZohoRecords(ModuleNameKeys.Accounts.toString());
 
 //      2. xml 转 java bean
-//        logger.debug("zohoStr:::\n#" + zohoStr);
         Response response = JaxbUtil.converyToJavaBean(zohoStr, Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
         logger.debug("转化ZOHO获取XML回来的Java对象\n#" + response);
 
@@ -128,10 +127,10 @@ public class AccountsHandler  extends AbstractModule {
      * 1.Accounts --> dbAcctList.get(0)
      * 2.idAccountsMap<CustomerID,Accounts> --> dbAcctList.get(1)
      */
-    @Test
-    public void testAssembleDBAcctObjList() throws ParseException {
-        handleAccounts.buildDBObjList();
-    }
+//    @Test
+//    public void testAssembleDBAcctObjList() throws ParseException {
+//        handleAccounts.buildDBObjList();
+//    }
     public List buildDBObjList() throws ParseException {
         List dbAcctList = new ArrayList();
         Map<String,Object> erpIDProductsMap = new HashMap<String, Object>();
@@ -145,7 +144,7 @@ public class AccountsHandler  extends AbstractModule {
     /**
      * Ⅲ：组装需要真正需要传输到ZOHO的Account对象集合
      * 1.updateAccountMap<>：如果zohoid存在于dbModel中，则判断 lastEditTime是否被修改，如果修改了，则直接组装dbModel为xml并调用ZOHO中的更新API：
-     * 2.delZOHOIDList：如果zohoid不存在于dbModel中，则直接调用ZOHO删除API：
+     * 2.delZohoIDList：如果zohoid不存在于dbModel中，则直接调用ZOHO删除API：
      * 3.addAccountMap：如果dbModel中的id不存在于zohoMap中，则组装dbModel为xml并调用Zoho中的添加API：
      * @return
      */
@@ -154,10 +153,14 @@ public class AccountsHandler  extends AbstractModule {
         handleAccounts.build2ZohoObjSkeletonList();
     }
     /**
-     * 由获得的ZOHO所有对象集合和从DB获取的对象集合，经过过滤，获取的组装需要***发送到ZOHO的对象集合骨架***
-     * 1.updateAccountMap<>：如果Zoho ID存在于DB对象集合中，则判断 lastEditTime是否被修改，如果修改了，则直接组装到updateAccountMap中
-     * 2.delZOHOIDList：如果zohoid不存在于dbModel中，则直接调用ZOHO删除API：
-     * 3.addAccountMap：如果dbModel中的id不存在于zohoMap中，则组装dbModel为xml并调用Zoho中的添加API：
+     * 由获得的ZOHO所有对象集合和从DB获取的对象集合(dbIDModuleObjMap)，经过过滤，获取的组装需要***发送到ZOHO的对象集合骨架***
+     * 1.updateModuleObjMap<>：如果Zoho ID存在于DB对象集合中，则判断 lastEditTime是否被修改，如果修改了，则直接组装到updateAccountMap中
+     * 2.delZohoIDList：如果ZOHO ID不存在于dbIDModuleObjMap中，则直接把DB ID添加到delZohoIDList
+     * 3.addModuleObjMap：如果dbIDModuleObjMap中的id不存在于erpIDTimeMap中，则添加ZOHOID和Module对象到addModuleObjMap
+     * @param erpZohoIDMap： ERP ID 和 ZOHO ID的集合
+     * @param erpIDTimeMap： ERP ID 和LastEditTime的集合
+     * @param delZohoIDList： ZOHO ID的集合
+     * @param dbIDModuleObjMap： DB ID 和Module对象的集合
      * @return
      */
     public List build2ZohoObjSkeletonList() throws Exception {
@@ -175,10 +178,10 @@ public class AccountsHandler  extends AbstractModule {
 
 //        2.组装DB 对象List
         List dbAcctList = buildDBObjList();
-        Map<String,Object> idAccountsMap = (Map<String,Object>)dbAcctList.get(0);
+        Map<String,Object> dbIDModuleObjMap = (Map<String,Object>)dbAcctList.get(0);
 
 //        3. 组装发送到ZOHO的三大对象并放入到List中:addMap、updateMap、delZohoIDList
-        return build2Zoho3PartObj(erpZohoIDMap,erpIDTimeMap,delZohoIDList,idAccountsMap);
+        return build2Zoho3PartObj(erpZohoIDMap,erpIDTimeMap,delZohoIDList,dbIDModuleObjMap);
     }
 
     /**
@@ -314,6 +317,7 @@ public class AccountsHandler  extends AbstractModule {
         Response response = new Response();
         Result result = new Result();
         darlen.crm.jaxb.Accounts.Accounts accounts = new darlen.crm.jaxb.Accounts.Accounts();
+//        获取被添加的所有Row的集合
         Map<Integer,List<ProdRow>> addRowsMap = getAddRowsMap(accountMap,className,fieldMappingProps);
         if(addRowsMap==null || addRowsMap.size() == 0){
             return addZohoXmlList;

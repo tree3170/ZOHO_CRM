@@ -175,8 +175,8 @@ public abstract  class AbstractModule  implements IModule{
      * 1.3
      * 获取Zoho组件的集合，其中包含三个对象，分别为 erpZohoIDMap，erpZohoIDTimeMap，delZohoIDList（zoho ID list）
      * 1. erpZohoIDMap<erpID,zohoID> = zohoListObj.get(0)
-     * 2. erpZohoIDTimeMap<erpID,lastEditTime> = zohoListObj.get(1)
-     * 3. delZohoIDList
+     * 2. erpIDTimeMap<erpID,lastEditTime> = zohoListObj.get(1)
+     * 3. delZohoIDList = zohoListObj.get(2) ：zoho ID list-->ERP ID 为空时的 加入删除列表
      * @param rows
      * @param zohoIDName  -->ZOHO
      * @param erpIDName ERP ID-->  DB
@@ -187,10 +187,10 @@ public abstract  class AbstractModule  implements IModule{
         List  zohoCompList = new ArrayList();
 
         Map<String,String> erpZohoIDMap = new HashMap<String, String>();
-        Map<String,String> erpZohoIDTimeMap = new HashMap<String, String>();
+        Map<String,String> erpIDTimeMap = new HashMap<String, String>();
         List delZohoIDList = new ArrayList();
         zohoCompList.add(erpZohoIDMap);
-        zohoCompList.add(erpZohoIDTimeMap);
+        zohoCompList.add(erpIDTimeMap);
         zohoCompList.add(delZohoIDList);
 
         for (int i = 0; i < rows.size() ; i++){
@@ -223,39 +223,39 @@ public abstract  class AbstractModule  implements IModule{
                 }
             }
             erpZohoIDMap.put(erpID, zohoID);
-            erpZohoIDTimeMap.put(erpID, lastEditTime);
+            erpIDTimeMap.put(erpID, lastEditTime);
             //如果ERPID为空，那么加入到删除列表中
             if(!hasERPID) delZohoIDList.add(zohoID);
         }
 
         CommonUtils.printMap(erpZohoIDMap,"ERPID 和 ZOHOID Map");
-        CommonUtils.printMap(erpZohoIDTimeMap,"ERPID 和 LastEditTime Map");
+        CommonUtils.printMap(erpIDTimeMap,"ERPID 和 LastEditTime Map");
         CommonUtils.printList(delZohoIDList,"Remove ZOHO ID list");
         return zohoCompList;
     }
 
     /**
      * 3.3 组装发送到ZOHO的三大对象
-     * 由获得的ZOHO所有对象集合和从DB获取的对象集合(idModuleObjMap)，经过过滤，获取的组装需要***发送到ZOHO的对象集合骨架***
+     * 由获得的ZOHO所有对象集合和从DB获取的对象集合(dbIDModuleObjMap)，经过过滤，获取的组装需要***发送到ZOHO的对象集合骨架***
      * 1.updateModuleObjMap<>：如果Zoho ID存在于DB对象集合中，则判断 lastEditTime是否被修改，如果修改了，则直接组装到updateAccountMap中
-     * 2.delZohoIDList：如果zohoid不存在于dbModel中，则直接调用ZOHO删除API：
-     * 3.addModuleObjMap：如果dbModel中的id不存在于zohoMap中，则组装dbModel为xml并调用Zoho中的添加API：
-     * @param erpZohoIDMap
-     * @param erpIDTimeMap
-     * @param delZohoIDList
-     * @param idModuleObjMap
+     * 2.delZohoIDList：如果ZOHO ID不存在于dbIDModuleObjMap中，则直接把DB ID添加到delZohoIDList
+     * 3.addModuleObjMap：如果dbIDModuleObjMap中的id不存在于erpIDTimeMap中，则添加ZOHOID和Module对象到addModuleObjMap
+     * @param erpZohoIDMap： ERP ID 和 ZOHO ID的集合
+     * @param erpIDTimeMap： ERP ID 和LastEditTime的集合
+     * @param delZohoIDList： ZOHO ID的集合
+     * @param dbIDModuleObjMap： DB ID 和Module对象的集合
      * @return
      */
     public List build2Zoho3PartObj(Map<String,String> erpZohoIDMap,Map<String,String> erpIDTimeMap,
-                                    List<String> delZohoIDList,Map<String,Object> idModuleObjMap){
+                                    List<String> delZohoIDList,Map<String,Object> dbIDModuleObjMap){
         Map<String,Object> addModuleObjMap = new HashMap<String, Object>();
         Map<String,Object> updateModuleObjMap = new HashMap<String, Object>();
 
         for(Map.Entry<String,String> entry : erpIDTimeMap.entrySet()){
             String erpID = entry.getKey();
             String zohoID = erpZohoIDMap.get(erpID);
-            if(idModuleObjMap.containsKey(erpID)){//update
-                updateModuleObjMap.put(zohoID, idModuleObjMap.get(erpID));
+            if(dbIDModuleObjMap.containsKey(erpID)){//update
+                updateModuleObjMap.put(zohoID, dbIDModuleObjMap.get(erpID));
             }else{ //delete
                 if(!delZohoIDList.contains(zohoID)){
                     delZohoIDList.add(zohoID);
@@ -263,9 +263,10 @@ public abstract  class AbstractModule  implements IModule{
             }
         }
 
-        for(Map.Entry<String,Object> entry : idModuleObjMap.entrySet()){
+        for(Map.Entry<String,Object> entry : dbIDModuleObjMap.entrySet()){
             String dbID = entry.getKey();
             if(!erpIDTimeMap.containsKey(dbID)){//add
+//                key可以随意
                 addModuleObjMap.put(dbID, entry.getValue());
             }
         }
@@ -292,9 +293,10 @@ public abstract  class AbstractModule  implements IModule{
         Map<Integer,List<ProdRow>>  rowsMap = new HashMap<Integer, List<ProdRow>>();
         int i = 1;
         for(Map.Entry<String,Object> entry : accountMap.entrySet()){
-            logger.debug("getAddRowsMap...遍历第"+i+"条记录");
-            ProdRow row = new ProdRow();
             String key = entry.getKey();
+            logger.debug("getAddRowsMap...遍历第"+i+"条记录，DB ID为"+key);
+            ProdRow row = new ProdRow();
+//            得到所有的FL集合，包括common和Product Detail
             List fls = getAllFLList(entry.getValue(),className,fieldMappingProps);
             row.setNo(i);
             //设置Common FL list
