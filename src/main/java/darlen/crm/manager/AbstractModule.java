@@ -92,11 +92,12 @@ public abstract  class AbstractModule  implements IModule{
 
     /**
      * 1.1 获取ZOHO某个module的XML数据
+     * 暂定每次遍历100条
      * @param moduleName
      * @return
      * @throws Exception
      */
-    public  String retrieveZohoRecords(String moduleName) throws Exception {//,String moduleName
+    public  String retrieveZohoRecords(String moduleName,int fromIndex,int toIndex) throws Exception {//,String moduleName
         //TODO remove url and selectedColums and newFormat三个参数
         String retZohoStr = "";
         String url = "";
@@ -126,6 +127,8 @@ public abstract  class AbstractModule  implements IModule{
             postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,url);
             postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN, AUTHTOKEN);
             postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
+            postParams.put(Constants.HTTP_POST_FROM_INDEX, fromIndex+"");
+            postParams.put(Constants.HTTP_POST_TO_INDEX, toIndex+"");
             //default set the newFormat as 2，因为有可能需要的字段为空
             postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, zohoPropsMap.get(Constants.ZOHO_PROPS_NEWFORMAT_2));
             if(!StringUtils.isEmptyString(selectedColumns)){

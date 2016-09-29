@@ -10,7 +10,6 @@ package darlen.crm.manager.handler;
 
 import darlen.crm.jaxb.Accounts.Response;
 import darlen.crm.jaxb.Accounts.Result;
-import darlen.crm.jaxb.common.FL;
 import darlen.crm.jaxb.common.ProdRow;
 import darlen.crm.manager.AbstractModule;
 import darlen.crm.model.result.Accounts;
@@ -19,8 +18,6 @@ import darlen.crm.util.*;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.util.*;
 
@@ -95,31 +92,69 @@ public class AccountsHandler  extends AbstractModule {
      * 2. erpIDTimeMap<erpID,lastEditTime> = zohoListObj.get(1)
      * 3. delZohoIDList = zohoListObj.get(2) ：zoho ID list-->ERP ID 为空时的 加入删除列表
      */
-//    @Test
-//    public void testAssembleZOHOAcctObjList() throws Exception {
-//        handleAccounts.buildSkeletonFromZohoList();
-//    }
     public List buildSkeletonFromZohoList() throws Exception {
+        //0 遍历获取List<Response>
+
 //      1. 从ZOHO获取有效的xml
-        String zohoStr =  handleAccounts.retrieveZohoRecords(ModuleNameKeys.Accounts.toString());
+//        String zohoStr =  handleAccounts.retrieveZohoRecords(ModuleNameKeys.Accounts.toString(),1,100);
+
+//      2. xml 转 java bean
+//        Response response = JaxbUtil.converyToJavaBean(zohoStr, Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
+//        logger.debug("转化ZOHO获取XML回来的Java对象\n#" + response);
+
+//      3. 组装 zohoModuleList
+//        List  zohoModuleList;
+//        //TODO 如果没有数据<response uri="/crm/private/xml/Products/getRecords"><nodata><code>4422</code><message>There is no data to show</message></nodata></response>
+//        if(null != response.getResult()){
+//            List<ProdRow> rows = response.getResult().getAccounts().getRows();
+//            zohoModuleList = buildZohoComponentList(rows, Constants.MODULE_ACCOUNTS_ID, Constants.ERPID);
+//        }else{
+//            //TODO 解析response ， 出了错
+//            logger.debug("没有数据了：：：\n" + zohoStr);
+//            zohoModuleList = new ArrayList();
+//        }
+//      1. 获取所有的记录
+        List<ProdRow> rows = new ArrayList<ProdRow>();
+        retrieveAllRowsFromZoho(1, Constants.MAX_FETCH_SIZE, rows);
+
+//      2. 获取Zoho组件的集合，其中包含三个对象，分别为 erpZohoIDMap，erpZohoIDTimeMap，delZohoIDList（zoho ID list）
+        List  zohoModuleList = buildZohoComponentList(rows, Constants.MODULE_ACCOUNTS_ID, Constants.ERPID);
+
+        return zohoModuleList;
+    }
+
+    /**
+     *  从ZOHO获取所有的记录，并返回所有的记录（原因是因为每次ZOHO最大能获取200条，并且没法知道获取最大条数）
+     *  1. 从ZOHO获取有效的xml
+     *  2. xml 转 java bean
+     *  3. 由javabean获取所有的row记录，如果没有取完，需要重新取
+     *     //如果已经达到了最大的查询条数，则代表还可以继续下一次查询；如果没有，则代表记录已经获取完
+     * @param fromIndex
+     * @param toIndex
+     * @param allRows
+     * @return
+     * @throws Exception
+     */
+    private List<ProdRow> retrieveAllRowsFromZoho(int fromIndex, int toIndex, List<ProdRow> allRows) throws Exception {
+//     1. 从ZOHO获取有效的xml
+        String zohoStr =  handleAccounts.retrieveZohoRecords(ModuleNameKeys.Accounts.toString(),fromIndex,toIndex);
 
 //      2. xml 转 java bean
         Response response = JaxbUtil.converyToJavaBean(zohoStr, Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
         logger.debug("转化ZOHO获取XML回来的Java对象\n#" + response);
 
-//      3. 组装 zohoModuleList
-        List  zohoModuleList;
+//      3. 由javabean获取所有的row记录，如果没有取完，需要重新取
         //TODO 如果没有数据<response uri="/crm/private/xml/Products/getRecords"><nodata><code>4422</code><message>There is no data to show</message></nodata></response>
         if(null != response.getResult()){
-            List<ProdRow> rows = response.getResult().getAccounts().getRows();
-            zohoModuleList = buildZohoComponentList(rows, Constants.MODULE_ACCOUNTS_ID, Constants.ERPID);
-        }else{
-            //TODO 解析response ， 出了错
-            logger.debug("没有数据了：：：\n" + zohoStr);
-            zohoModuleList = new ArrayList();
+            List<ProdRow>  currentRows = response.getResult().getAccounts().getRows();
+            allRows.addAll(currentRows);
+            //如果已经达到了最大的查询条数，则代表还可以继续下一次查询；如果没有，则代表记录已经获取完
+            if(currentRows.size() == Constants.MAX_FETCH_SIZE){
+                logger.debug("#通过RetrieveRecord需要已经遍历的次数：" + ((toIndex / Constants.MAX_FETCH_SIZE) + 1));
+                retrieveAllRowsFromZoho(fromIndex + Constants.MAX_FETCH_SIZE, toIndex + Constants.MAX_FETCH_SIZE, allRows);
+            }
         }
-
-        return zohoModuleList;
+        return allRows;
     }
 
     /**
@@ -127,14 +162,12 @@ public class AccountsHandler  extends AbstractModule {
      * 1.Accounts --> dbAcctList.get(0)
      * 2.idAccountsMap<CustomerID,Accounts> --> dbAcctList.get(1)
      */
-//    @Test
-//    public void testAssembleDBAcctObjList() throws ParseException {
-//        handleAccounts.buildDBObjList();
-//    }
     public List buildDBObjList() throws ParseException {
         List dbAcctList = new ArrayList();
         Map<String,Object> erpIDProductsMap = new HashMap<String, Object>();
-        getDBObj(erpIDProductsMap);
+//        for(int i = 6; i< 300;i++){
+            getDBObj(erpIDProductsMap,1);
+//        }
         getAcctDBObj2(erpIDProductsMap);
         dbAcctList.add(erpIDProductsMap);
         CommonUtils.printList(dbAcctList, "Build DB Object :::");
@@ -142,25 +175,14 @@ public class AccountsHandler  extends AbstractModule {
     }
 
     /**
-     * Ⅲ：组装需要真正需要传输到ZOHO的Account对象集合
-     * 1.updateAccountMap<>：如果zohoid存在于dbModel中，则判断 lastEditTime是否被修改，如果修改了，则直接组装dbModel为xml并调用ZOHO中的更新API：
-     * 2.delZohoIDList：如果zohoid不存在于dbModel中，则直接调用ZOHO删除API：
-     * 3.addAccountMap：如果dbModel中的id不存在于zohoMap中，则组装dbModel为xml并调用Zoho中的添加API：
-     * @return
-     */
-    @Test
-    public void testAssembelSendToZOHOAcctList() throws Exception {
-        handleAccounts.build2ZohoObjSkeletonList();
-    }
-    /**
      * 由获得的ZOHO所有对象集合和从DB获取的对象集合(dbIDModuleObjMap)，经过过滤，获取的组装需要***发送到ZOHO的对象集合骨架***
      * 1.updateModuleObjMap<>：如果Zoho ID存在于DB对象集合中，则判断 lastEditTime是否被修改，如果修改了，则直接组装到updateAccountMap中
      * 2.delZohoIDList：如果ZOHO ID不存在于dbIDModuleObjMap中，则直接把DB ID添加到delZohoIDList
      * 3.addModuleObjMap：如果dbIDModuleObjMap中的id不存在于erpIDTimeMap中，则添加ZOHOID和Module对象到addModuleObjMap
-     * @param erpZohoIDMap： ERP ID 和 ZOHO ID的集合
-     * @param erpIDTimeMap： ERP ID 和LastEditTime的集合
-     * @param delZohoIDList： ZOHO ID的集合
-     * @param dbIDModuleObjMap： DB ID 和Module对象的集合
+     * erpZohoIDMap： ERP ID 和 ZOHO ID的集合
+     * erpIDTimeMap： ERP ID 和LastEditTime的集合
+     * delZohoIDList： ZOHO ID的集合
+     * dbIDModuleObjMap： DB ID 和Module对象的集合
      * @return
      */
     public List build2ZohoObjSkeletonList() throws Exception {
@@ -184,18 +206,11 @@ public class AccountsHandler  extends AbstractModule {
         return build2Zoho3PartObj(erpZohoIDMap,erpIDTimeMap,delZohoIDList,dbIDModuleObjMap);
     }
 
-    /**
-     * Ⅳ：组装addZOHOXml，updateZOHOXml，deleteZOHOIDsList,放进zohoXMLList集合对象中
-     */
-    @Test
-    public void testAssembleZOHOXml() throws Exception {
-        handleAccounts.build2ZohoXmlSkeleton();
-    }
 
     /**
      * 由发送到ZOHO的骨架对象，组装发送到ZOHO 的XML，分别为添加、更新、删除三个对象集合
-     * List<String> addZohoXmlList :每一百条数据组装成xml放入list里面
-     * Map<zohoID,zohoXML> updateZOHOXmlMap ：以zohoID为key，xml为value
+     * addZohoXmlList : List<String> --> 每一百条数据组装成xml放入list里面
+     * updateZOHOXmlMap ：Map<zohoID,zohoXML>  --> 以zohoID为key，xml为value
      * deleteZOHOIDsList： zohoID的集合
      * @return  zohoComponentList
      * @throws Exception
@@ -237,13 +252,13 @@ public class AccountsHandler  extends AbstractModule {
      * 添加（testAddAcctRecord）
      * 删除（testDelAcctRecord）
      */
-    @Test
-    public void testAddAcctRecord(){
+    public void addRecords(){
         try {
             String targetURL_Accounts = zohoPropsMap.get(Constants.INSERT_ACCOUTNS_URL);//"https://crm.zoho.com.cn/crm/private/xml/Accounts/insertRecords";
             List<String> addZohoXMLList = (List<String> ) build2ZohoXmlSkeleton().get(0);
             for(int i = 0; i < addZohoXMLList.size(); i ++){
-                System.err.println("添加第"+(i+1)+"条数据，xml为："+addZohoXMLList.get(i));
+                //System.err.println("添加第"+(i+1)+"条数据，xml为："+addZohoXMLList.get(i));
+                logger.debug("添加第"+(i+1)+"条数据");
                 Map<String,String> postParams = new HashMap<String, String>();
                 postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,targetURL_Accounts);
                 postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,addZohoXMLList.get(i));
@@ -258,8 +273,7 @@ public class AccountsHandler  extends AbstractModule {
             logger.error("执行更新Module操作出现错误",e);
         }
     }
-    @Test
-    public void testUpdateAcctRecord(){
+    public void updateRecords(){
         try {
 //            String id_Accounts = "85333000000088001";//客户1ID
             String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/Accounts/updateRecords";
@@ -285,20 +299,21 @@ public class AccountsHandler  extends AbstractModule {
     }
 
 
-    @Test
-    public void testDelAcctRecord(){
+    public void delRecords(){
         try {
-//            String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/Accounts/deleteRecords";
-//            String addZohoXML = build2ZohoXmlSkeleton().get(0);
-//            Map<String,String> postParams = new HashMap<String, String>();
-//            postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,targetURL_Accounts);
-//            postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,addZohoXML);
-//            postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
-//            postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
-//            postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
+            String targetURL_Accounts = zohoPropsMap.get(Constants.DELETE_ACCOUTNS_URL);//"https://crm.zoho.com.cn/crm/private/xml/Accounts/deleteRecords";
+            List deleteZOHOIDsList = (List)build2ZohoXmlSkeleton().get(2);
+            for(int i = 0; i < deleteZOHOIDsList.size(); i++){
+                logger.debug("删除第"+(i+1)+"条数据");
+                Map<String,String> postParams = new HashMap<String, String>();
+                postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,targetURL_Accounts);
+                postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
+                postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
+                postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
+                postParams.put(Constants.HTTP_POST_PARAM_ID, deleteZOHOIDsList.get(i).toString());
 
-//            CommonUtils.executePostMethod(postParams);
-
+                CommonUtils.executePostMethod(postParams);
+            }
         } catch(Exception e) {
             logger.error("执行更新Module操作出现错误",e);
         }
@@ -376,7 +391,7 @@ public class AccountsHandler  extends AbstractModule {
      * @param idAccountsMap
      * @return
      */
-    private Accounts getDBObj(Map<String, Object> idAccountsMap) throws ParseException {
+    private Accounts getDBObj(Map<String, Object> idAccountsMap,int i) throws ParseException {
         Accounts accounts = new Accounts();
         //for Tree account
 //        User user = new User("85333000000071039","qq");
@@ -385,7 +400,7 @@ public class AccountsHandler  extends AbstractModule {
 //        accounts.setSMOWNERID("85333000000071039");
 //        accounts.setAcctOwner("qq");
         accounts.setUser(user);
-        accounts.setErpID("3");
+        accounts.setErpID(i+"");
         accounts.setCustomerNO("Ven0001");
         accounts.setAcctName("富士廊紙品有限公司");
         //TODO: 数据库中Enable是1或者0，但是在ZOHO中是true或者false，需要转换下

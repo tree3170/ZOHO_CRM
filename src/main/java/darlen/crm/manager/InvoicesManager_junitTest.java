@@ -125,7 +125,7 @@ public class InvoicesManager_junitTest extends AbstractModule{
 //        String sortOrderString = "desc";
 //        String sortColumnString = "Modified Time";
         //注意：format 一定要为2，因为有可能需要的字段为空
-        String zohoStr =  retrieveZohoRecords(ModuleNameKeys.Invoices.toString());
+        String zohoStr =  retrieveZohoRecords(ModuleNameKeys.Invoices.toString(),1,100);
 //       2. xml 转 java bean，注意要先转换product detail前的FL标签为pds标签
         Response response = JaxbUtil.converyToJavaBean(convertFLToPdsXmlTag(zohoStr), Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
         System.out.println("转化ZOHO获取回来的XML:::"+response);
@@ -287,8 +287,7 @@ public class InvoicesManager_junitTest extends AbstractModule{
      * 添加（testAddAcctRecord）
      * 删除（testDelAcctRecord）
      */
-    @Test
-    public void testAddRecords(){
+    public void addRecords(){
         try {
             String targetURL_Accounts = zohoPropsMap.get(Constants.INSERT_INVOICES_URL);
             List<String> addZohoXMLList = (List<String> ) build2ZohoXmlSkeleton().get(0);
@@ -308,8 +307,7 @@ public class InvoicesManager_junitTest extends AbstractModule{
             logger.error("执行更新Module操作出现错误",e);
         }
     }
-    @Test
-    public void testUpdateRecords(){
+    public void updateRecords(){
         try {
             String targetURL_Accounts = zohoPropsMap.get(Constants.UPDATE_INVOICES_URL);
             //TODO: qq:85333000000071039, tree3170:85333000000071001
@@ -327,6 +325,24 @@ public class InvoicesManager_junitTest extends AbstractModule{
 
                 CommonUtils.executePostMethod(postParams);
                 i++;
+            }
+        } catch(Exception e) {
+            logger.error("执行更新Module操作出现错误",e);
+        }
+    }
+    public void delRecords(){
+        try {
+            String targetURL_Accounts = Constants.DELETE_ACCOUTNS_URL;//"https://crm.zoho.com.cn/crm/private/xml/Accounts/deleteRecords";
+            List deleteZOHOIDsList = (List)build2ZohoXmlSkeleton().get(2);
+            for(int i = 0; i < deleteZOHOIDsList.size(); i++){
+                Map<String,String> postParams = new HashMap<String, String>();
+                postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,targetURL_Accounts);
+                postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
+                postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
+                postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
+                postParams.put(Constants.HTTP_POST_PARAM_ID, deleteZOHOIDsList.get(i).toString());
+
+                CommonUtils.executePostMethod(postParams);
             }
         } catch(Exception e) {
             logger.error("执行更新Module操作出现错误",e);

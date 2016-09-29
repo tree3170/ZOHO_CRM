@@ -10,9 +10,9 @@
    * 如何确定每个功能的记录数？我该如何判断我的数据是超过还是小于200条呢？【无API可以取记录数，只能每次遍历100条试试，最大200条】
 
    # 20160923
-   * 调用delete，删除的数据在回收站？怎么理解？如何roll back？
-   *Unit Price 与 List Price 分别表示什么？因为我看List Price其实是表示单价那么Unit Price表示什么
-   * 每个模块的主键是什么？什么情况下判断是duplicate？
+   * 调用delete，删除的数据在回收站？怎么理解？如何roll back？https://crm.zoho.com.cn/crm/ShowRBList.do
+   * Unit Price 与 List Price 分别表示什么？因为我看List Price其实是表示单价那么Unit Price表示什么
+   * 每个模块的主键是什么？什么情况下判断是duplicate？  因为我每次插入几乎相同的数据都能成功
 
 ## 问题： Ken
    * 确定日期格式问题，这个是datetime的表示的【datetime】

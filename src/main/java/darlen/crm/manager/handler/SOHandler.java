@@ -91,15 +91,7 @@ public class SOHandler extends AbstractModule{
 
 
     /**
-     * Ⅰ：这里仅仅只是组装zohoAcctObjList
-     */
-    @Test
-    public void testAssembleZOHOAcctObjList() throws Exception {
-        handleSO.buildSkeletonFromZohoList();
-    }
-
-    /**
-     * 从ZOHO获取所有的XML并转化为java对象，所有的SO记录，并且最后组装为3组对象：erpZohoIDMap，erpIDTimeMap，delZOHOIDList
+     * Ⅰ：从ZOHO获取所有的XML并转化为java对象，所有的SO记录，并且最后组装为3组对象：erpZohoIDMap，erpIDTimeMap，delZOHOIDList
      *
      * 1. 从ZOHO获取有效的xml ： retriveZohoSORecords()
      * 2. xml 转 java bean : JaxbUtil.converyToJavaBean(zohoStr, Response.class);
@@ -114,48 +106,67 @@ public class SOHandler extends AbstractModule{
      * delZOHOIDList = = zohoComponentObjList.get(2): 里面是所有 ERP ID 为空时的 ZOHO ID
      */
     public List buildSkeletonFromZohoList() throws Exception {
-        // TODO ：：：Notice: 最大只能取到200条数据，这边可能需要另外的逻辑控制判断数据是否取完
-//       1. 从ZOHO获取有效的xml
-        String zohoStr =  retrieveZohoRecords(ModuleNameKeys.SalesOrders.toString());
-
-//       2. xml 转 java bean
-        Response response = JaxbUtil.converyToJavaBean(zohoStr, Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
-        System.out.println("转化ZOHO获取XML回来的Java对象\n#"+response);
-
-//       3. 组装 zohoComponentObjList的三大对象
-        List  zohoModuleList;
-        //TODO 如果没有数据<response uri="/crm/private/xml/Products/getRecords"><nodata><code>4422</code><message>There is no data to show</message></nodata></response>
-        if(null != response.getResult()){
-            List<ProdRow> rows = response.getResult().getSo().getRows();
-            zohoModuleList = buildZohoComponentList(rows, Constants.MODULE_SO_ID, Constants.ERPID);
-        }else{
-            //TODO 解析response ， 出了错
-            logger.debug("没有数据了：：：\n" + zohoStr);
-            zohoModuleList = new ArrayList();
-        }
-
-        return zohoModuleList;
-//        List  zohoModuleList = new ArrayList();
-//        Map<String,String> erpZohoIDMap = new HashMap<String, String>();
-//        Map<String,String> erpZohoIDTimeMap = new HashMap<String, String>();
-//        List delZOHOIDList = new ArrayList();
+//        // TODO ：：：Notice: 最大只能取到200条数据，这边可能需要另外的逻辑控制判断数据是否取完
+////       1. 从ZOHO获取有效的xml
+//        String zohoStr =  retrieveZohoRecords(ModuleNameKeys.SalesOrders.toString(),1,100);
+//
+////       2. xml 转 java bean
+//        Response response = JaxbUtil.converyToJavaBean(zohoStr, Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
+//        System.out.println("转化ZOHO获取XML回来的Java对象\n#"+response);
+//
+////       3. 组装 zohoComponentObjList的三大对象
+//        List  zohoModuleList;
+//        //TODO 如果没有数据<response uri="/crm/private/xml/Products/getRecords"><nodata><code>4422</code><message>There is no data to show</message></nodata></response>
 //        if(null != response.getResult()){
 //            List<ProdRow> rows = response.getResult().getSo().getRows();
-//            zohoModuleList = handleSO.buildZohoComponentList(rows, Constants.MODULE_SO_ID, Constants.ERPID);
-//            erpZohoIDMap = (Map)zohoModuleList.get(0);
-//            erpZohoIDTimeMap = (Map)zohoModuleList.get(1);
-//            delZOHOIDList = (List)zohoModuleList.get(2);
-//            CommonUtils.printMap(erpZohoIDMap, "ERP ID 和ZOHO ID Map");
-//            CommonUtils.printMap(erpZohoIDTimeMap,"ERP ID 和LastEditTime Map");
-//            CommonUtils.printList(delZOHOIDList,"Remove ZOHO ID list");
+//            zohoModuleList = buildZohoComponentList(rows, Constants.MODULE_SO_ID, Constants.ERPID);
 //        }else{
+//            //TODO 解析response ， 出了错
 //            logger.debug("没有数据了：：：\n" + zohoStr);
-//            zohoModuleList.add(erpZohoIDMap);
-//            zohoModuleList.add(erpZohoIDTimeMap);
-//            zohoModuleList.add(delZOHOIDList);
+//            zohoModuleList = new ArrayList();
 //        }
 //
-//        return zohoModuleList;
+//      1. 获取所有的记录
+        List<ProdRow> rows = new ArrayList<ProdRow>();
+        retrieveAllRowsFromZoho(1, Constants.MAX_FETCH_SIZE, rows);
+
+//       2. 获取Zoho组件的集合，其中包含三个对象，分别为 erpZohoIDMap，erpZohoIDTimeMap，delZohoIDList（zoho ID list）
+        List  zohoModuleList = buildZohoComponentList(rows, Constants.MODULE_SO_ID, Constants.ERPID);
+
+        return zohoModuleList;
+    }
+    /**
+     *  从ZOHO获取所有的记录，并返回所有的记录（原因是因为每次ZOHO最大能获取200条，并且没法知道获取最大条数）
+     *  1. 从ZOHO获取有效的xml
+     *  2. xml 转 java bean
+     *  3. 由javabean获取所有的row记录，如果没有取完，需要重新取
+     *     //如果已经达到了最大的查询条数，则代表还可以继续下一次查询；如果没有，则代表记录已经获取完
+     * @param fromIndex  default is 1
+     * @param toIndex
+     * @param allRows
+     * @return
+     * @throws Exception
+     */
+    private List<ProdRow> retrieveAllRowsFromZoho(int fromIndex, int toIndex, List<ProdRow> allRows) throws Exception {
+//     1. 从ZOHO获取有效的xml
+        String zohoStr =  handleSO.retrieveZohoRecords(ModuleNameKeys.Accounts.toString(),fromIndex,toIndex);
+
+//      2. xml 转 java bean
+        Response response = JaxbUtil.converyToJavaBean(zohoStr, Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
+        logger.debug("转化ZOHO获取XML回来的Java对象\n#" + response);
+
+//      3. 由javabean获取所有的row记录，如果没有取完，需要重新取
+        //TODO 如果没有数据<response uri="/crm/private/xml/Products/getRecords"><nodata><code>4422</code><message>There is no data to show</message></nodata></response>
+        if(null != response.getResult()){
+            List<ProdRow>  currentRows = response.getResult().getSo().getRows();
+            allRows.addAll(currentRows);
+            //如果已经达到了最大的查询条数，则代表还可以继续下一次查询；如果没有，则代表记录已经获取完
+            if(currentRows.size() == Constants.MAX_FETCH_SIZE){
+                logger.debug("#通过RetrieveRecord需要已经遍历的次数：" + ((toIndex / Constants.MAX_FETCH_SIZE) + 1));
+                retrieveAllRowsFromZoho(fromIndex + Constants.MAX_FETCH_SIZE, toIndex + Constants.MAX_FETCH_SIZE, allRows);
+            }
+        }
+        return allRows;
     }
 
     /**
@@ -163,10 +174,6 @@ public class SOHandler extends AbstractModule{
      * 1.Accounts --> dbAcctList.get(0)
      * 2.idAccountsMap<CustomerID,Accounts> --> dbAcctList.get(1)
      */
-//    @Test
-//    public void testAssembleDBAcctObjList() throws ParseException {
-//        handleSO.buildDBObjList();
-//    }
     public List buildDBObjList() throws ParseException {
         List dbAcctList = new ArrayList();
         Map<String,SO> idSOMap = new HashMap<String, SO>();
@@ -305,8 +312,7 @@ public class SOHandler extends AbstractModule{
      * 添加（testAddAcctRecord）
      * 删除（testDelAcctRecord）
      */
-    @Test
-    public void testAddRecords(){
+    public void addRecords(){
         try {
             String targetURL_Accounts = zohoPropsMap.get(Constants.INSERT_SO_URL);//"https://crm.zoho.com.cn/crm/private/xml/SalesOrders/insertRecords";
             List<String> addZohoXMLList = (List<String> ) build2ZohoXmlSkeleton().get(0);
@@ -326,8 +332,7 @@ public class SOHandler extends AbstractModule{
             logger.error("执行添加SO Module操作出现错误",e);
         }
     }
-    @Test
-    public void testUpdateRecords(){
+    public void updateRecords(){
         try {
             String id = "85333000000113197";//客户1ID
             String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/SalesOrders/updateRecords";
@@ -356,7 +361,7 @@ public class SOHandler extends AbstractModule{
      * 因为API一次只能删除一条
      */
     @Test
-    public void testDelSORecords(){
+    public void delRecords(){
         try {
             String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/SalesOrders/deleteRecords";
             List delZOHOIDList = (List) build2ZohoXmlSkeleton().get(2);

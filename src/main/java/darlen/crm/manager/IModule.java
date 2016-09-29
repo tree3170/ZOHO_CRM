@@ -29,7 +29,7 @@ public interface IModule {
 //    1.这里仅仅只是组装zohoAcctObjList
     public List buildSkeletonFromZohoList() throws Exception ;
 //    1.1 从ZOHO获取有效的xml
-    public  String retrieveZohoRecords(String moduleName) throws Exception;
+    public  String retrieveZohoRecords(String moduleName, int fromIndex,int toIndex) throws Exception;
 //    1.2 xml 转 java bean
 //    1.3 组装 zohoModuleList
     public List buildZohoComponentList(List<ProdRow> rows, String zohoIDName, String erpIDName);
@@ -49,4 +49,7 @@ public interface IModule {
 //    4.2. 添加
 //    4.3. 更新
 //    4.4. 删除
+    public void addRecords();
+    public void updateRecords();
+    public void delRecords();
 }

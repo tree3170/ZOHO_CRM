@@ -43,6 +43,8 @@ public interface Constants {
     public static final String HTTP_POST_PARAM_XMLDATA="xmlData";
     public static final String HTTP_POST_PARAM_UTF8="UTF-8";
     public static final String HTTP_POST_PARAM_TARGETURL="TARGET_URL";
+    public static final String HTTP_POST_FROM_INDEX="fromIndex";
+    public static final String HTTP_POST_TO_INDEX="toIndex";
     public static final String ZOHO_PROPS_NEWFORMAT_1="newFormat_1";
     public static final String ZOHO_PROPS_NEWFORMAT_2="newFormat_2";
     public static final String HTTP_POST_PARAM_SELECTCOLS="selectColumns";
@@ -96,5 +98,7 @@ public interface Constants {
 
     /**Max Add size*/
     public static final int MAX_ADD_SIZE = 1;
+    //每次查找时最大的增量for search
+    public static final int MAX_FETCH_SIZE = 100;
 
 }
