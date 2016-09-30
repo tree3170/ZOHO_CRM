@@ -41,6 +41,7 @@ public class ThreadLocalDateUtil {
     }
 
     public static String formatDate(Date date) throws ParseException {
+        if( null ==date) return "";
         return getDateFormat().format(date);
     }
 

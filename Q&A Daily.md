@@ -28,6 +28,10 @@
    * LatestEditBy在ERP系统中能被修改吗？因为我看产品等module中存的是name而不是ID，那么如果修改了，产品等module中的所有模块会不会一起跟着修改？【待确认】
    * 明天对SO、Invoices数据的正确性需要找用户和Ken确认正确性【待确认】
 
+   #20160930
+   * 关于LatestEditTime和CreationTime为空的情况【待确认】
+
+
 
 
 ## 问题： 客户
@@ -51,6 +55,8 @@
  * 11. ********Quotas应用--> 找用户确认并周末完成
  * 12 .****确认UI【尽量在这周末】--》周末完成【doing】
  * 13. ***邮件发送周末，如果完不成国庆前2天一定要完成了
+ * 14. report-->每天执行情况，成功多少失败多少
+ * 15. 连接池
 
 # 20160928
 * 1. 今天基本完成了对4个功能的重构，还算满意，不过以后多看设计模式，把里面的精髓应用进来
@@ -61,7 +67,7 @@
 * 1. 白天遇到了困难关于发送邮件，明天继续研究
 * 2. 明天白天需要研究IST中的适配器模式，晚上应用到自己的项目
 * 3. 4大功能已经移到了正式环境中，并且晚上refactory 项目，明天早上有时间的话继续refacory项目
-* 4. 关于log在不同形式下需要记不同的log，这个需要加快完成（比如分module，分error case，分时段等）
+* 4. 关于log在不同形式下需*要记不同的log，这个需要加快完成（比如分module，分error case，分时段等）
 
 ## 20160926
 * 当出错的时候，解析出错的信息【TODO】<response uri="/crm/private/xml/Products/getRecords"><nodata><code>4422</code><message>There is no data to show</message></nodata></response>

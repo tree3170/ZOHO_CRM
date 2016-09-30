@@ -40,6 +40,7 @@ import java.util.List;
  * 11. Quotas应用--> 周末完成
  * 12. 确认UI【尽量在这周末】--》周末完成
  * 13. 异常处理情况，比如说连不到网络
+ * 14.等DB工作完全做完应用到系统之后，需要把lastEditTime这个时间是否呗修改应用到update方法上
  *
  * -------------------------------------------------------------------------
  * 版本     修改时间        作者         修改内容 
@@ -74,10 +75,12 @@ public class ModuleManager {
 //        module.addRecords();
 //        testFetch(1,100);
 //            module.delRecords();
-//        for(int i = 0; i< 10000; i++){
-//            System.err.println("遍历次数"+i);
-//            module.retrieveZohoRecords(ModuleNameKeys.Accounts.toString(), 1, 2);
-//        }
+        Thread thread = new Thread();
+        thread.run();
+        for(int i = 0; i< 10000; i++){
+            System.err.println("遍历次数"+i);
+            module.retrieveZohoRecords(ModuleNameKeys.Accounts.toString(), 1, 2);
+        }
     }
 
     private static void testFetch(int fromIndex,int toIndex) throws Exception {

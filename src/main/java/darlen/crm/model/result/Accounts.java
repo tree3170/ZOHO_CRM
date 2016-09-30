@@ -20,6 +20,7 @@ package darlen.crm.model.result;
  * @author Darlen liu
  */
 public class Accounts {
+    /**db-->CustomerID*/
     private String erpID;
     /**客户拥有者*/
     private User user;
