@@ -550,6 +550,122 @@ public abstract  class AbstractModule  implements IModule{
         return map;
     }
 
+    private String getModuleUrl(String moduleName,String operation){
+        String moduleUrl = "" ;
+        if("ADD".equalsIgnoreCase(operation)){
+            if(ModuleNameKeys.Accounts.toString().equalsIgnoreCase(moduleName)){
+                moduleUrl = zohoPropsMap.get(Constants.INSERT_ACCOUTNS_URL);
+            }
+            if(ModuleNameKeys.Products.toString().equalsIgnoreCase(moduleName)){
+                moduleUrl = zohoPropsMap.get(Constants.INSERT_PRODUCTS_URL);
+            }
+            if(ModuleNameKeys.SalesOrders.toString().equalsIgnoreCase(moduleName)){
+                moduleUrl = zohoPropsMap.get(Constants.INSERT_SO_URL);
+            }
+            if(ModuleNameKeys.Invoices.toString().equalsIgnoreCase(moduleName)){
+                moduleUrl = zohoPropsMap.get(Constants.INSERT_INVOICES_URL);
+            }
+        }else if("UPDATE".equalsIgnoreCase(operation)){
+            if(ModuleNameKeys.Accounts.toString().equalsIgnoreCase(moduleName)){
+                moduleUrl = zohoPropsMap.get(Constants.UPDATE_ACCOUTNS_URL);
+            }
+            if(ModuleNameKeys.Products.toString().equalsIgnoreCase(moduleName)){
+                moduleUrl = zohoPropsMap.get(Constants.UPDATE_PRODUCTS_URL);
+            }
+            if(ModuleNameKeys.SalesOrders.toString().equalsIgnoreCase(moduleName)){
+                moduleUrl = zohoPropsMap.get(Constants.UPDATE_SO_URL);
+            }
+            if(ModuleNameKeys.Invoices.toString().equalsIgnoreCase(moduleName)){
+                moduleUrl = zohoPropsMap.get(Constants.UPDATE_INVOICES_URL);
+            }
+        }else if("DELETE".equalsIgnoreCase(operation)){
+            if(ModuleNameKeys.Accounts.toString().equalsIgnoreCase(moduleName)){
+                moduleUrl = zohoPropsMap.get(Constants.DELETE_ACCOUTNS_URL);
+            }
+            if(ModuleNameKeys.Products.toString().equalsIgnoreCase(moduleName)){
+                moduleUrl = zohoPropsMap.get(Constants.DELETE_PRODUCTS_URL);
+            }
+            if(ModuleNameKeys.SalesOrders.toString().equalsIgnoreCase(moduleName)){
+                moduleUrl = zohoPropsMap.get(Constants.DELETE_SO_URL);
+            }
+            if(ModuleNameKeys.Invoices.toString().equalsIgnoreCase(moduleName)){
+                moduleUrl = zohoPropsMap.get(Constants.DELETE_INVOICES_URL);
+            }
+        }
+        return moduleUrl;
+    }
+
+    public void addRecords(String moduleName,String operate){
+        try {
+            String moduleUrl  = getModuleUrl(moduleName,operate);//zohoPropsMap.get(Constants.INSERT_ACCOUTNS_URL);//"https://crm.zoho.com.cn/crm/private/xml/Accounts/insertRecords";
+
+            System.out.println("从ZOHO获取回来的所有记录的XML:::moduleName = "+moduleName+", Operator ="+operate+", url ="+moduleUrl);
+            List<String> addZohoXMLList = (List<String> ) build2ZohoXmlSkeleton().get(0);
+            for(int i = 0; i < addZohoXMLList.size(); i ++){
+                //System.err.println("添加第"+(i+1)+"条数据，xml为："+addZohoXMLList.get(i));
+                logger.debug("添加第"+(i+1)+"条数据");
+                Map<String,String> postParams = new HashMap<String, String>();
+                postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,moduleUrl);
+                postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,addZohoXMLList.get(i));
+                postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
+                postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
+                postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
+
+                CommonUtils.executePostMethod(postParams);
+            }
+
+        } catch(Exception e) {
+            logger.error("执行更新Module操作出现错误",e);
+        }
+    }
+    public void updateRecords(String moduleName,String operate){
+        try {
+//            String id_Accounts = "85333000000088001";//客户1ID
+            //"https://crm.zoho.com.cn/crm/private/xml/Accounts/updateRecords";
+            String moduleUrl  = getModuleUrl(moduleName,operate);;//zohoPropsMap.get(Constants.UPDATE_ACCOUTNS_URL);
+            //TODO: qq:85333000000071039, tree3170:85333000000071001
+            Map<String,String> updZohoXMLMap = (Map<String,String>) build2ZohoXmlSkeleton().get(1);
+            int i = 1 ;
+            for(Map.Entry<String,String> zohoIDUpdXmlEntry : updZohoXMLMap.entrySet()){
+                System.err.println("更新第"+(i)+"条数据，ZOHO ID为"+zohoIDUpdXmlEntry.getKey()+"\nxml为："+zohoIDUpdXmlEntry.getValue());
+                Map<String,String> postParams = new HashMap<String, String>();
+                postParams.put(Constants.HTTP_POST_PARAM_ID,zohoIDUpdXmlEntry.getKey());
+                postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,moduleUrl);
+                postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,zohoIDUpdXmlEntry.getValue());
+                postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
+                postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
+                postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
+
+                CommonUtils.executePostMethod(postParams);
+                i++;
+            }
+        } catch(Exception e) {
+            logger.error("执行更新Module操作出现错误",e);
+        }
+    }
+
+
+    public void delRecords(String moduleName,String operate){
+        try {
+            //String targetURL_Accounts = zohoPropsMap.get(Constants.DELETE_ACCOUTNS_URL);//"https://crm.zoho.com.cn/crm/private/xml/Accounts/deleteRecords";
+            String moduleUrl  = getModuleUrl(moduleName,operate);
+            List deleteZOHOIDsList = (List)build2ZohoXmlSkeleton().get(2);
+            for(int i = 0; i < deleteZOHOIDsList.size(); i++){
+                logger.debug("删除第"+(i+1)+"条数据");
+                Map<String,String> postParams = new HashMap<String, String>();
+                postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,moduleUrl);
+                postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
+                postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
+                postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
+                postParams.put(Constants.HTTP_POST_PARAM_ID, deleteZOHOIDsList.get(i).toString());
+
+                CommonUtils.executePostMethod(postParams);
+            }
+        } catch(Exception e) {
+            logger.error("执行更新Module操作出现错误",e);
+        }
+    }
+
 
 
     /**

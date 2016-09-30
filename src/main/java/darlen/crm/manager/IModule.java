@@ -49,7 +49,8 @@ public interface IModule {
 //    4.2. 添加
 //    4.3. 更新
 //    4.4. 删除
-    public void addRecords();
-    public void updateRecords();
-    public void delRecords();
+    public void addRecords(String moduleName,String operate);
+    public void updateRecords(String moduleName,String operate);
+    public void delRecords(String moduleName,String operate);
+    public void execSend();
 }

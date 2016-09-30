@@ -36,9 +36,10 @@ import java.util.List;
  * 7. 当API使用次数超过，会出现怎样的Error【doing,稍后查询尝试4000次，遍历最大次数后会出现怎样的情况】--》20160931：晚上11：30开始跑
  * 8. DB的操作，查找-->  20160930完成，如果完成不了，周末一定要完成
  * 9. 每次到ZOHO做完操作后，记录时间到file文件中--> 周末完成
- * 10.Spring Quatz【周末开始】--》周末完成
+ * 10. Spring Quatz【周末开始】--》周末完成
  * 11. Quotas应用--> 周末完成
- * 12 .确认UI【尽量在这周末】--》周末完成
+ * 12. 确认UI【尽量在这周末】--》周末完成
+ * 13. 异常处理情况，比如说连不到网络
  *
  * -------------------------------------------------------------------------
  * 版本     修改时间        作者         修改内容 
@@ -72,7 +73,7 @@ public class ModuleManager {
 //        module.buildDBObjList();
 //        module.addRecords();
 //        testFetch(1,100);
-            module.delRecords();
+//            module.delRecords();
 //        for(int i = 0; i< 10000; i++){
 //            System.err.println("遍历次数"+i);
 //            module.retrieveZohoRecords(ModuleNameKeys.Accounts.toString(), 1, 2);

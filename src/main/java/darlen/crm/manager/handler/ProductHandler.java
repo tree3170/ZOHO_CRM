@@ -299,68 +299,72 @@ public class ProductHandler extends AbstractModule{
      * 添加（testAddAcctRecord）
      * 删除（testDelAcctRecord）
      */
-    @Test
-    public void addRecords(){
-        try {
-            String targetURL_Accounts = zohoPropsMap.get(Constants.INSERT_PRODUCTS_URL);
-            List<String> addZohoXMLList = (List<String> ) build2ZohoXmlSkeleton().get(0);
-            for(int i = 0; i < addZohoXMLList.size(); i ++){
-                System.err.println("添加第"+(i+1)+"条数据，xml为："+addZohoXMLList.get(i));
-                Map<String,String> postParams = new HashMap<String, String>();
-                postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,targetURL_Accounts);
-                postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,addZohoXMLList.get(i));
-                postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
-                postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
-                postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
-
-                CommonUtils.executePostMethod(postParams);
-            }
-
-        } catch(Exception e) {
-            logger.error("执行更新Module操作出现错误",e);
-        }
+    public void execSend(){
+        addRecords(ModuleNameKeys.Products.toString(),"ADD");
+        updateRecords(ModuleNameKeys.Products.toString(),"UPDATE");
+        delRecords(ModuleNameKeys.Products.toString(),"DELETE");
     }
-    public void updateRecords(){
-        try {
-            String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/Products/updateRecords";
-            //TODO: qq:85333000000071039, tree3170:85333000000071001
-            Map<String,String> updZohoXMLMap = (Map<String,String>) build2ZohoXmlSkeleton().get(1);
-            int i = 1 ;
-            for(Map.Entry<String,String> zohoIDUpdXmlEntry : updZohoXMLMap.entrySet()){
-                System.err.println("更新第"+(i)+"条数据，xml为："+zohoIDUpdXmlEntry.getValue());
-                Map<String,String> postParams = new HashMap<String, String>();
-                postParams.put(Constants.HTTP_POST_PARAM_ID,zohoIDUpdXmlEntry.getKey());
-                postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,targetURL_Accounts);
-                postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,zohoIDUpdXmlEntry.getValue());
-                postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
-                postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
-                postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
-
-                CommonUtils.executePostMethod(postParams);
-                i++;
-            }
-        } catch(Exception e) {
-            logger.error("执行更新Module操作出现错误",e);
-        }
-    }
-    public void delRecords(){
-        try {
-            String targetURL_Accounts = Constants.DELETE_PRODUCTS_URL;//"https://crm.zoho.com.cn/crm/private/xml/Accounts/deleteRecords";
-            List deleteZOHOIDsList = (List)build2ZohoXmlSkeleton().get(2);
-            for(int i = 0; i < deleteZOHOIDsList.size(); i++){
-                Map<String,String> postParams = new HashMap<String, String>();
-                postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,targetURL_Accounts);
-                postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
-                postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
-                postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
-                postParams.put(Constants.HTTP_POST_PARAM_ID, deleteZOHOIDsList.get(i).toString());
-
-                CommonUtils.executePostMethod(postParams);
-            }
-        } catch(Exception e) {
-            logger.error("执行更新Module操作出现错误",e);
-        }
-    }
+//    public void addRecords(){
+//        try {
+//            String targetURL_Accounts = zohoPropsMap.get(Constants.INSERT_PRODUCTS_URL);
+//            List<String> addZohoXMLList = (List<String> ) build2ZohoXmlSkeleton().get(0);
+//            for(int i = 0; i < addZohoXMLList.size(); i ++){
+//                System.err.println("添加第"+(i+1)+"条数据，xml为："+addZohoXMLList.get(i));
+//                Map<String,String> postParams = new HashMap<String, String>();
+//                postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,targetURL_Accounts);
+//                postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,addZohoXMLList.get(i));
+//                postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
+//                postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
+//                postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
+//
+//                CommonUtils.executePostMethod(postParams);
+//            }
+//
+//        } catch(Exception e) {
+//            logger.error("执行更新Module操作出现错误",e);
+//        }
+//    }
+//    public void updateRecords(){
+//        try {
+//            String targetURL_Accounts = "https://crm.zoho.com.cn/crm/private/xml/Products/updateRecords";
+//            //TODO: qq:85333000000071039, tree3170:85333000000071001
+//            Map<String,String> updZohoXMLMap = (Map<String,String>) build2ZohoXmlSkeleton().get(1);
+//            int i = 1 ;
+//            for(Map.Entry<String,String> zohoIDUpdXmlEntry : updZohoXMLMap.entrySet()){
+//                System.err.println("更新第"+(i)+"条数据，xml为："+zohoIDUpdXmlEntry.getValue());
+//                Map<String,String> postParams = new HashMap<String, String>();
+//                postParams.put(Constants.HTTP_POST_PARAM_ID,zohoIDUpdXmlEntry.getKey());
+//                postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,targetURL_Accounts);
+//                postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,zohoIDUpdXmlEntry.getValue());
+//                postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
+//                postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
+//                postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
+//
+//                CommonUtils.executePostMethod(postParams);
+//                i++;
+//            }
+//        } catch(Exception e) {
+//            logger.error("执行更新Module操作出现错误",e);
+//        }
+//    }
+//    public void delRecords(){
+//        try {
+//            String targetURL_Accounts = Constants.DELETE_PRODUCTS_URL;//"https://crm.zoho.com.cn/crm/private/xml/Accounts/deleteRecords";
+//            List deleteZOHOIDsList = (List)build2ZohoXmlSkeleton().get(2);
+//            for(int i = 0; i < deleteZOHOIDsList.size(); i++){
+//                Map<String,String> postParams = new HashMap<String, String>();
+//                postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,targetURL_Accounts);
+//                postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
+//                postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
+//                postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
+//                postParams.put(Constants.HTTP_POST_PARAM_ID, deleteZOHOIDsList.get(i).toString());
+//
+//                CommonUtils.executePostMethod(postParams);
+//            }
+//        } catch(Exception e) {
+//            logger.error("执行更新Module操作出现错误",e);
+//        }
+//    }
 
     /**
      * 根据accountMap 组装成每100条数据的addZohoXmlList中
