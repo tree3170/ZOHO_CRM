@@ -288,10 +288,12 @@ public class InvoicesManager_junitTest extends AbstractModule{
      * 删除（testDelAcctRecord）
      */
     public void execSend(){
-        addRecords(ModuleNameKeys.Invoices.toString(),"ADD");
-        updateRecords(ModuleNameKeys.Invoices.toString(),"UPDATE");
-        delRecords(ModuleNameKeys.Invoices.toString(),"DELETE");
+//        addRecords(ModuleNameKeys.Invoices.toString(),"ADD");
+//        updateRecords(ModuleNameKeys.Invoices.toString(),"UPDATE");
+//        delRecords(ModuleNameKeys.Invoices.toString(),"DELETE");
     }
+
+
 //    public void addRecords(){
 //        try {
 //            String targetURL_Accounts = zohoPropsMap.get(Constants.INSERT_INVOICES_URL);
@@ -679,7 +681,7 @@ public class InvoicesManager_junitTest extends AbstractModule{
         invoices.setErpID("10");
         invoices.setInvoiceSubject("PInv0004");
         //1. 注意拥有者User一定要存在系统中
-        User user = fetchDevUser(false);
+        User user = CommonUtils.fetchDevUser(false);
         invoices.setUser(user);
 //        invoices.setOwerID("85333000000071039");
 //        invoices.setOwner("qq");
@@ -759,7 +761,7 @@ public class InvoicesManager_junitTest extends AbstractModule{
         /**DB中的Invoices id*/
         invoices.setErpID("11");
         invoices.setInvoiceSubject("PInv0005");
-        User user = fetchDevUser(false);
+        User user = CommonUtils.fetchDevUser(false);
         invoices.setUser(user);
 //        invoices.setOwerID("85333000000071039");
 //        invoices.setOwner("qq");

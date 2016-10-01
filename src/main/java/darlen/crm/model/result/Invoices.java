@@ -90,7 +90,7 @@ public class Invoices {
     /**Customer Discount来自Customer的折扣*/
     private String cusDiscount;//from ERP
     /**Discount来自销售订单中的“折扣”*/
-//    private String discount;
+    private String discount;
     /**Sub Total 来自销售订单中的“小计”*/
     private String subTotal;
     /**Grand Total来自销售订单中的“累计”*/
@@ -348,6 +348,14 @@ public class Invoices {
         this.cusDiscount = cusDiscount;
     }
 
+    public String getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(String discount) {
+        this.discount = discount;
+    }
+
     public String getSubTotal() {
         return subTotal;
     }
@@ -406,6 +414,7 @@ public class Invoices {
                 ", creationTime='" + creationTime + '\'' +
                 ", latestEditTime='" + latestEditTime + '\'' +
                 ", Customer Discount='" + cusDiscount + '\'' +
+                ", Discount='" + discount + '\'' +
                 ", subTotal='" + subTotal + '\'' +
                 ", grandTotal='" + grandTotal + '\'' +
                 ", pds=" + pds +

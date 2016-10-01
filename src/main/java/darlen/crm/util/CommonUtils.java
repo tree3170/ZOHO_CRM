@@ -11,8 +11,11 @@ package darlen.crm.util;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import darlen.crm.manager.ConfigManager;
 import darlen.crm.model.fields.common.Fields;
 import darlen.crm.model.fields.common.Section;
+import darlen.crm.model.result.User;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
@@ -328,5 +331,29 @@ public class CommonUtils {
             str+= list.get(i)+"; ";
         }
         logger.debug(str);
+    }
+
+    /**
+     * 关联拥有者，仅用做测试
+     * @param isDev
+     * @return
+     */
+    public static User fetchDevUser(boolean isDev){
+        return isDev ? new User("85333000000071039","qq"): new User("80487000000076001","marketing");
+    }
+
+    /**
+     * 关联拥有者，仅用做测试
+     * @return
+     */
+    public static String getLastEditTime(){
+        String time = "";
+        try {
+            boolean isDevMod  = "1".equals(ConfigManager.get(Constants.PROPS_ZOHO_1,Constants.ZOHO_PROPS_DEV_MODE));
+            if(isDevMod) time =  ThreadLocalDateUtil.formatDate(new Date());
+        } catch (Exception e) {
+            logger.error("getLastEditTime 出错",e);
+        }
+        return time;
     }
 }

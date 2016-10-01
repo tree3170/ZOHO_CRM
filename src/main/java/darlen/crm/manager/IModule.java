@@ -34,7 +34,7 @@ public interface IModule {
 //    1.3 组装 zohoModuleList
     public List buildZohoComponentList(List<ProdRow> rows, String zohoIDName, String erpIDName);
 //  2.组装DB 对象List
-    public List buildDBObjList() throws ParseException;
+    public List buildDBObjList() throws Exception;
 //    3.由获得的ZOHO所有对象集合和从DB获取的对象集合，经过过滤，获取的组装需要***发送到ZOHO的对象集合骨架***
     public List build2ZohoObjSkeletonList() throws Exception;
 //    3.1  获取ZOHO对象的骨架集合
@@ -49,8 +49,8 @@ public interface IModule {
 //    4.2. 添加
 //    4.3. 更新
 //    4.4. 删除
-    public void addRecords(String moduleName,String operate);
-    public void updateRecords(String moduleName,String operate);
-    public void delRecords(String moduleName,String operate);
-    public void execSend();
+    public void addRecords(String moduleName,int curdKey,List zohoXMLList);
+    public void updateRecords(String moduleName,int curdKey,List zohoXMLList);
+    public void delRecords(String moduleName,int curdKey,List zohoXMLList);
+    public void execSend() throws Exception;
 }

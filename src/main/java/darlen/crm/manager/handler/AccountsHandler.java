@@ -93,6 +93,7 @@ public class AccountsHandler  extends AbstractModule {
      * 3. delZohoIDList = zohoListObj.get(2) ：zoho ID list-->ERP ID 为空时的 加入删除列表
      */
     public List buildSkeletonFromZohoList() throws Exception {
+        logger.debug("# AccountHandler [buildSkeletonFromZohoList]...");
         //0 遍历获取List<Response>
 
 //      1. 从ZOHO获取有效的xml
@@ -136,6 +137,7 @@ public class AccountsHandler  extends AbstractModule {
      * @throws Exception
      */
     private List<ProdRow> retrieveAllRowsFromZoho(int fromIndex, int toIndex, List<ProdRow> allRows) throws Exception {
+        logger.debug("# AccountHandler [retrieveAllRowsFromZoho]...");
 //     1. 从ZOHO获取有效的xml
         String zohoStr =  handleAccounts.retrieveZohoRecords(ModuleNameKeys.Accounts.toString(),fromIndex,toIndex);
 
@@ -159,16 +161,18 @@ public class AccountsHandler  extends AbstractModule {
 
     /**
      * Ⅱ：这里组装db中的AcctObjList
-     * 1.Accounts --> dbAcctList.get(0)
-     * 2.idAccountsMap<CustomerID,Accounts> --> dbAcctList.get(1)
+     * //1.Accounts --> dbAcctList.get(0)
+     * 2.idAccountsMap<ERPID,Accounts> --> dbAcctList.get(1)
      */
-    public List buildDBObjList() throws ParseException {
+    public List buildDBObjList() throws Exception {
+        logger.debug("# AccountHandler [buildDBObjList]...");
         List dbAcctList = new ArrayList();
         Map<String,Object> erpIDProductsMap = new HashMap<String, Object>();
 //        for(int i = 6; i< 300;i++){
-            getDBObj(erpIDProductsMap,1);
+//            getDBObj(erpIDProductsMap,1);
 //        }
-        getAcctDBObj2(erpIDProductsMap);
+//        getAcctDBObj2(erpIDProductsMap);
+        DBUtils.getAccountList(erpIDProductsMap);
         dbAcctList.add(erpIDProductsMap);
         CommonUtils.printList(dbAcctList, "Build DB Object :::");
         return dbAcctList;
@@ -186,6 +190,7 @@ public class AccountsHandler  extends AbstractModule {
      * @return
      */
     public List build2ZohoObjSkeletonList() throws Exception {
+        logger.debug("# AccountHandler [build2ZohoObjSkeletonList]...");
 //        1. 获取ZOHO对象的骨架集合
         List allZohoObjList = buildSkeletonFromZohoList();
         Map<String,String> erpZohoIDMap = new HashMap<String, String>();
@@ -216,6 +221,7 @@ public class AccountsHandler  extends AbstractModule {
      * @throws Exception
      */
     public List build2ZohoXmlSkeleton() throws Exception {
+        logger.debug("# AccountHandler [build2ZohoXmlSkeleton]...");
         //1. 获取发送到ZOHO的三大对象集合骨架
         List zohoComponentList = build2ZohoObjSkeletonList();
         Map<String,Accounts> addAccountMap =  (Map<String,Accounts> )zohoComponentList.get(0);
@@ -252,10 +258,12 @@ public class AccountsHandler  extends AbstractModule {
      * 添加（testAddAcctRecord）
      * 删除（testDelAcctRecord）
      */
-    public void execSend(){
-        addRecords(ModuleNameKeys.Accounts.toString(),"ADD");
-        updateRecords(ModuleNameKeys.Accounts.toString(),"UPDATE");
-        delRecords(ModuleNameKeys.Accounts.toString(),"DELETE");
+    public void execSend() throws Exception {
+        logger.debug("# AccountHandler [execSend]...");
+        List zohoXMLList = build2ZohoXmlSkeleton();
+        addRecords(ModuleNameKeys.Accounts.toString(),Constants.ZOHO_CRUD_ADD,zohoXMLList);
+        updateRecords(ModuleNameKeys.Accounts.toString(),Constants.ZOHO_CRUD_UPDATE,zohoXMLList);
+        delRecords(ModuleNameKeys.Accounts.toString(),Constants.ZOHO_CRUD_DELETE,zohoXMLList);
     }
 //    public void addRecords(String moduleName){
 //        try {
@@ -334,6 +342,7 @@ public class AccountsHandler  extends AbstractModule {
      * @throws Exception
      */
     public List<String>  buildAdd2ZohoXml(Map accountMap,String className,Properties fieldMappingProps) throws Exception {
+        logger.debug("# AccountHandler [buildAdd2ZohoXml]...");
         List<String> addZohoXmlList= new ArrayList<String>();
         Response response = new Response();
         Result result = new Result();
@@ -360,6 +369,7 @@ public class AccountsHandler  extends AbstractModule {
      * @throws Exception
      */
     private Map<String,String> buildUpd2ZohoXml(Map accountMap,String className,Properties fieldMappingProps) throws Exception {
+        logger.debug("# AccountHandler [buildUpd2ZohoXml]...");
         Map<String,String> updateZphoXmlMap = new HashMap<String, String>();
         String str = "";
         Response response = new Response();
@@ -398,6 +408,7 @@ public class AccountsHandler  extends AbstractModule {
      * @return
      */
     private Accounts getDBObj(Map<String, Object> idAccountsMap,int i) throws ParseException {
+        logger.debug("# AccountHandler [getDBObj]...");
         Accounts accounts = new Accounts();
         //for Tree account
 //        User user = new User("85333000000071039","qq");
@@ -432,6 +443,7 @@ public class AccountsHandler  extends AbstractModule {
     }
     //for update
     private Accounts getAcctDBObj2(Map<String,Object> idAccountsMap) throws ParseException {
+        logger.debug("# AccountHandler [getAcctDBObj2]...");
         Accounts accounts = new Accounts();
         //for Tree account
 //        User user = new User("85333000000071039","qq");
@@ -441,7 +453,7 @@ public class AccountsHandler  extends AbstractModule {
         User user = new User();
         user.setUserName("Gary Tang");
         user.setUserID("80487000000080005");
-        fetchDevUser(false);
+        CommonUtils.fetchDevUser(false);
         accounts.setUser(user);
         accounts.setErpID("2");
         accounts.setCustomerNO("Ven0002");

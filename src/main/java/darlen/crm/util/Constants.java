@@ -96,9 +96,29 @@ public interface Constants {
     public static final String MODULE_INVOICES_ID="INVOICEID";
     public static final String ERPID="ERP ID";
 
+
+
+    /**设置开发模式*/
+    public static final String ZOHO_PROPS_DEV_MODE="DEV_MODE";
+
+    /**设置Properties文件名*/
+    //PropertiesConfiguration初始化，不需要前面的斜杠
+    public static final String PROPS_ZOHO_1="secure/zoho.properties";//-->secure/db.properties
+    //PropertiesConfiguration，不需要前面的斜杠
+    public static final String PROPS_DB_2="secure/db.properties";//-->secure/zoho.properties
+    //Properties，需要前面的斜杠
+    public static final String PROPS_ACCT_3="/secure/Accounts.properties";//-->/secure/Accounts.properties
+
+
     /**Max Add size*/
-    public static final int MAX_ADD_SIZE = 1;
+    public static final int MAX_ADD_SIZE = 100;
     //每次查找时最大的增量for search
     public static final int MAX_FETCH_SIZE = 100;
+
+    /**ZOHO需要做的增删改查操作*/
+    public static final int ZOHO_CRUD_ADD = 1;
+    public static final int ZOHO_CRUD_UPDATE = 2;
+    public static final int ZOHO_CRUD_DELETE = 3;
+
 
 }

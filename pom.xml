@@ -286,6 +286,14 @@
             <artifactId>commons-beanutils</artifactId>
             <version>1.9.2</version>
         </dependency>
+        <!--Commons Configuration是一个Java应用程序的配置管理类库。可以从properties或者xml文件中加载
+        软件的配置信息，用来构建支撑软件运 行的基础环境。在一些配置文件较多较的复杂的情况下，
+        使用该配置工具比较可以简化配置文件的解析和管理。也提高了开发效率和软件的可维护性。-->
+        <dependency>
+            <groupId>commons-configuration</groupId>
+            <artifactId>commons-configuration</artifactId>
+            <version>1.9</version>
+        </dependency>
 
 
     </dependencies>

@@ -96,6 +96,7 @@ public class ProductHandler extends AbstractModule{
      * delZOHOIDList:里面是所有 ERP ID 为空时的 ZOHO ID
      */
     public List buildSkeletonFromZohoList() throws Exception {
+        logger.debug("# ProductHandler [buildSkeletonFromZohoList]...");
 ////        1. 从ZOHO获取有效的xml
 //        String zohoStr = retrieveZohoRecords(ModuleNameKeys.Products.toString(),1,100);
 //
@@ -138,6 +139,7 @@ public class ProductHandler extends AbstractModule{
      * @throws Exception
      */
     private List<ProdRow> retrieveAllRowsFromZoho(int fromIndex, int toIndex, List<ProdRow> allRows) throws Exception {
+        logger.debug("# ProductHandler [retrieveAllRowsFromZoho]...");
 //     1. 从ZOHO获取有效的xml
         String zohoStr =  handleProduct.retrieveZohoRecords(ModuleNameKeys.Products.toString(),fromIndex,toIndex);
 
@@ -163,11 +165,12 @@ public class ProductHandler extends AbstractModule{
      * 1.Accounts --> dbAcctList.get(0)
      * 2.idAccountsMap<CustomerID,Accounts> --> dbAcctList.get(1)
      */
-    @Test
-    public void testAssembleDBAcctObjList() throws ParseException {
-        handleProduct.buildDBObjList();
-    }
+//    @Test
+//    public void testAssembleDBAcctObjList() throws ParseException {
+//        handleProduct.buildDBObjList();
+//    }
     public List buildDBObjList() throws ParseException {
+        logger.debug("# ProductHandler [buildDBObjList]...");
         List dbAcctList = new ArrayList();
         Map<String,Products> erpIDProductsMap = new HashMap<String, Products>();
         getDBObj(erpIDProductsMap);
@@ -180,10 +183,10 @@ public class ProductHandler extends AbstractModule{
     /**
      * Ⅲ：由获得的ZOHO所有对象集合和从DB获取的对象集合，经过过滤，获取的组装需要***发送到ZOHO的对象集合骨架***
      */
-    @Test
-    public void testAssembelSendToZOHOAcctList() throws Exception {
-        handleProduct.build2ZohoObjSkeletonList();
-    }
+//    @Test
+//    public void testAssembelSendToZOHOAcctList() throws Exception {
+//        handleProduct.build2ZohoObjSkeletonList();
+//    }
 
     /**
      * 由获得的ZOHO所有对象集合和从DB获取的对象集合，经过过滤，获取的组装需要***发送到ZOHO的对象集合骨架***
@@ -193,6 +196,7 @@ public class ProductHandler extends AbstractModule{
      * @return
      */
     public List build2ZohoObjSkeletonList() throws Exception {
+        logger.debug("# ProductHandler [build2ZohoObjSkeletonList]...");
         //1. 获取ZOHO对象的骨架集合
         List allZohoObjList = buildSkeletonFromZohoList();
         Map<String,String> erpZohoIDMap = new HashMap<String, String>();
@@ -250,10 +254,10 @@ public class ProductHandler extends AbstractModule{
      * updateZOHOXml：一次只能更新1条
      * deleteZOHOIDsList：转换为以逗号分割ZOHO ID的字符串
      */
-    @Test
-    public void testAssembleZOHOXml() throws Exception {
-        handleProduct.build2ZohoXmlSkeleton();
-    }
+//    @Test
+//    public void testAssembleZOHOXml() throws Exception {
+//        handleProduct.build2ZohoXmlSkeleton();
+//    }
 
     /**
      * 由发送到ZOHO的骨架对象，组装发送到ZOHO 的XML，分别为添加、更新、删除三个对象集合
@@ -264,6 +268,7 @@ public class ProductHandler extends AbstractModule{
      * @throws Exception
      */
     public List build2ZohoXmlSkeleton() throws Exception {
+        logger.debug("# ProductHandler [build2ZohoXmlSkeleton]...");
 //        1. 获取发送到ZOHO对象集合骨架
         List zohoComponentList = build2ZohoObjSkeletonList();
         Map<String,Products> addMap =  (Map<String,Products> )zohoComponentList.get(0);
@@ -299,10 +304,12 @@ public class ProductHandler extends AbstractModule{
      * 添加（testAddAcctRecord）
      * 删除（testDelAcctRecord）
      */
-    public void execSend(){
-        addRecords(ModuleNameKeys.Products.toString(),"ADD");
-        updateRecords(ModuleNameKeys.Products.toString(),"UPDATE");
-        delRecords(ModuleNameKeys.Products.toString(),"DELETE");
+    public void execSend() throws Exception {
+        logger.debug("# ProductHandler [execSend]...");
+        List zohoXMLList = build2ZohoXmlSkeleton();
+        addRecords(ModuleNameKeys.Products.toString(),Constants.ZOHO_CRUD_ADD,zohoXMLList);
+        updateRecords(ModuleNameKeys.Products.toString(),Constants.ZOHO_CRUD_UPDATE,zohoXMLList);
+        delRecords(ModuleNameKeys.Products.toString(),Constants.ZOHO_CRUD_DELETE,zohoXMLList);
     }
 //    public void addRecords(){
 //        try {
@@ -375,6 +382,7 @@ public class ProductHandler extends AbstractModule{
      * @throws Exception
      */
     private List<String> buildAdd2ZohoXml(Map accountMap,String className,Properties fieldMappingProps) throws Exception {
+        logger.debug("# ProductHandler [buildAdd2ZohoXml]...");
         List<String> addZohoXmlList= new ArrayList<String>();
         Response response = new Response();
         Result result = new Result();
@@ -402,6 +410,7 @@ public class ProductHandler extends AbstractModule{
      * @throws Exception
      */
     private Map<String,String> buildUpd2ZohoXml(Map accountMap,String className,Properties fieldMappingProps) throws Exception {
+        logger.debug("# ProductHandler [buildUpd2ZohoXml]...");
         Map<String,String> updateZphoXmlMap = new HashMap<String, String>();
         String str = "";
         Response response = new Response();
@@ -566,15 +575,18 @@ public class ProductHandler extends AbstractModule{
      * @return
      */
     private Products getDBObj(Map<String, Products> idProductsMap) throws ParseException {
+        logger.debug("# ProductHandler [getDBObj]...");
         Products products = new Products();
-        products.setErpID("5");
+        products.setErpID("1");
         // 产品名称
         products.setProdName("尼龍背心環保袋");
+        products.setProdCode("MSF-PH-1007");
+
         //设置Product Owner产品拥有者：与lastEditBy一致
 //        User user = new User();
 //        user.setUserID("85333000000071039");
 //        user.setUserName("qq");
-        User user = fetchDevUser(false);
+        User user = CommonUtils.fetchDevUser(false);
         products.setUser(user);
         products.setEnabled("true");
         //产品分类
@@ -596,6 +608,7 @@ public class ProductHandler extends AbstractModule{
     }
 
     private Products getDBObj2(Map<String, Products> idProductsMap) throws ParseException {
+        logger.debug("# ProductHandler [getDBObj2]...");
         Products products = new Products();
         products.setErpID("2");
         // 产品名称
@@ -604,7 +617,7 @@ public class ProductHandler extends AbstractModule{
 //        User user = new User();
 //        user.setUserID("85333000000071039");
 //        user.setUserName("qq");
-        User user = fetchDevUser(false);
+        User user = CommonUtils.fetchDevUser(false);
         products.setUser(user);
         products.setEnabled("true");
         products.setLatestEditBy(user.getUserName());

@@ -106,6 +106,7 @@ public class InvoicesHandler extends AbstractModule {
      * delZOHOIDList = = zohoComponentObjList.get(2): 里面是所有 ERP ID 为空时的 ZOHO ID
      */
     public List buildSkeletonFromZohoList() throws Exception {
+        logger.debug("# InvoicesHandler [buildSkeletonFromZohoList]...");
         // TODO ：：：Notice: 最大只能取到200条数据，这边可能需要另外的逻辑控制判断数据是否取完
 ////       1. 从ZOHO获取有效的xml
 //        String zohoStr =  retrieveZohoRecords(ModuleNameKeys.Invoices.toString(),1,100);
@@ -149,7 +150,7 @@ public class InvoicesHandler extends AbstractModule {
      * @throws Exception
      */
     private List<ProdRow> retrieveAllRowsFromZoho(int fromIndex, int toIndex, List<ProdRow> allRows) throws Exception {
-
+        logger.debug("# InvoicesHandler [retrieveAllRowsFromZoho]...");
 //     1. 从ZOHO获取有效的xml
         String zohoStr =  retrieveZohoRecords(ModuleNameKeys.Invoices.toString(),fromIndex,toIndex);
 
@@ -182,6 +183,7 @@ public class InvoicesHandler extends AbstractModule {
 //        handleInvoices.buildDBObjList();
 //    }
     public List buildDBObjList() throws ParseException {
+        logger.debug("# InvoicesHandler [buildDBObjList]...");
         List dbAcctList = new ArrayList();
         Map<String,Invoices> idInvoicesMap = new HashMap<String, Invoices>();
         getDBObj(idInvoicesMap);
@@ -208,6 +210,7 @@ public class InvoicesHandler extends AbstractModule {
      * @return
      */
     public List build2ZohoObjSkeletonList() throws Exception {
+        logger.debug("# InvoicesHandler [build2ZohoObjSkeletonList]...");
         //1. 获取ZOHO对象的骨架集合
 //        List allZohoObjList = buildSkeletonFromZohoList();
 //        //Map<ERPID，ZOHOID>
@@ -254,6 +257,7 @@ public class InvoicesHandler extends AbstractModule {
      * @throws Exception
      */
     public List build2ZohoXmlSkeleton() throws Exception {
+        logger.debug("# InvoicesHandler [build2ZohoXmlSkeleton]...");
         //1. 获取发送到ZOHO对象集合骨架
         List zohoComponentList = build2ZohoObjSkeletonList();
         Map<String,Invoices> addAccountMap =  (Map<String,Invoices> )zohoComponentList.get(0);
@@ -292,10 +296,12 @@ public class InvoicesHandler extends AbstractModule {
      * 添加（testAddAcctRecord）
      * 删除（testDelAcctRecord）
      */
-    public void execSend(){
-        addRecords(ModuleNameKeys.Invoices.toString(),"ADD");
-        updateRecords(ModuleNameKeys.Invoices.toString(),"UPDATE");
-        delRecords(ModuleNameKeys.Invoices.toString(),"DELETE");
+    public void execSend() throws Exception {
+        logger.debug("# InvoicesHandler [execSend]...");
+        List zohoXMLList = build2ZohoXmlSkeleton();
+        addRecords(ModuleNameKeys.Invoices.toString(),Constants.ZOHO_CRUD_ADD,zohoXMLList);
+        updateRecords(ModuleNameKeys.Invoices.toString(),Constants.ZOHO_CRUD_UPDATE,zohoXMLList);
+        delRecords(ModuleNameKeys.Invoices.toString(),Constants.ZOHO_CRUD_DELETE,zohoXMLList);
     }
 //    public void addRecords(){
 //        try {
@@ -376,6 +382,7 @@ public class InvoicesHandler extends AbstractModule {
      * @throws Exception
      */
     private List<String> buildAdd2ZohoXml(Map accountMap,String className,Properties fieldMappingProps) throws Exception {
+        logger.debug("# InvoicesHandler [buildAdd2ZohoXml]...");
         List<String> addZohoXmlList= new ArrayList<String>();
         Response response = new Response();
         Result result = new Result();
@@ -446,6 +453,7 @@ public class InvoicesHandler extends AbstractModule {
      * @throws Exception
      */
     private Map<String,String> buildUpd2ZohoXml(Map accountMap,String className,Properties fieldMappingProps) throws Exception {
+        logger.debug("# InvoicesHandler [buildUpd2ZohoXml]...");
         Map<String,String> updateZphoXmlMap = new HashMap<String, String>();
         String str = "";
         Response response = new Response();
@@ -664,12 +672,13 @@ public class InvoicesHandler extends AbstractModule {
      * @return
      */
     private Invoices getDBObj(Map<String, Invoices> idInvoicesMap) throws ParseException {
+        logger.debug("# InvoicesHandler [getDBObj]...");
         Invoices invoices = new Invoices();
         /**DB中的Invoices id*/
         invoices.setErpID("10");
         invoices.setInvoiceSubject("PInv0004");
         //1. 注意拥有者User一定要存在系统中
-        User user = fetchDevUser(false);
+        User user = CommonUtils.fetchDevUser(false);
         invoices.setUser(user);
 //        invoices.setOwerID("85333000000071039");
 //        invoices.setOwner("qq");
@@ -745,11 +754,12 @@ public class InvoicesHandler extends AbstractModule {
      * @return
      */
     private Invoices getDBObj2(Map<String, Invoices> idInvoicesMap) throws ParseException {
+        logger.debug("# InvoicesHandler [getDBObj2]...");
         Invoices invoices = new Invoices();
         /**DB中的Invoices id*/
         invoices.setErpID("11");
         invoices.setInvoiceSubject("PInv0005");
-        User user = fetchDevUser(false);
+        User user = CommonUtils.fetchDevUser(false);
         invoices.setUser(user);
 //        invoices.setOwerID("85333000000071039");
 //        invoices.setOwner("qq");
@@ -821,6 +831,7 @@ public class InvoicesHandler extends AbstractModule {
      * @return
      */
     private List<ProductDetails> handlePdsList(String invoicesID,double erpExchangeRate) {
+        logger.debug("# InvoicesHandler [handlePdsList]...");
         List<ProductDetails> pds = new ArrayList<ProductDetails>();
         ProductDetails pd =new ProductDetails();
         String realUnitPrice = String.valueOf(0.73 * erpExchangeRate);

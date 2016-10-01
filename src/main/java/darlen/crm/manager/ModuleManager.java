@@ -14,6 +14,7 @@ import darlen.crm.manager.handler.AccountsHandler;
 import darlen.crm.manager.handler.InvoicesHandler;
 import darlen.crm.manager.handler.ProductHandler;
 import darlen.crm.manager.handler.SOHandler;
+import darlen.crm.util.Constants;
 import darlen.crm.util.JaxbUtil;
 import darlen.crm.util.ModuleNameKeys;
 
@@ -41,6 +42,10 @@ import java.util.List;
  * 12. 确认UI【尽量在这周末】--》周末完成
  * 13. 异常处理情况，比如说连不到网络
  * 14.等DB工作完全做完应用到系统之后，需要把lastEditTime这个时间是否呗修改应用到update方法上
+ *
+ * 15. 加一个拦截器，在每个方法执行前和执行后打印一句话
+ * 16. LastEditTime修改时间这个判断还没加上
+ * 17. 写一个线程，每隔一段时间更新LastEditTime，这样我的程序就能每隔一段时间去ZOHO更新数据
  *
  * -------------------------------------------------------------------------
  * 版本     修改时间        作者         修改内容 
@@ -70,11 +75,12 @@ public class ModuleManager {
     public static void exeAccounts() throws Exception {
         //for Accounts
         module = AccountsHandler.getInstance();
+        module.execSend();
 //        module.build2ZohoXmlSkeleton();
 //        module.buildDBObjList();
 //        module.addRecords();
 //        testFetch(1,100);
-        module.updateRecords(ModuleNameKeys.Accounts.toString(),"UPDATE");
+//        module.updateRecords(ModuleNameKeys.Accounts.toString(),"UPDATE");
 //            module.delRecords();
 //        Thread thread = new Thread();
 //        thread.run();
@@ -102,8 +108,10 @@ public class ModuleManager {
     public static void exeProducts() throws Exception {
         //for Accounts
         module = ProductHandler.getInstance();
-        module.build2ZohoXmlSkeleton();
+//        module.build2ZohoXmlSkeleton();
 //        module.buildDBObjList();
+        List zohoXMLList =module.build2ZohoXmlSkeleton();
+        module.updateRecords(ModuleNameKeys.Products.toString(), Constants.ZOHO_CRUD_UPDATE,zohoXMLList);
     }
 
     public static void exeSO() throws Exception {

@@ -106,6 +106,7 @@ public class SOHandler extends AbstractModule{
      * delZOHOIDList = = zohoComponentObjList.get(2): 里面是所有 ERP ID 为空时的 ZOHO ID
      */
     public List buildSkeletonFromZohoList() throws Exception {
+        logger.debug("# SOHandler [buildSkeletonFromZohoList]...");
 //        // TODO ：：：Notice: 最大只能取到200条数据，这边可能需要另外的逻辑控制判断数据是否取完
 ////       1. 从ZOHO获取有效的xml
 //        String zohoStr =  retrieveZohoRecords(ModuleNameKeys.SalesOrders.toString(),1,100);
@@ -148,6 +149,7 @@ public class SOHandler extends AbstractModule{
      * @throws Exception
      */
     private List<ProdRow> retrieveAllRowsFromZoho(int fromIndex, int toIndex, List<ProdRow> allRows) throws Exception {
+        logger.debug("# SOHandler [retrieveAllRowsFromZoho]...");
 //     1. 从ZOHO获取有效的xml
         String zohoStr =  handleSO.retrieveZohoRecords(ModuleNameKeys.Accounts.toString(),fromIndex,toIndex);
 
@@ -175,6 +177,7 @@ public class SOHandler extends AbstractModule{
      * 2.idAccountsMap<CustomerID,Accounts> --> dbAcctList.get(1)
      */
     public List buildDBObjList() throws ParseException {
+        logger.debug("# SOHandler [buildDBObjList]...");
         List dbAcctList = new ArrayList();
         Map<String,SO> idSOMap = new HashMap<String, SO>();
         SO accounts = getDBObj(idSOMap);
@@ -203,6 +206,7 @@ public class SOHandler extends AbstractModule{
      * @return
      */
     public List build2ZohoObjSkeletonList() throws Exception {
+        logger.debug("# SOHandler [build2ZohoObjSkeletonList]...");
         //1. 获取ZOHO对象的骨架集合
         List allZohoObjList = buildSkeletonFromZohoList();
         Map<String,String> erpZohoIDMap = new HashMap<String, String>();
@@ -273,6 +277,7 @@ public class SOHandler extends AbstractModule{
      * @throws Exception
      */
     public List build2ZohoXmlSkeleton() throws Exception {
+        logger.debug("# SOHandler [build2ZohoXmlSkeleton]...");
         //1. 获取发送到ZOHO对象集合骨架
         List zohoComponentList = build2ZohoObjSkeletonList();
         Map<String,SO> addAccountMap =  (Map<String,SO> )zohoComponentList.get(0);
@@ -312,10 +317,12 @@ public class SOHandler extends AbstractModule{
      * 添加（testAddAcctRecord）
      * 删除（testDelAcctRecord）
      */
-    public void execSend(){
-        addRecords(ModuleNameKeys.SalesOrders.toString(),"ADD");
-        updateRecords(ModuleNameKeys.SalesOrders.toString(),"UPDATE");
-        delRecords(ModuleNameKeys.SalesOrders.toString(),"DELETE");
+    public void execSend() throws Exception {
+        logger.debug("# SOHandler [execSend]...");
+        List zohoXMLList = build2ZohoXmlSkeleton();
+        addRecords(ModuleNameKeys.SalesOrders.toString(),Constants.ZOHO_CRUD_ADD,zohoXMLList);
+        updateRecords(ModuleNameKeys.SalesOrders.toString(),Constants.ZOHO_CRUD_UPDATE,zohoXMLList);
+        delRecords(ModuleNameKeys.SalesOrders.toString(),Constants.ZOHO_CRUD_DELETE,zohoXMLList);
     }
 //    public void addRecords(){
 //        try {
@@ -397,6 +404,7 @@ public class SOHandler extends AbstractModule{
      * @throws Exception
      */
     private List<String> buildAdd2ZohoXml(Map accountMap,String className,Properties fieldMappingProps) throws Exception {
+        logger.debug("# SOHandler [buildAdd2ZohoXml]...");
         List<String> addZohoXmlList= new ArrayList<String>();
         Response response = new Response();
         Result result = new Result();
@@ -467,6 +475,7 @@ public class SOHandler extends AbstractModule{
      * @throws Exception
      */
     private Map<String,String> buildUpd2ZohoXml(Map accountMap,String className,Properties fieldMappingProps) throws Exception {
+        logger.debug("# SOHandler [buildUpd2ZohoXml]...");
         Map<String,String> updateZphoXmlMap = new HashMap<String, String>();
         String str = "";
         Response response = new Response();
@@ -783,12 +792,13 @@ public class SOHandler extends AbstractModule{
      * @return
      */
     private SO getDBObj(Map<String, SO> idSOMap) throws ParseException {
+        logger.debug("# SOHandler [getDBObj]...");
         SO so = new SO();
         so.setSALESORDERID("12345678");
         //销售拥有者
 //        so.setOwerID("85333000000071039");
 //        so.setOwner("qq");
-        User user = fetchDevUser(false);
+        User user = CommonUtils.fetchDevUser(false);
         so.setUser(user);
         so.setSubject("PSO30190412");
         /**ZOHO生成的字段，似乎没什么作用*/
@@ -849,12 +859,13 @@ public class SOHandler extends AbstractModule{
      * @return
      */
     private SO getDBObj2(Map<String, SO> idSOMap) throws ParseException {
+        logger.debug("# SOHandler [getDBObj2]...");
         SO so = new SO();
         so.setSALESORDERID("12345678");
         //销售拥有者
 //        so.setOwerID("85333000000071039");
 //        so.setOwner("qq");
-        User user = fetchDevUser(false);
+        User user = CommonUtils.fetchDevUser(false);
         so.setUser(user);
         so.setSubject("PSO30190412-Test");
         /**ZOHO生成的字段，似乎没什么作用*/
@@ -915,6 +926,7 @@ public class SOHandler extends AbstractModule{
      * @return
      */
     private List<ProductDetails> handlePdsList(String soID,double erpExchangeRate) {
+        logger.debug("# SOHandler [handlePdsList]...");
         List<ProductDetails> pds = new ArrayList<ProductDetails>();
         ProductDetails pd =new ProductDetails();
         String realUnitPrice = String.valueOf(0.73 * erpExchangeRate);
