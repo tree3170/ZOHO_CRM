@@ -74,13 +74,14 @@ public class ModuleManager {
 //        module.buildDBObjList();
 //        module.addRecords();
 //        testFetch(1,100);
+        module.updateRecords(ModuleNameKeys.Accounts.toString(),"UPDATE");
 //            module.delRecords();
-        Thread thread = new Thread();
-        thread.run();
-        for(int i = 0; i< 10000; i++){
-            System.err.println("遍历次数"+i);
-            module.retrieveZohoRecords(ModuleNameKeys.Accounts.toString(), 1, 2);
-        }
+//        Thread thread = new Thread();
+//        thread.run();
+//        for(int i = 0; i< 10000; i++){
+//            System.err.println("遍历次数"+i);
+//            module.retrieveZohoRecords(ModuleNameKeys.Accounts.toString(), 1, 2);
+//        }
     }
 
     private static void testFetch(int fromIndex,int toIndex) throws Exception {

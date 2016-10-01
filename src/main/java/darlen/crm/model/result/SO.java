@@ -352,7 +352,8 @@ public class SO {
     @Override
     public String toString() {
         return "SO{" +
-                "SALESORDERID='" + SALESORDERID + '\'' +
+                " erpID='" + erpID + '\'' +
+//                "  SALESORDERID='" + SALESORDERID + '\'' +
                 ", subject='" + subject + '\'' +
                 ", soNumber='" + soNumber + '\'' +
                 ", User(owner)='" + user + '\'' +
@@ -377,7 +378,6 @@ public class SO {
                 ", latestEditBy='" + latestEditBy + '\'' +
                 ", latestEditTime='" + latestEditTime + '\'' +
                 ", creationTime='" + creationTime + '\'' +
-                ", SOID='" + erpID + '\'' +
                 ", cusDiscount='" + cusDiscount + '\'' +
                 ", discount='" + discount + '\'' +
                 ", subTotal='" + subTotal + '\'' +

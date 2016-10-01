@@ -161,7 +161,7 @@ public class Products {
     @Override
     public String toString() {
         return "Products{" +
-                "erpID='" + erpID + '\'' +
+                "  erpID='" + erpID + '\'' +
                 ", prodName='" + prodName + '\'' +
                 ", prodCode='" + prodCode + '\'' +
                 ", user=" + user +

@@ -407,16 +407,19 @@ public abstract  class AbstractModule  implements IModule{
         for(Field field : fields){
             String fieldName = field.getName();
             field.setAccessible(true) ;
-            if (field.getGenericType().toString().equals("class java.lang.String")) {// 如果type是类类型，则前面包含"class "，后面跟类名
-                String fieldValue =String.valueOf(field.get(dbFields));
-                fieldValue = StringUtils.isEmptyString(fieldValue)? "":fieldValue;
-//                if(!StringUtils.isEmptyString(fieldValue)){
-                map.put(fieldName,fieldValue);
-//                }
-            }else if(field.getGenericType().toString().equals("class darlen.crm.model.result.User")){//处理User对象:拥有者
-                map.putAll(getDBFieldNameValueMap("darlen.crm.model.result.User",field.get(dbFields)));
-            }else if("pds".equals(field.getName())){//handle the product detail
-                map.put("pds", getDBProdDetlFieldMap(field,dbFields));
+            if(null != dbFields){
+                if (field.getGenericType().toString().equals("class java.lang.String")) {// 如果type是类类型，则前面包含"class "，后面跟类名
+                    String fieldValue =String.valueOf(field.get(dbFields));
+                    fieldValue = StringUtils.isEmptyString(fieldValue)? "":fieldValue;
+    //                if(!StringUtils.isEmptyString(fieldValue)){ //就算DB某些值为空，也要组装，因为需要更新ZOHO上的数据
+                    if(!("userID".equals(fieldName) && StringUtils.isEmptyString(fieldValue)))//排除userID为空的情况，因为只有userName的情况下也是额可以做的
+                         map.put(fieldName,fieldValue);
+    //                }
+                }else if(field.getGenericType().toString().equals("class darlen.crm.model.result.User")){//处理User对象:拥有者
+                    map.putAll(getDBFieldNameValueMap("darlen.crm.model.result.User",field.get(dbFields)));
+                }else if("pds".equals(field.getName())){//handle the product detail
+                    map.put("pds", getDBProdDetlFieldMap(field,dbFields));
+                }
             }
         }
         CommonUtils.printMap(map,"打印DBfield的map");
@@ -627,7 +630,7 @@ public abstract  class AbstractModule  implements IModule{
             Map<String,String> updZohoXMLMap = (Map<String,String>) build2ZohoXmlSkeleton().get(1);
             int i = 1 ;
             for(Map.Entry<String,String> zohoIDUpdXmlEntry : updZohoXMLMap.entrySet()){
-                System.err.println("更新第"+(i)+"条数据，ZOHO ID为"+zohoIDUpdXmlEntry.getKey()+"\nxml为："+zohoIDUpdXmlEntry.getValue());
+                System.err.println("更新第"+(i)+"条数据，ZOHO ID为"+zohoIDUpdXmlEntry.getKey());//xml为："+zohoIDUpdXmlEntry.getValue()
                 Map<String,String> postParams = new HashMap<String, String>();
                 postParams.put(Constants.HTTP_POST_PARAM_ID,zohoIDUpdXmlEntry.getKey());
                 postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,moduleUrl);

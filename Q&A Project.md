@@ -1,23 +1,34 @@
 # 这是一个记录关于项目中所有问题汇总的MarkDown
 
 ##遇到问题：
-1. 关于Product Details中的一些字段的解释；关于定价不能修改的问题？
+* 1. 关于Product Details中的一些字段的解释；关于定价不能修改的问题？
      Total:金额 --> 金额(Total) = 定价(Unit Price) x 数量(Quantity)
      Net Total:总计 --> 总计 = 金额 - 产品折扣(Discount) - 产品税（Tax）
      Sub Total:订单小计 --> 订单小计 = 总计和
      Grand Total:订单累计 --> 订单累计 = 订单小计(Sub Total) - 订单折扣(Discount) - 订单税（Tax） - 订单调整(Adjustment)
      Total After Discount:这是个什么字段，没有在页面显示？
-2.  > Q: 如果某个字段为null，会被更新吗？
+* 2.  > Q: 如果某个字段为null，会被更新吗？
       A: 经测试，只有全为小写的"null"才不会更新，否则会更新
 
-3.可能的做法
+* 3.可能的做法
   a. 取出db中所有最近修改过的record（最近更新的字段，设置一个当前已经更新了的时间，第一次为0，以后每次成功需要保持到文件或者db）
   b. 遍历每条数据，取出id和lastedittime，并到CRM中查询
      I：如果存在CRM中，则判断lastEditTime有没有变化：如果不同，则组织db的数据并更新之
      II: 如果不存在CRM中，则insert到CRM中
   c：取出CRM每条数据，做成一个集合id，查看id是否存在与db中的数据，如果不存在，删除CRM数据
 
-  d.注意只匹配导入的用户（暂时13个用户）
+  d.注意只匹配导入的用户（暂时13个用户）、
+
+* 4. 设置拥有者
+   a.有Name无ID--》无论存不存在Name，都不会更新拥有者
+   b.无ID有Name--》 存在ID--》更新，不存在ID，出错
+   c.同时拥有Name和ID--》 ①存在ID，Name不对--》按ID更新
+   						  ② 只要ID不存在无论Name是否存在--》出错：4401
+   						  ③ ID和Name都存在且对--》正常更新
+* 5. 关于13个人的账号
+   a. accounts.properties: ERP Name 和 ZOHO ID
+      ①、拿到所有的ZOHO用户：getUser--》放到Cache中
+      ②、过滤： 拿到DB中的lastEditBy，如果Cache中存在的，DB中这条记录有效
 
 ##项目
 * 1. > Q: 关于用户数确认，暂时只支持13个人

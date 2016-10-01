@@ -437,9 +437,12 @@ public class AccountsHandler  extends AbstractModule {
 //        User user = new User("85333000000071039","qq");
         //for Matrix Account
 //        User user = new User("80487000000076001","marketing");
-//        accounts.setSMOWNERID("85333000000071039");
-//        accounts.setAcctOwner("qq");
-        accounts.setUser(fetchDevUser(false));
+//        User user = new User("80487000000080005","Gary Tang");
+        User user = new User();
+        user.setUserName("Gary Tang");
+        user.setUserID("80487000000080005");
+        fetchDevUser(false);
+        accounts.setUser(user);
         accounts.setErpID("2");
         accounts.setCustomerNO("Ven0002");
         accounts.setAcctName("永昌紙品");

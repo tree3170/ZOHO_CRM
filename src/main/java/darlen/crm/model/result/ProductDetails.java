@@ -39,7 +39,7 @@ public class ProductDetails {
     /**库存量：Quantity in Stock*/
     private String pd_Quantity_in_Stock;
 
-    /**折扣 (￥)Discount*/
+    /**折扣 (￥)Discount:DB-->ItemDiscount*/
     private String pd_Discount;
 
     /**Total After Discount；貌似没用*/
@@ -48,7 +48,7 @@ public class ProductDetails {
     private String pd_Total;
     /**总计***计Net Total*/
     private String pd_Net_Total;
-    /**税	Tax*/
+    /**税	Tax:税，Matrix默认这个字段是0，因为不用税*/
     private String pd_Tax;
     /**Product Description*/
     private String pd_Product_Description;
