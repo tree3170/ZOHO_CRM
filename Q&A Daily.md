@@ -14,6 +14,9 @@
    * Unit Price 与 List Price 分别表示什么？因为我看List Price其实是表示单价那么Unit Price表示什么
    * 每个模块的主键是什么？什么情况下判断是duplicate？  因为我每次插入几乎相同的数据都能成功
 
+   # 20161002
+   * 关于产品存在与其他module时不能删掉【估计只能手动先删除关联的模块，最后再删除产品。。】， 还有product detail不能删除的问题
+
 ## 问题： Ken
    * 确定日期格式问题，这个是datetime的表示的【datetime】
    * 关于销售订单拥有者，产品拥有者，报价拥有者，发票拥有者--》LatestEditBy【已确定：根据ken的下面comment】
@@ -39,14 +42,23 @@
    * 确定账户13个账户人
 
 # 20161002
+* 1. LastEditTime修改时间这个判断还没加上【20161003】【一定完成20161003】
+* 2. 每次到ZOHO做完操作后，记录时间到file文件中--> 周末完成【doing】【一定完成20161003】
+* 3. 完成Quotes的测试【20161003】
+* 4. 明天找客户确认UI问题和13个账户问题【确认好了把UI修改好】
+* 5. 把Spring Quatz引用进来（前提是log必需优化，同时log必需分类），明天或者后天完成，有时间研究下Email
+* 6. 找Ken把Quotes的相关数据拿过来
+* 7. 尽快把Quatz引进来 【优先级1】
+* 8. 关于report问题，每次add多少条，update多少条，delete多少条，分别成功多少，失败多少【优先级2】
+* 9. 关于产品存在与其他module时不能删掉【估计只能手动删除。。】， 还有product detail不能删除的问题
+
+#20161001
 * 1. LastEditTime修改时间这个判断还没加上【20161002】
-* 2. 完成对DBUtils中的Product，Invoice，SO的测试
+* 2. 完成对DBUtils中的Product，Invoice，SO的测试【done】
 * 3. 每次到ZOHO做完操作后，记录时间到file文件中--> 周末完成【doing】
 * 4. 明天找客户确认UI问题和13个账户问题
 * 5. 把Spring Quatz引用进来（前提是log必需优化，同时log必需分类），明天或者后天完成，有时间研究下Email
 
-#20161001
-*
 
 # 20160929(优先级按*号长度)
  * 1. getRecords时最大200条这个还没有做限制【doing】 --> 【done】 20160929

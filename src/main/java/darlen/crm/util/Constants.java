@@ -92,6 +92,7 @@ public interface Constants {
     public static final String MODULE_PRODUCTS_ID="PRODUCTID";
     public static final String MODULE_SO_ID="SALESORDERID";
     public static final String MODULE_INVOICES_ID="INVOICEID";
+    public static final String MODULE_QUOTES_ID="QUOTEID";
     public static final String ERPID="ERP ID";
 
 

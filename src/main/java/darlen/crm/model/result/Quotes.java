@@ -58,7 +58,7 @@ public class Quotes {
     private String cusDiscount;//from ERP
     /**客户名ERP_Currency,DB中用CurrencyName表示     */
     private String erpCurrency;
-    /**Discount来自销售订单中的“折扣”*/
+    /**Discount来自销售订单中的“折扣” 实际上是与cusDiscount相等的*/
     private String discount;
     /**Sub Total 来自销售订单中的“小计”*/
     private String subTotal;
