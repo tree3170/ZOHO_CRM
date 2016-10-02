@@ -121,7 +121,7 @@ public class ProductHandler extends AbstractModule{
         retrieveAllRowsFromZoho(1, Constants.MAX_FETCH_SIZE, rows);
 
 //      2. 获取Zoho组件的集合，其中包含三个对象，分别为 erpZohoIDMap，erpZohoIDTimeMap，delZohoIDList（zoho ID list）
-        List  zohoModuleList = buildZohoComponentList(rows, Constants.MODULE_PRODUCTS_ID, Constants.ERPID);
+        List  zohoModuleList = buildZohoComponentList(rows, Constants.MODULE_PRODUCTS_ID, Constants.ERPID,ModuleNameKeys.Products.toString());
 
         return zohoModuleList;
     }
@@ -169,12 +169,13 @@ public class ProductHandler extends AbstractModule{
 //    public void testAssembleDBAcctObjList() throws ParseException {
 //        handleProduct.buildDBObjList();
 //    }
-    public List buildDBObjList() throws ParseException {
+    public List buildDBObjList() throws Exception {
         logger.debug("# ProductHandler [buildDBObjList]...");
         List dbAcctList = new ArrayList();
-        Map<String,Products> erpIDProductsMap = new HashMap<String, Products>();
-        getDBObj(erpIDProductsMap);
-        getDBObj2(erpIDProductsMap);
+        Map<String,Object> erpIDProductsMap = new HashMap<String, Object>();
+//        getDBObj(erpIDProductsMap);
+//        getDBObj2(erpIDProductsMap);
+        DBUtils.getProductList(erpIDProductsMap);
         dbAcctList.add(erpIDProductsMap);
         CommonUtils.printList(dbAcctList, "Build DB Object :::");
         return dbAcctList;
@@ -431,7 +432,8 @@ public class ProductHandler extends AbstractModule{
                 response.setResult(result);
                 logger.debug("组装更新的第"+(i+1)+"条数据：：：");
                 str = JaxbUtil.convertToXml(response);
-                updateZphoXmlMap.put(String.valueOf(key),str);
+
+                updateZphoXmlMap.put(StringUtils.nullToString(key),str.replace("pds","FL"));
                 i++;
             }
 

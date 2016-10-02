@@ -26,6 +26,7 @@ public class Invoices {
     private String erpID;
 /**Subject主题*/
     private String invoiceSubject;
+    private String invoiceNumber;
 /**发票拥有者Invoice Owner*/
     private User user;
 /**Invoice Date发货单日期*/
@@ -114,6 +115,14 @@ public class Invoices {
 
     public void setInvoiceSubject(String invoiceSubject) {
         this.invoiceSubject = invoiceSubject;
+    }
+
+    public String getInvoiceNumber() {
+        return invoiceNumber;
+    }
+
+    public void setInvoiceNumber(String invoiceNumber) {
+        this.invoiceNumber = invoiceNumber;
     }
 
     public User getUser() {
@@ -385,6 +394,7 @@ public class Invoices {
         return "Invoices{" +
                 "erpID='" + erpID + '\'' +
                 ", subject='" + invoiceSubject + '\'' +
+                ", InvoiceNo='" + invoiceNumber + '\'' +
                 ", user=" + user +
                 ", invoiceDate='" + invoiceDate + '\'' +
                 ", Sales Order=" + soName +

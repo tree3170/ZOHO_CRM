@@ -13,7 +13,6 @@ import darlen.crm.jaxb.common.ProdDetails;
 import darlen.crm.jaxb.common.ProdRow;
 import darlen.crm.jaxb.common.Product;
 import darlen.crm.model.result.ProductDetails;
-import darlen.crm.model.result.User;
 import darlen.crm.util.CommonUtils;
 import darlen.crm.util.Constants;
 import darlen.crm.util.ModuleNameKeys;
@@ -79,7 +78,7 @@ public abstract  class AbstractModule  implements IModule{
             MODULES = prop.getProperty(Constants.ZOHO_PROPS_MODULES);
             //for url TODO  将来需要把properties中的字段全部放入到Cache或者静态变量中
             for(Map.Entry entry : prop.entrySet()){
-                zohoPropsMap.put(String.valueOf(entry.getKey()),String.valueOf(entry.getValue()));
+                zohoPropsMap.put(StringUtils.nullToString(entry.getKey()),StringUtils.nullToString(entry.getValue()));
             }
         } catch(IOException e) {
             logger.error("读取zoho properties出现错误",e);
@@ -185,8 +184,8 @@ public abstract  class AbstractModule  implements IModule{
      * @param erpIDName ERP ID-->  DB
      * @return  zohoCompList
      */
-    public List buildZohoComponentList(List<ProdRow> rows, String zohoIDName, String erpIDName){
-        logger.debug("entering the buildZohoComponentList...zohoIDName="+zohoIDName+", erpIDName = "+erpIDName);
+    public List buildZohoComponentList(List<ProdRow> rows, String zohoIDName, String erpIDName,String moduleName) throws Exception {
+        logger.debug("entering the buildZohoComponentList...zohoIDName="+zohoIDName+", erpIDName = "+erpIDName+", moduleName="+moduleName);
         List  zohoCompList = new ArrayList();
 
         Map<String,String> erpZohoIDMap = new HashMap<String, String>();
@@ -234,8 +233,16 @@ public abstract  class AbstractModule  implements IModule{
         CommonUtils.printMap(erpZohoIDMap,"ERPID 和 ZOHOID Map");
         CommonUtils.printMap(erpIDTimeMap,"ERPID 和 LastEditTime Map");
         CommonUtils.printList(delZohoIDList,"Remove ZOHO ID list");
+
+        //当Module是Product或者是Account的时候，需要把ERPID 和ZOHOID分别写入不同文件中，为了以后在数据库读取Accounts和Product使用
+        if(ModuleNameKeys.Accounts.toString().equals(moduleName)  || ModuleNameKeys.Products.toString().equals(moduleName)){
+            ConfigManager.writeVal2Props(erpZohoIDMap,ModuleNameKeys.Accounts.toString().
+                    equals(moduleName) ? Constants.PROPS_ACCT_FILE : Constants.PROPS_PROD_FILE);
+        }
         return zohoCompList;
     }
+
+
 
     /**
      * 3.3 组装发送到ZOHO的三大对象
@@ -321,7 +328,7 @@ public abstract  class AbstractModule  implements IModule{
 
         }
         //最后不满100条的，放入最后的Map中,如果刚好则不添加
-        if(rows.size()>0) rowsMap.put(rowsMap.size()+1,rows);
+        if(rows.size()>0) rowsMap.put(rowsMap.size(),rows);
         return rowsMap;
     }
 
@@ -409,8 +416,8 @@ public abstract  class AbstractModule  implements IModule{
             field.setAccessible(true) ;
             if(null != dbFields){
                 if (field.getGenericType().toString().equals("class java.lang.String")) {// 如果type是类类型，则前面包含"class "，后面跟类名
-                    String fieldValue =String.valueOf(field.get(dbFields));
-                    fieldValue = StringUtils.isEmptyString(fieldValue)? "":fieldValue;
+                    String fieldValue =StringUtils.nullToString(field.get(dbFields));
+                    //fieldValue = StringUtils.isEmptyString(fieldValue)? "":fieldValue;
     //                if(!StringUtils.isEmptyString(fieldValue)){ //就算DB某些值为空，也要组装，因为需要更新ZOHO上的数据
                     if(!("userID".equals(fieldName) && StringUtils.isEmptyString(fieldValue)))//排除userID为空的情况，因为只有userName的情况下也是额可以做的
                          map.put(fieldName,fieldValue);
@@ -465,7 +472,7 @@ public abstract  class AbstractModule  implements IModule{
                             if(properties.containsKey(dbFielName)){
                                 FL fl = new FL();
                                 fl.setFieldName((String) properties.get(dbFielName));
-                                fl.setFieldValue((String)pdEnry.getValue());
+                                fl.setFieldValue(StringUtils.nullToString(pdEnry.getValue()));
                                 fls.add(fl);
                             }
                         }
@@ -481,8 +488,8 @@ public abstract  class AbstractModule  implements IModule{
                      * 如果存在，则取properties的value作为key，以前的value还是作为value
                      * 如果不存在，则忽略这个field，也就是说不会作为最后发送到CRM中的字段
                      */
-                    String dbFieldValue = (String)dbFieldNameValueMap.get(dbFieldName);
-                    String zohoFieldName = String.valueOf(entry.getValue());
+                    String dbFieldValue = StringUtils.nullToString(dbFieldNameValueMap.get(dbFieldName));
+                    String zohoFieldName = StringUtils.nullToString(entry.getValue());
                     FL fl = new FL();
                     fl.setFieldName(zohoFieldName);
                     fl.setFieldValue(dbFieldValue);
@@ -541,7 +548,7 @@ public abstract  class AbstractModule  implements IModule{
                 String fieldName = f.getName();
                 f.setAccessible(true) ;
                 if (f.getGenericType().toString().equals("class java.lang.String")) {// 如果type是类类型，则前面包含"class "，后面跟类名
-                    String fieldValue =String.valueOf(f.get(pd));
+                    String fieldValue =StringUtils.nullToString(f.get(pd));
 //                    if(!StringUtils.isEmptyString(fieldValue)){
                         tmpMap.put(fieldName,fieldValue);
 //                    }
@@ -630,7 +637,7 @@ public abstract  class AbstractModule  implements IModule{
             Map<String,String> updZohoXMLMap = (Map<String,String>) zohoXMLList.get(1);
             int i = 1 ;
             for(Map.Entry<String,String> zohoIDUpdXmlEntry : updZohoXMLMap.entrySet()){
-                System.err.println("更新第"+(i)+"条数据，ZOHO ID为"+zohoIDUpdXmlEntry.getKey());//xml为："+zohoIDUpdXmlEntry.getValue()
+                logger.debug("更新第" + (i) + "条数据，ZOHO ID为" + zohoIDUpdXmlEntry.getKey());//xml为："+zohoIDUpdXmlEntry.getValue()
                 Map<String,String> postParams = new HashMap<String, String>();
                 postParams.put(Constants.HTTP_POST_PARAM_ID,zohoIDUpdXmlEntry.getKey());
                 postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,moduleUrl);

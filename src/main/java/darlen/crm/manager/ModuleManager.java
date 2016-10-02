@@ -18,6 +18,8 @@ import darlen.crm.util.Constants;
 import darlen.crm.util.JaxbUtil;
 import darlen.crm.util.ModuleNameKeys;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -46,6 +48,9 @@ import java.util.List;
  * 15. 加一个拦截器，在每个方法执行前和执行后打印一句话
  * 16. LastEditTime修改时间这个判断还没加上【20161002】
  * 17. 写一个线程，每隔一段时间更新LastEditTime，这样我的程序就能每隔一段时间去ZOHO更新数据
+ *
+ * 问题：
+ * 1. 不能删除相关联的数据
  *
  * -------------------------------------------------------------------------
  * 版本     修改时间        作者         修改内容 
@@ -76,6 +81,11 @@ public class ModuleManager {
         //for Accounts
         module = AccountsHandler.getInstance();
         module.execSend();
+//        List zohoXMLList = new ArrayList();
+//        zohoXMLList.add(0);
+//        zohoXMLList.add(0);
+//        zohoXMLList.add(2,Arrays.asList(new String[]{"80487000000100633","80487000000099651","80487000000099635","80487000000098001"}));
+//        module.delRecords(ModuleNameKeys.Accounts.toString(), Constants.ZOHO_CRUD_DELETE, zohoXMLList);
 //        module.build2ZohoXmlSkeleton();
 //        module.buildDBObjList();
 //        module.addRecords();
@@ -110,27 +120,49 @@ public class ModuleManager {
         module = ProductHandler.getInstance();
 //        module.build2ZohoXmlSkeleton();
 //        module.buildDBObjList();
-        List zohoXMLList =module.build2ZohoXmlSkeleton();
-        module.updateRecords(ModuleNameKeys.Products.toString(), Constants.ZOHO_CRUD_UPDATE,zohoXMLList);
+//        List zohoXMLList =module.build2ZohoXmlSkeleton();
+//        module.updateRecords(ModuleNameKeys.Products.toString(), Constants.ZOHO_CRUD_UPDATE,zohoXMLList);
+        module.execSend();
     }
 
     public static void exeSO() throws Exception {
+
+        module = AccountsHandler.getInstance();
+        module.buildSkeletonFromZohoList();
+        module = ProductHandler.getInstance();
+        module.buildSkeletonFromZohoList();
+
         //for Accounts
         module = SOHandler.getInstance();
-        module.build2ZohoXmlSkeleton();
+//        module.build2ZohoXmlSkeleton();
 //        module.buildDBObjList();
+        module.execSend();
     }
     public static void exeInvoice() throws Exception {
         //for invoice
         module = InvoicesHandler.getInstance();
+        module.execSend();
 //        module.build2ZohoXmlSkeleton();
 //        module.build2ZohoXmlSkeleton();
     }
 
+    /**
+     * 真是情况是不需要提前写入File的，因为是执行顺序是Accounts，Products，Quote,SO,Invoices
+     * 这里是为了方便写入文件
+     * @throws Exception
+     */
+    public static void writeFiles() throws Exception {
+        module = AccountsHandler.getInstance();
+        module.buildSkeletonFromZohoList();
+        module = ProductHandler.getInstance();
+        module.buildSkeletonFromZohoList();
+    }
+
     public static void main(String[] args) throws Exception {
-        exeAccounts();
+        writeFiles();
+//        exeAccounts();
 //        exeProducts();
-//        exeSO();
+        exeSO();
 //        exeInvoice();
 
         exe();

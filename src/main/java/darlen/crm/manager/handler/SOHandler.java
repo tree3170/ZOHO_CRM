@@ -132,7 +132,7 @@ public class SOHandler extends AbstractModule{
         retrieveAllRowsFromZoho(1, Constants.MAX_FETCH_SIZE, rows);
 
 //       2. 获取Zoho组件的集合，其中包含三个对象，分别为 erpZohoIDMap，erpZohoIDTimeMap，delZohoIDList（zoho ID list）
-        List  zohoModuleList = buildZohoComponentList(rows, Constants.MODULE_SO_ID, Constants.ERPID);
+        List  zohoModuleList = buildZohoComponentList(rows, Constants.MODULE_SO_ID, Constants.ERPID,ModuleNameKeys.SalesOrders.toString());
 
         return zohoModuleList;
     }
@@ -151,7 +151,7 @@ public class SOHandler extends AbstractModule{
     private List<ProdRow> retrieveAllRowsFromZoho(int fromIndex, int toIndex, List<ProdRow> allRows) throws Exception {
         logger.debug("# SOHandler [retrieveAllRowsFromZoho]...");
 //     1. 从ZOHO获取有效的xml
-        String zohoStr =  handleSO.retrieveZohoRecords(ModuleNameKeys.Accounts.toString(),fromIndex,toIndex);
+        String zohoStr =  handleSO.retrieveZohoRecords(ModuleNameKeys.SalesOrders.toString(),fromIndex,toIndex);
 
 //      2. xml 转 java bean
         Response response = JaxbUtil.converyToJavaBean(zohoStr, Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
@@ -173,17 +173,18 @@ public class SOHandler extends AbstractModule{
 
     /**
      * Ⅱ：这里组装db中的AcctObjList
-     * 1.Accounts --> dbAcctList.get(0)
+     * //1.Accounts --> dbAcctList.get(0)
      * 2.idAccountsMap<CustomerID,Accounts> --> dbAcctList.get(1)
      */
-    public List buildDBObjList() throws ParseException {
+    public List buildDBObjList() throws Exception {
         logger.debug("# SOHandler [buildDBObjList]...");
         List dbAcctList = new ArrayList();
-        Map<String,SO> idSOMap = new HashMap<String, SO>();
-        SO accounts = getDBObj(idSOMap);
-        SO accouts2 = getDBObj2(idSOMap);
-        accouts2.setSubject("tree31701");
-        dbAcctList.add(accounts);
+        Map<String,Object> idSOMap = new HashMap<String, Object>();
+//        SO accounts = getDBObj(idSOMap);
+//        SO accouts2 = getDBObj2(idSOMap);
+//        accouts2.setSubject("tree31701");
+//        dbAcctList.add(accounts);
+        DBUtils.getSOList(idSOMap);
         dbAcctList.add(idSOMap);
         CommonUtils.printList(dbAcctList, "DB Account obj");
         return dbAcctList;
@@ -221,7 +222,7 @@ public class SOHandler extends AbstractModule{
 
         //2.组装DB 对象List
         List dbAcctList = buildDBObjList();
-        Map<String,Object> idAccountsMap = (Map<String,Object>)dbAcctList.get(1);
+        Map<String,Object> idAccountsMap = (Map<String,Object>)dbAcctList.get(0);
 
         //        3. 组装发送到ZOHO的三大对象并放入到List中:addMap、updateMap、delZohoIDList
         return build2Zoho3PartObj(erpZohoIDMap,erpIDTimeMap,delZohoIDList,idAccountsMap);
@@ -496,7 +497,7 @@ public class SOHandler extends AbstractModule{
                 response.setResult(result);
                 logger.debug("组装更新的第"+(i+1)+"条数据：：：");
                 str = JaxbUtil.convertToXml(response);
-                updateZphoXmlMap.put(String.valueOf(key),str);
+                updateZphoXmlMap.put(StringUtils.nullToString(key),str.replace("pds","FL"));
                 i++;
             }
 
@@ -929,8 +930,8 @@ public class SOHandler extends AbstractModule{
         logger.debug("# SOHandler [handlePdsList]...");
         List<ProductDetails> pds = new ArrayList<ProductDetails>();
         ProductDetails pd =new ProductDetails();
-        String realUnitPrice = String.valueOf(0.73 * erpExchangeRate);
-        String listPrice = String.valueOf(0.73 * erpExchangeRate);
+        String realUnitPrice = StringUtils.nullToString(0.73 * erpExchangeRate);
+        String listPrice = StringUtils.nullToString(0.73 * erpExchangeRate);
         pd.setPd_Unit_Price(realUnitPrice);//定价  ： DB-->SOPrice,注意价格要跟Currency一致
         pd.setPd_List_Price(listPrice);//单价  ： DB-->SOPrice,注意价格要跟Currency一致
         pd.setPd_Quantity("10000");//数量

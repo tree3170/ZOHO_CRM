@@ -32,7 +32,7 @@ public interface IModule {
     public  String retrieveZohoRecords(String moduleName, int fromIndex,int toIndex) throws Exception;
 //    1.2 xml 转 java bean
 //    1.3 组装 zohoModuleList
-    public List buildZohoComponentList(List<ProdRow> rows, String zohoIDName, String erpIDName);
+    public List buildZohoComponentList(List<ProdRow> rows, String zohoIDName, String erpIDName,String moduleName) throws Exception;
 //  2.组装DB 对象List
     public List buildDBObjList() throws Exception;
 //    3.由获得的ZOHO所有对象集合和从DB获取的对象集合，经过过滤，获取的组装需要***发送到ZOHO的对象集合骨架***

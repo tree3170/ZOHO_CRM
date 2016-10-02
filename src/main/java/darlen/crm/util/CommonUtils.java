@@ -15,7 +15,6 @@ import darlen.crm.manager.ConfigManager;
 import darlen.crm.model.fields.common.Fields;
 import darlen.crm.model.fields.common.Section;
 import darlen.crm.model.result.User;
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
@@ -349,7 +348,7 @@ public class CommonUtils {
     public static String getLastEditTime(){
         String time = "";
         try {
-            boolean isDevMod  = "1".equals(ConfigManager.get(Constants.PROPS_ZOHO_1,Constants.ZOHO_PROPS_DEV_MODE));
+            boolean isDevMod  = "1".equals(ConfigManager.get(Constants.PROPS_ZOHO_FILE,Constants.ZOHO_PROPS_DEV_MODE));
             if(isDevMod) time =  ThreadLocalDateUtil.formatDate(new Date());
         } catch (Exception e) {
             logger.error("getLastEditTime 出错",e);

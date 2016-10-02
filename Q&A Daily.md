@@ -42,7 +42,7 @@
 * 1. LastEditTime修改时间这个判断还没加上【20161002】
 * 2. 完成对DBUtils中的Product，Invoice，SO的测试
 * 3. 每次到ZOHO做完操作后，记录时间到file文件中--> 周末完成【doing】
-* 4. 明天找客户确认UI问题
+* 4. 明天找客户确认UI问题和13个账户问题
 * 5. 把Spring Quatz引用进来（前提是log必需优化，同时log必需分类），明天或者后天完成，有时间研究下Email
 
 #20161001

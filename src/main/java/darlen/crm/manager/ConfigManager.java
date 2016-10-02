@@ -11,11 +11,14 @@ package darlen.crm.manager;
 import darlen.crm.util.CommonUtils;
 import darlen.crm.util.Constants;
 import darlen.crm.util.StringUtils;
+import darlen.crm.util.ThreadLocalDateUtil;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
-import java.io.IOException;
+import java.io.*;
+import java.net.URL;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -54,11 +57,18 @@ public class ConfigManager {
     /**传递方式为JSON或者XML，默认是xml*/
     public static String FORMAT="xml";
 
-//    public static Map<String,String> zohoDBPropsMap = new HashMap<String, String>();
-
-//    public static Map<String,String> zohoPropsMap = new HashMap<String,String>();
-      private static Map<String,Object> zohoMap = new HashMap<String,Object>();
-      private static Map<String,String> acctPropsMap = new HashMap<String, String>();
+      //    * 1 --> zoho.properties ; db.properties, 对于确定的key value的properties文件，可以用默认的Map
+      private static Map<String,Object> defaultMap = new HashMap<String,Object>();
+    private static final  int DEFAULT_ZOHO_DB_FILE_INDEX = 1;
+      //    * 2 --> Accounts.properties;
+      private static Map<String,String> zohoUserPropsMap = new HashMap<String, String>();
+    private static final  int ZOHOUSER_FILE_INDEX = 2;
+      //    * 3 --> Product.properties;
+      private static Map<String,String> prodsPropsMap = new HashMap<String, String>();
+    private static final  int PROD_FILE_INDEX = 3;
+      //    * 4 --> Accounts.properties;
+      private static Map<String,String> acctsPropsMap = new HashMap<String, String>();
+    private static final  int ACCT_FILE_INDEX = 4;
 
 
     private ConfigManager(){}
@@ -69,15 +79,15 @@ public class ConfigManager {
 
     /**
      * 获取内容,这部分key一定是固定点的
-     * @param fileName: 1 -->zoho.properties, 2 -->db.properties , 3 -->Accounts.properties
+     * @param fileName: 1 -->zoho.properties, db.properties , 2 -->Accounts.properties； 3 --> Product.properties;
      * @param property
      * @return
      */
-    public static String get(String fileName, String property) throws IOException, ConfigurationException {
-        if(!zohoMap.containsKey(fileName)) {
-            configManager.initConfig(fileName,false);
+    public static String get(String fileName, String property) throws ConfigurationException, IOException {
+        if(!defaultMap.containsKey(fileName)) {
+            configManager.initConfig(fileName, DEFAULT_ZOHO_DB_FILE_INDEX);
         }
-        PropertiesConfiguration config = (PropertiesConfiguration) zohoMap.get(fileName);
+        PropertiesConfiguration config = (PropertiesConfiguration) defaultMap.get(fileName);
         return config == null ? "" : StringUtils.nullToString(config.getString(property));
 
     }
@@ -87,30 +97,110 @@ public class ConfigManager {
      * @param property
      * @return
      */
-    public static String getAcctfromProps( String property) throws IOException, ConfigurationException {
-        if(acctPropsMap.size() == 0){
-            configManager.initConfig(Constants.PROPS_ACCT_3, true);
+    public static String getZohoUserfromProps(String property) throws ConfigurationException, IOException {
+        if(zohoUserPropsMap.size() == 0){
+            configManager.initConfig(Constants.PROPS_USER_FILE, ZOHOUSER_FILE_INDEX);
         }
-        return StringUtils.nullToString(acctPropsMap.get(property));
+        return StringUtils.nullToString(zohoUserPropsMap.get(property));
+    }
+    /**
+     * Product.properties
+     * @param property
+     * @return
+     */
+    public static String getProdfromProps( String property) throws Exception {
+        if(prodsPropsMap.size() == 0){
+            configManager.initConfig(Constants.PROPS_PROD_FILE, PROD_FILE_INDEX);
+//            configManager.initConfig(Constants.PROPS_DB_FILE, true);
+        }
+        return StringUtils.nullToString(prodsPropsMap.get(property));
+    }
+
+    /**
+     * Product.properties
+     * @param property
+     * @return
+     */
+    public static String getAcctsfromProps( String property) throws Exception {
+        if(acctsPropsMap.size() == 0){
+            configManager.initConfig(Constants.PROPS_ACCT_FILE, ACCT_FILE_INDEX);
+//            configManager.initConfig(Constants.PROPS_DB_FILE, true);
+        }
+        return StringUtils.nullToString(acctsPropsMap.get(property));
     }
 
 
     /**
+     * 根据Map的值写入某个配置文件
+     * @param map
+     * @param configName
+     */
+    public static void writeVal2Props( Map<String,String> map,String configName)  {
+        logger.debug("# 写入Product.properties文件：erpID<-->zohoID, configName="+configName);
+        PrintWriter writer = null;
+        try{
+            URL url = ClassLoader.getSystemResource(configName);
+            File file = new File(url.toURI());
+            writer = new PrintWriter(file, "UTF-8");
+            writer.println("#这个是ZOHO的propertes mapping表，左边是ERP ID ，右边是ZOHO ID ");
+            for(Map.Entry<String,String> entry : map.entrySet()){
+                writer.println(StringUtils.nullToString(entry.getKey())+"="+StringUtils.nullToString(entry.getValue()));
+            }
+            writer.println("# 写入结束时间： " + ThreadLocalDateUtil.formatDate(new Date()));
+        }catch (Exception e){
+            logger.error("# 写入"+configName +"出错",e);
+        }finally {
+            if(null != writer) {
+                writer.close();
+            }
+        }
+    }
+
+
+
+    /**
      * 载入配置文件，初始化后加入map
+     * fileNameKey :
+     * DEFAULT_ZOHO_DB_FILE_INDEX --> zoho.properties ; db.properties
+     * ZOHOUSER_FILE_INDEX --> Accounts.properties;
+     * PROD_FILE_INDEX --> Product.properties;
+     * ACCT_FILE_INDEX --> Product.properties;
      * @param configFile
      */
-    private synchronized void initConfig(String configFile,boolean isAcct) throws ConfigurationException, IOException {
+    private synchronized void initConfig(String configFile,int fileNameKey) throws ConfigurationException, IOException {
         try {
-            if(isAcct){
-                Properties prop = new Properties();
-                prop.load(ConfigManager.class.getResourceAsStream(configFile));
-                for(Map.Entry entry : prop.entrySet()){
-                    acctPropsMap.put(String.valueOf(entry.getKey()),String.valueOf(entry.getValue()));
-                }
-            }else{
+            if( DEFAULT_ZOHO_DB_FILE_INDEX == fileNameKey ){
                 PropertiesConfiguration config = new PropertiesConfiguration(configFile);
-                zohoMap.put(configFile, config);
+                defaultMap.put(configFile, config);
+            }else{
+                Properties prop = new Properties();
+                //1. 直接送Source目录拿Config文件
+                // ConfigManager.class.getResourceAsStream(configFile);
+                //2. 直接从classPath中拿Config文件，CommonUtils.getFileNamePath("",configFile)
+                prop.load(new FileInputStream(CommonUtils.getFileNamePath("",configFile)) );
+                for(Map.Entry entry : prop.entrySet()){
+                    if(ZOHOUSER_FILE_INDEX == fileNameKey){
+                        zohoUserPropsMap.put(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
+                    }else if(PROD_FILE_INDEX == fileNameKey){
+                        prodsPropsMap.put(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
+                        CommonUtils.printMap(prodsPropsMap," Product.properties的具体内容");
+                    }else if(ACCT_FILE_INDEX == fileNameKey){
+                        acctsPropsMap.put(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
+                        CommonUtils.printMap(acctsPropsMap," Accounts.properties的具体内容");
+                    }
+
+                }
+                // 调用 Hashtable 的方法 put。使用 getProperty 方法提供并行性。
+                // 强制要求为属性的键和值使用字符串。返回值是 Hashtable 调用 put 的结果。
+//                URL url = ClassLoader.getSystemResource("secure/Product.properties");
+//                File file = new File(url.toURI());
+//                OutputStream fos = new FileOutputStream(file);
+//                prop.setProperty(new String(String.valueOf("name sd sz,").getBytes(), "UTF-8"),  new String(String.valueOf("test sdf;';").getBytes(), "UTF-8"));
+//                // 以适合使用 load 方法加载到 Properties 表中的格式，
+//                // 将此 Properties 表中的属性列表（键和元素对）写入输出流
+//                prop.store(fos, "Update '" + "ddd" + "' value");
             }
+
 
         } catch (ConfigurationException e) {
             logger.error("Intial PropertiesConfiguration出错",e);
@@ -120,8 +210,19 @@ public class ConfigManager {
             throw e;
         }
     }
-    public static void main(String [] arges) throws IOException, ConfigurationException {
-        ConfigManager.get("secure/db.properties", "DB_USERNAME");
+    public static void main(String [] arges) throws Exception {
+//        System.out.println(ConfigManager.get("secure/db.properties", "DB_USERNAME"));
+//        ConfigManager.getProdfromProps("secure/db.properties");
+//        System.out.println(zohoUserPropsMap.get("Gary Tang"));
+//        writeVal2Props(zohoUserPropsMap,Constants.PROPS_PROD_FILE);
+//        URL url = ClassLoader.getSystemResource("secure/Product.properties");
+//        File file = new File(url.toURI());
+//        System.out.println(url.toURI());
+//        System.out.println();
+//        OutputStream fos = new FileOutputStream("./secure/Product.properties");
+    }
+    private void test(){
+        //ClassLoader.getResource("");
     }
 
     /**

@@ -12,6 +12,7 @@ import darlen.crm.jaxb.Accounts.Response;
 import darlen.crm.jaxb.Accounts.Result;
 import darlen.crm.jaxb.common.ProdRow;
 import darlen.crm.manager.AbstractModule;
+import darlen.crm.manager.ConfigManager;
 import darlen.crm.model.result.Accounts;
 import darlen.crm.model.result.User;
 import darlen.crm.util.*;
@@ -119,8 +120,7 @@ public class AccountsHandler  extends AbstractModule {
         retrieveAllRowsFromZoho(1, Constants.MAX_FETCH_SIZE, rows);
 
 //      2. 获取Zoho组件的集合，其中包含三个对象，分别为 erpZohoIDMap，erpZohoIDTimeMap，delZohoIDList（zoho ID list）
-        List  zohoModuleList = buildZohoComponentList(rows, Constants.MODULE_ACCOUNTS_ID, Constants.ERPID);
-
+        List  zohoModuleList = buildZohoComponentList(rows, Constants.MODULE_ACCOUNTS_ID, Constants.ERPID,ModuleNameKeys.Accounts.toString());
         return zohoModuleList;
     }
 
@@ -390,7 +390,7 @@ public class AccountsHandler  extends AbstractModule {
                 response.setResult(result);
                 logger.debug("组装更新的第"+(i+1)+"条数据：：：");
                 str = JaxbUtil.convertToXml(response);
-                updateZphoXmlMap.put(String.valueOf(key),str);
+                updateZphoXmlMap.put(StringUtils.nullToString(key),str);
                 i++;
             }
 

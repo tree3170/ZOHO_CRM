@@ -1,7 +1,5 @@
 package darlen.crm.util;
 
-import org.apache.commons.httpclient.params.HttpMethodParams;
-
 /**
  * darlen.crm.util
  * Description：ZOHO_CRM
@@ -103,11 +101,13 @@ public interface Constants {
 
     /**设置Properties文件名*/
     //PropertiesConfiguration初始化，不需要前面的斜杠
-    public static final String PROPS_ZOHO_1="secure/zoho.properties";//-->secure/db.properties
+    public static final String PROPS_ZOHO_FILE ="secure/zoho.properties";//-->secure/zoho.properties
     //PropertiesConfiguration，不需要前面的斜杠
-    public static final String PROPS_DB_2="secure/db.properties";//-->secure/zoho.properties
+    public static final String PROPS_DB_FILE ="secure/db.properties";//-->secure/db.properties
     //Properties，需要前面的斜杠
-    public static final String PROPS_ACCT_3="/secure/Accounts.properties";//-->/secure/Accounts.properties
+    public static final String PROPS_USER_FILE = "secure/zohoUser.properties";//-->/secure/zohoUser.properties
+    public static final String PROPS_PROD_FILE = "secure/Products.properties";//-->/secure/Product.properties
+    public static final String PROPS_ACCT_FILE ="secure/Accounts.properties";//-->/secure/Account.properties
 
 
     /**Max Add size*/

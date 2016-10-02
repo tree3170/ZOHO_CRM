@@ -132,7 +132,7 @@ public class InvoicesHandler extends AbstractModule {
         retrieveAllRowsFromZoho(1, Constants.MAX_FETCH_SIZE, rows);
 
 //      2. 获取Zoho组件的集合，其中包含三个对象，分别为 erpZohoIDMap，erpZohoIDTimeMap，delZohoIDList（zoho ID list）
-        List  zohoModuleList = buildZohoComponentList(rows, Constants.MODULE_INVOICES_ID, Constants.ERPID);
+        List  zohoModuleList = buildZohoComponentList(rows, Constants.MODULE_INVOICES_ID, Constants.ERPID,ModuleNameKeys.Invoices.toString());
 
         return zohoModuleList;
     }
@@ -182,12 +182,13 @@ public class InvoicesHandler extends AbstractModule {
 //    public void testAssembleDBAcctObjList() throws ParseException {
 //        handleInvoices.buildDBObjList();
 //    }
-    public List buildDBObjList() throws ParseException {
+    public List buildDBObjList() throws Exception {
         logger.debug("# InvoicesHandler [buildDBObjList]...");
         List dbAcctList = new ArrayList();
-        Map<String,Invoices> idInvoicesMap = new HashMap<String, Invoices>();
-        getDBObj(idInvoicesMap);
-        Invoices accouts2 = getDBObj2(idInvoicesMap);
+        Map<String,Object> idInvoicesMap = new HashMap<String, Object>();
+//        getDBObj(idInvoicesMap);
+//        Invoices accouts2 = getDBObj2(idInvoicesMap);
+        DBUtils.getInvoiceList(idInvoicesMap);
         dbAcctList.add(idInvoicesMap);
         CommonUtils.printList(dbAcctList, "打印DB对象：：：");
         return dbAcctList;
@@ -391,7 +392,6 @@ public class InvoicesHandler extends AbstractModule {
         if(addRowsMap==null || addRowsMap.size() == 0){
             return addZohoXmlList;
         }else{
-
             for(int i = 0 ; i< addRowsMap.size(); i ++){
                 invoices.setRows(addRowsMap.get(i));
                 result.setInvoices(invoices);
@@ -474,7 +474,7 @@ public class InvoicesHandler extends AbstractModule {
                 response.setResult(result);
                 logger.debug("组装更新的第"+(i+1)+"条数据：：：");
                 str = JaxbUtil.convertToXml(response);
-                updateZphoXmlMap.put(String.valueOf(key),str);
+                updateZphoXmlMap.put(StringUtils.nullToString(key),str.replace("pds","FL"));
                 i++;
             }
 
@@ -724,7 +724,7 @@ public class InvoicesHandler extends AbstractModule {
         invoices.setDeposit("0");
         invoices.setOtherCharge("0");
         invoices.setFreightAmount("0");
-        invoices.setTotal(String.valueOf(33150*7.77));
+        invoices.setTotal(StringUtils.nullToString(33150 * 7.77));
         String currentDate = ThreadLocalDateUtil.formatDate(new Date());
         invoices.setLatestEditTime(currentDate);
         invoices.setCreationTime("2016-09-01 10:10:10");
@@ -802,7 +802,7 @@ public class InvoicesHandler extends AbstractModule {
         invoices.setDeposit("0");
         invoices.setOtherCharge("0");
         invoices.setFreightAmount("0");
-        invoices.setTotal(String.valueOf(33150*7.77));
+        invoices.setTotal(StringUtils.nullToString(33150 * 7.77));
         String currentDate = ThreadLocalDateUtil.formatDate(new Date());
         invoices.setLatestEditTime(currentDate);
         invoices.setCreationTime("2016-09-01 10:10:10");
@@ -834,8 +834,8 @@ public class InvoicesHandler extends AbstractModule {
         logger.debug("# InvoicesHandler [handlePdsList]...");
         List<ProductDetails> pds = new ArrayList<ProductDetails>();
         ProductDetails pd =new ProductDetails();
-        String realUnitPrice = String.valueOf(0.73 * erpExchangeRate);
-        String listPrice = String.valueOf(0.73 * erpExchangeRate);
+        String realUnitPrice = StringUtils.nullToString(0.73 * erpExchangeRate);
+        String listPrice = StringUtils.nullToString(0.73 * erpExchangeRate);
         pd.setPd_Unit_Price(realUnitPrice);//定价  ： DB-->InvoicesPrice,注意价格要跟Currency一致
         pd.setPd_List_Price(listPrice);//单价  ： DB-->InvoicesPrice,注意价格要跟Currency一致
         pd.setPd_Quantity("10000");//数量
