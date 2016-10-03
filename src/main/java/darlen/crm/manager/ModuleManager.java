@@ -15,11 +15,14 @@ import darlen.crm.manager.handler.InvoicesHandler;
 import darlen.crm.manager.handler.ProductHandler;
 import darlen.crm.manager.handler.SOHandler;
 import darlen.crm.util.Constants;
+import darlen.crm.util.DBUtils;
 import darlen.crm.util.JaxbUtil;
 import darlen.crm.util.ModuleNameKeys;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -158,13 +161,69 @@ public class ModuleManager {
         module.buildSkeletonFromZohoList();
     }
 
+    public static void updReport() throws Exception {
+        //start time, end time()
+        String sql = "insert into ZOHO_EXCE_REPORT (start_time, end_time,ins_num,upd_num,del_num,module) values(?,?,?,?,?,?)";
+        List list = new ArrayList();
+        list.add(new Date());
+        list.add(new Date());
+        list.add(3);
+        list.add(4);
+        list.add(5);
+        list.add("Products");
+        DBUtils.exeUpdReport(sql, list);
+
+    }
+
+    /**
+     * 测试获取对象类型
+     */
+private static void testRefect(){
+    List list = new ArrayList();
+    list.add(1);
+    list.add("test");
+//    module = AccountsHandler.getInstance();
+    list.add(new Date());
+
+    for(Object o : list){
+        if(o instanceof  Integer){
+//            System.out.println("Integer");
+        }
+    }
+
+    for(int i = 0; i <list.size();i ++){
+        try{
+            Object o = list.get(i);
+            //1. 获取对象类型
+            String objectType = list.get(i).getClass().getName();
+            System.out.println("对象类型："+objectType);
+            if( o instanceof  Integer){
+                System.out.println("Integer");
+            }else if(o instanceof String){
+                System.out.println("String");
+            }else  if(o instanceof  Date){
+                System.out.println("Integer");
+            }
+            //2. 获取对象中Method返回类型
+//            Method method = list.get(i).getClass().getMethod("get",null);
+//            Class returnTypeClass = method.getReturnType();
+//            System.out.println("对象【"+objectType+"】类型为:"+returnTypeClass);
+        }catch(Exception e){
+            System.out.println(e);
+        }
+    }
+
+
+}
+
     public static void main(String[] args) throws Exception {
-        writeFiles();
+//        writeFiles();
 //        exeAccounts();
 //        exeProducts();
-        exeSO();
+//        exeSO();
 //        exeInvoice();
-
+        updReport();
+//        testRefect();
         exe();
     }
 }

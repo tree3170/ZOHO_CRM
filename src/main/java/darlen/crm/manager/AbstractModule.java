@@ -605,78 +605,83 @@ public abstract  class AbstractModule  implements IModule{
         return moduleUrl;
     }
 
-    public void addRecords(String moduleName,int curdKey,List zohoXMLList){
-        try {
-            String moduleUrl  = getModuleUrl(moduleName,curdKey);//zohoPropsMap.get(Constants.INSERT_ACCOUTNS_URL);//"https://crm.zoho.com.cn/crm/private/xml/Accounts/insertRecords";
+    public int addRecords(String moduleName,int curdKey,List zohoXMLList){
+        int failNum  = 0;
+        String moduleUrl  = getModuleUrl(moduleName,curdKey);
 
-            logger.debug("#[addRecords], 从ZOHO获取回来的所有记录的XML:::moduleName = "+moduleName+", Operatiton ="+curdKey+", url ="+moduleUrl);
-            List<String> addZohoXMLList = (List<String> ) zohoXMLList.get(0);
-            for(int i = 0; i < addZohoXMLList.size(); i ++){
-                //System.err.println("添加第"+(i+1)+"条数据，xml为："+addZohoXMLList.get(i));
-                logger.debug("添加第"+(i+1)+"条数据");
-                Map<String,String> postParams = new HashMap<String, String>();
-                postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,moduleUrl);
-                postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,addZohoXMLList.get(i));
-                postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
-                postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
-                postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
-
-                CommonUtils.executePostMethod(postParams);
+        logger.debug("#[addRecords], 从ZOHO获取回来的所有记录的XML:::moduleName = "+moduleName+", Operatiton ="+curdKey+", url ="+moduleUrl);
+        List<String> addZohoXMLList = (List<String> ) zohoXMLList.get(0);
+        for(int i = 0; i < addZohoXMLList.size(); i ++){
+            logger.debug("添加第"+(i+1)+"条数据");
+            Map<String,String> postParams = new HashMap<String, String>();
+            postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,moduleUrl);
+            postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,addZohoXMLList.get(i));
+            postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
+            postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
+            postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
+            try {
+                 CommonUtils.executePostMethod(postParams);
+            } catch(Exception e) {
+                logger.error("添加第"+(i+1)+"条数据失败"+"，执行addRecords【"+moduleName+"】操作出现错误," +
+                        "HTTP_POST_PARAM_XMLDATA = "+ addZohoXMLList.get(i), e);
+                failNum ++;
             }
-
-        } catch(Exception e) {
-            logger.error("执行更新Module操作出现错误",e);
         }
+        return failNum;
+
     }
-    public void updateRecords(String moduleName, int curdKey,List zohoXMLList){
-        try {
-//            String id_Accounts = "85333000000088001";//客户1ID
-            //"https://crm.zoho.com.cn/crm/private/xml/Accounts/updateRecords";
-            String moduleUrl  = getModuleUrl(moduleName, curdKey);;//zohoPropsMap.get(Constants.UPDATE_ACCOUTNS_URL);
-            //TODO: qq:85333000000071039, tree3170:85333000000071001
-            Map<String,String> updZohoXMLMap = (Map<String,String>) zohoXMLList.get(1);
-            int i = 1 ;
-            for(Map.Entry<String,String> zohoIDUpdXmlEntry : updZohoXMLMap.entrySet()){
-                logger.debug("更新第" + (i) + "条数据，ZOHO ID为" + zohoIDUpdXmlEntry.getKey());//xml为："+zohoIDUpdXmlEntry.getValue()
-                Map<String,String> postParams = new HashMap<String, String>();
-                postParams.put(Constants.HTTP_POST_PARAM_ID,zohoIDUpdXmlEntry.getKey());
-                postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,moduleUrl);
-                postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,zohoIDUpdXmlEntry.getValue());
-                postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
-                postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
-                postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
-
+    public int updateRecords(String moduleName, int curdKey,List zohoXMLList){
+        int failNum = 0;
+        String moduleUrl  = getModuleUrl(moduleName, curdKey);;
+        Map<String,String> updZohoXMLMap = (Map<String,String>) zohoXMLList.get(1);
+        int i = 1 ;
+        for(Map.Entry<String,String> zohoIDUpdXmlEntry : updZohoXMLMap.entrySet()){
+            logger.debug("更新第" + (i) + "条数据，ZOHO ID为" + zohoIDUpdXmlEntry.getKey());//xml为："+zohoIDUpdXmlEntry.getValue()
+            Map<String,String> postParams = new HashMap<String, String>();
+            postParams.put(Constants.HTTP_POST_PARAM_ID,zohoIDUpdXmlEntry.getKey());
+            postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,moduleUrl);
+            postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,zohoIDUpdXmlEntry.getValue());
+            postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
+            postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
+            postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
+            try {
                 CommonUtils.executePostMethod(postParams);
-                i++;
+            } catch(Exception e) {
+                failNum ++;
+                logger.error("更新第"+(i+1)+"条数据失败"+"，执行updateRecords【"+moduleName+"】操作出现错误," +
+                        "HTTP_POST_PARAM_ID = "+zohoIDUpdXmlEntry.getKey()+" ," +
+                        " HTTP_POST_PARAM_XMLDATA = "+zohoIDUpdXmlEntry.getValue(),e);
             }
-        } catch(Exception e) {
-            logger.error("执行更新Module操作出现错误",e);
+            i++;
         }
-    }
+        return failNum;
 
-
-    public void delRecords(String moduleName, int curdKey,List zohoXMLList){
-        try {
-            //String targetURL_Accounts = zohoPropsMap.get(Constants.DELETE_ACCOUTNS_URL);//"https://crm.zoho.com.cn/crm/private/xml/Accounts/deleteRecords";
-            String moduleUrl  = getModuleUrl(moduleName, curdKey);
-            List deleteZOHOIDsList = (List)zohoXMLList.get(2);
-            for(int i = 0; i < deleteZOHOIDsList.size(); i++){
-                logger.debug("删除第"+(i+1)+"条数据");
-                Map<String,String> postParams = new HashMap<String, String>();
-                postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,moduleUrl);
-                postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
-                postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
-                postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
-                postParams.put(Constants.HTTP_POST_PARAM_ID, deleteZOHOIDsList.get(i).toString());
-
-                CommonUtils.executePostMethod(postParams);
-            }
-        } catch(Exception e) {
-            logger.error("执行删除Module操作出现错误",e);
-        }
     }
 
 
+    public int delRecords(String moduleName, int curdKey,List zohoXMLList){
+        int failNum = 0;
+        String moduleUrl  = getModuleUrl(moduleName, curdKey);
+        List deleteZOHOIDsList = (List)zohoXMLList.get(2);
+        for(int i = 0; i < deleteZOHOIDsList.size(); i++){
+            String id = StringUtils.nullToString(deleteZOHOIDsList.get(i));
+            logger.debug("删除第"+(i+1)+"条数据");
+            Map<String,String> postParams = new HashMap<String, String>();
+            postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,moduleUrl);
+            postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
+            postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
+            postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
+            postParams.put(Constants.HTTP_POST_PARAM_ID,id );
+            try {
+                 CommonUtils.executePostMethod(postParams);
+            } catch(Exception e) {
+                logger.error("删除第"+(i+1)+"条数据失败"+"，执行delRecords【"+moduleName+"】操作出现错误," +
+                        "HTTP_POST_PARAM_ID = "+id,e);
+                failNum ++;
+            }
+        }
+        return failNum;
+    }
 
 
 }

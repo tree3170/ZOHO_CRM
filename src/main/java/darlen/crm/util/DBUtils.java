@@ -758,6 +758,56 @@ public class DBUtils {
             throw e;
         }
         return rs;
+    }
+    public static void exeUpdReport(String sql,List list) throws SQLException, IOException, ConfigurationException {
+        ResultSet rs = null;
+        Connection conn = getConnection();
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+              //
+//            ps.setDate(1,new java.sql.Date(new Date().getTime()));
+            setPSParams(ps,list);
+//            ps.setTimestamp(1, new Timestamp(new Date().getTime()));//"getdate()");//
+//            ps.setInt(2,1);
+//            ps.setInt(3,2);
+//            ps.setInt(4,4);
+//            ps.setString(5,"Accounts");
+             ps.executeUpdate();
+        } catch (SQLException e) {
+            logger.error("exeUpd出现错误, sql="+sql,e);
+        }
+    }
 
+    /**
+     * 通用的设置PreparedStatement的功能
+     * @param ps
+     * @param list
+     * 问题：为什么java.sql.Date类型的数据要设置Timestamp类型：如果设置Date类型，那么会损失精度
+     *  java.sql.date与java.util.date区别以及数据库中插入带时分秒的时间
+     * http://blog.csdn.net/tanqian351/article/details/51684006
+     * @throws SQLException
+     */
+    private static void setPSParams(PreparedStatement ps, List list) throws SQLException {
+        for(int  i = 0; i< list.size(); i++){
+            Object o  = list.get(i);
+            String objectType = list.get(i).getClass().getName();
+            if( "java.lang.Integer".equals(objectType)){
+                ps.setInt(i+1, StringUtils.nullToInt(o));
+            }else if("java.lang.String".equals(objectType)){
+                ps.setString(i + 1, StringUtils.nullToString(o));
+            }else  if("java.util.Date".equals(objectType)){
+
+                ps.setTimestamp(i + 1, new Timestamp(new Date().getTime()));
+            }
+
+            //TODO BigDecemal,
+//                if( o instanceof  Integer){
+//
+//                }else if(o instanceof String){
+//
+//                }else  if(o instanceof  Date){
+//
+//                }
+        }
     }
 }

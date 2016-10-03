@@ -49,8 +49,8 @@ public interface IModule {
 //    4.2. 添加
 //    4.3. 更新
 //    4.4. 删除
-    public void addRecords(String moduleName,int curdKey,List zohoXMLList);
-    public void updateRecords(String moduleName,int curdKey,List zohoXMLList);
-    public void delRecords(String moduleName,int curdKey,List zohoXMLList);
+    public int addRecords(String moduleName,int curdKey,List zohoXMLList);
+    public int updateRecords(String moduleName,int curdKey,List zohoXMLList);
+    public int delRecords(String moduleName,int curdKey,List zohoXMLList);
     public void execSend() throws Exception;
 }
