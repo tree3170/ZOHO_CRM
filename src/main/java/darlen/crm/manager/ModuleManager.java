@@ -18,6 +18,7 @@ import darlen.crm.util.Constants;
 import darlen.crm.util.DBUtils;
 import darlen.crm.util.JaxbUtil;
 import darlen.crm.util.ModuleNameKeys;
+import org.apache.log4j.Logger;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -63,6 +64,8 @@ import java.util.List;
  * @author Darlen liu
  */
 public class ModuleManager {
+
+    private static Logger logger = Logger.getLogger(ModuleManager.class);
     private  static  IModule module ;
 
     public IModule getModule() {
@@ -216,14 +219,35 @@ private static void testRefect(){
 
 }
 
+    public static void testSend()throws Exception{
+         writeFiles();
+//        exeAccounts();
+//        exeProducts();
+//        exeSO();
+//        exeInvoice();
+//        updReport();
+    }
+
+    /**
+     * 在使用Manager之前一定要自检，判断环境是否可用，如果不可用，必需停止，排除环境因素后才能继续执行
+     * 比如：读写properties、DB连接等等
+     * @throws Exception
+     */
+    public static void testEnv()throws Exception{
+        logger.debug("$$$$$$$$$$$$$$$$$$$$$$$$$环境检测正常,请继续执行下面工作$$$$$$$$$$$$$$$$$$$$$$");
+    }
+
     public static void main(String[] args) throws Exception {
+        //TODO 在执行环境之前一定要排除环境因素，比如说读写properties文件
+          testEnv();
 //        writeFiles();
 //        exeAccounts();
 //        exeProducts();
 //        exeSO();
 //        exeInvoice();
-        updReport();
+//        updReport();
 //        testRefect();
+        testSend();
         exe();
     }
 }

@@ -1,10 +1,13 @@
 package darlen.crm.util;
 
+import darlen.crm.manager.ConfigManager;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 
@@ -52,8 +55,15 @@ public class JaxbUtil {
 		} catch (Exception e) {
 			logger.error("#[JaxbUtil] convertToXml occurs error",e);
 		}
-        logger.debug("end the [JaxbUtil] convertToXml..."+result);
-		return result;
+        try {
+            //如果是开发模式，需要打印这个log
+            if( "1".equals(ConfigManager.get(Constants.PROPS_ZOHO_FILE,Constants.ZOHO_PROPS_DEV_MODE))){
+                 logger.debug("end the [JaxbUtil] convertToXml..."+result);
+            }
+        } catch (Exception e) {
+            logger.error("打印由Java Bean转换成的XML的log时出错...",e);
+        }
+        return result;
 	}
 
 	/**

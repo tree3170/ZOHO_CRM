@@ -108,7 +108,7 @@ public class DBUtils {
         //accountPropsMap.containsKey(lastEditBy)
         if(!StringUtils.isEmptyString(lastEditBy) && "".equals(ConfigManager.getZohoUserfromProps(lastEditBy))){
             return true;
-        }
+        }logger.debug("#不包含ERP ACCT【"+lastEditBy+"】， 忽略...");
         return false;
     }
 
@@ -200,7 +200,7 @@ public class DBUtils {
                 Products product = new Products();
                 String erpID = StringUtils.nullToString(rs.getString("ItemID"));
                 //从Cache中拿出erpID对应的
-                product.setErpID(ConfigManager.getProdfromProps(erpID));
+                product.setErpID(erpID);
                 // Product Name 产品名称
                 product.setProdName(StringUtils.nullToString(rs.getString("Name")));
                 //Product Code产品编码

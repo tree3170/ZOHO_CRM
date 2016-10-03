@@ -56,7 +56,10 @@ public class CommonUtils {
             }
         }
         wholePath = path + fileName;
+        //在单独的java程序中 ClassLoader.getSystemResource(wholePath).getPath();
         String filePath = ClassLoader.getSystemResource(wholePath).getPath();
+        //在WEB中，CommonUtils.class.getClassLoader().getResource("/").getPath()+wholePath
+//        String  filePath =CommonUtils.class.getClassLoader().getResource("/").getPath()+wholePath;
         logger.debug("[getFileNamePath], file path :"+filePath);
         return filePath;
     }
@@ -311,12 +314,11 @@ public class CommonUtils {
      * @param custMsg， 自定义打印前的message
      */
     public static void printMap(Map<?,?> map,String custMsg){
-        logger.debug("begin print map : "+custMsg);
         String str = "";
         for(Map.Entry<?,?> entry : map.entrySet()){
             str += entry.getKey()+"="+entry.getValue()+"; ";
         }
-        logger.debug(str);
+        logger.debug("begin print map : "+custMsg+"\n"+str);
     }
     /**
      * 打印list
@@ -324,12 +326,11 @@ public class CommonUtils {
      * @param custMsg， 自定义打印前的message
      */
     public static void printList(List list,String custMsg){
-        logger.debug("begin print List : "+custMsg);
         String str = "";
         for(int i = 0; i < list.size(); i++){
             str+= list.get(i)+"; ";
         }
-        logger.debug(str);
+        logger.debug("begin print List : "+custMsg+"\n"+str);
     }
 
     /**

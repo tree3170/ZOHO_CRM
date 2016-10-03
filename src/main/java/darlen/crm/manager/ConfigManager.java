@@ -139,8 +139,9 @@ public class ConfigManager {
         logger.debug("# 写入Product.properties文件：erpID<-->zohoID, configName="+configName);
         PrintWriter writer = null;
         try{
-            URL url = ClassLoader.getSystemResource(configName);
-            File file = new File(url.toURI());
+//            URL url = ClassLoader.getSystemResource(configName);
+//            File file = new File(url.toURI());
+            File file = new File(CommonUtils.getFileNamePath("",configName));
             writer = new PrintWriter(file, "UTF-8");
             writer.println("#这个是ZOHO的propertes mapping表，左边是ERP ID ，右边是ZOHO ID ");
             for(Map.Entry<String,String> entry : map.entrySet()){
@@ -183,13 +184,12 @@ public class ConfigManager {
                         zohoUserPropsMap.put(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
                     }else if(PROD_FILE_INDEX == fileNameKey){
                         prodsPropsMap.put(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
-                        CommonUtils.printMap(prodsPropsMap," Product.properties的具体内容");
                     }else if(ACCT_FILE_INDEX == fileNameKey){
                         acctsPropsMap.put(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
-                        CommonUtils.printMap(acctsPropsMap," Accounts.properties的具体内容");
                     }
-
                 }
+                CommonUtils.printMap(prodsPropsMap," Product.properties的具体内容");
+                CommonUtils.printMap(acctsPropsMap," Accounts.properties的具体内容");
                 // 调用 Hashtable 的方法 put。使用 getProperty 方法提供并行性。
                 // 强制要求为属性的键和值使用字符串。返回值是 Hashtable 调用 put 的结果。
 //                URL url = ClassLoader.getSystemResource("secure/Product.properties");
@@ -212,7 +212,8 @@ public class ConfigManager {
     }
     public static void main(String [] arges) throws Exception {
 //        System.out.println(ConfigManager.get("secure/db.properties", "DB_USERNAME"));
-//        ConfigManager.getProdfromProps("secure/db.properties");
+        System.out.println("======"+ConfigManager.getProdfromProps("marketing"));
+        //
 //        System.out.println(zohoUserPropsMap.get("Gary Tang"));
 //        writeVal2Props(zohoUserPropsMap,Constants.PROPS_PROD_FILE);
 //        URL url = ClassLoader.getSystemResource("secure/Product.properties");

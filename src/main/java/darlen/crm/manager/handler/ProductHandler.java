@@ -276,11 +276,13 @@ public class ProductHandler extends AbstractModule{
         Properties fieldMappingProps =CommonUtils.readProperties("/mapping/dbRdProductsFieldMapping.properties");
         //TODO add最大条数为100，
 //        2. 添加
+        logger.debug("###############################[build2ZohoXmlSkeleton], 开始获取Product【添加】的Product的XML#####################");
         logger.debug("begin组装 AddZOHOXML...\n");
         List<String> addZohoXmlList = buildAdd2ZohoXml(addMap,className,fieldMappingProps);
         logger.debug("end组装 AddZOHOXML..size:::."+addZohoXmlList.size());
 
 //        3. 更新
+        logger.debug("###############################[build2ZohoXmlSkeleton], 开始获取Product【更新】的Product的XML#####################");
         logger.debug("begin组装 updateZOHOXml...\n");
         Map<String,String> updateZOHOXmlMap  = buildUpd2ZohoXml(updateMap,className,fieldMappingProps);
         logger.debug("end组装 updateZOHOXml...size:::"+updateZOHOXmlMap.size());
@@ -289,6 +291,7 @@ public class ProductHandler extends AbstractModule{
         zohoXMLList.add(addZohoXmlList);
         zohoXMLList.add(updateZOHOXmlMap);
 //        4. 删除
+        logger.debug("###############################[build2ZohoXmlSkeleton], 开始获取Product【删除】的Product的XML#####################");
         List deleteZOHOIDsList  = (List)zohoComponentList.get(2);
         logger.debug("打印删除ZohoIDs集合 deleteZOHOIDsList...\n"+org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,","));
         zohoXMLList.add(deleteZOHOIDsList);//org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,",")

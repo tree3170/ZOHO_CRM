@@ -70,7 +70,7 @@ import java.util.*;
  */
 public class AccountsHandler  extends AbstractModule {
     private static AccountsHandler handleAccounts;
-//    Ⅰ：或者ZOHO xml并组装到zohoMap(id,lastEditTime)中： 参考（JaxbAccountsTest.java/JaxbSOTest.java/JaxbLeadsTest.java）
+//    Ⅰ：或者ZOHO xml并组装到zohoMap(id,lastEditTime) 参考（JaxbAccountsTest.java/JaxbSOTest.java/JaxbLeadsTest.java）
     private static Logger logger =  Logger.getLogger(AccountsHandler.class);
 
 
@@ -231,11 +231,13 @@ public class AccountsHandler  extends AbstractModule {
 
         //TODO add最大条数为100，
 //        2. 添加
+        logger.debug("###############################[build2ZohoXmlSkeleton], 开始获取 Accounts【insert】的的XML#####################");
         logger.debug("begin组装 AddZOHOXML...\n");
         List<String> addZohoXmlList = buildAdd2ZohoXml(addAccountMap,className,fieldMappingProps);
         logger.debug("end组装 AddZOHOXML..size:::."+addZohoXmlList.size());
 
 //        3. 更新
+        logger.debug("###############################[build2ZohoXmlSkeleton], 开始获取 Accounts【update】的的XML#####################");
         logger.debug("begin组装 updateZOHOXml...\n");
         Map<String,String> updateZOHOXmlMap  = buildUpd2ZohoXml(updateAccountMap,className,fieldMappingProps);
         logger.debug("end组装 updateZOHOXml...size:::"+updateZOHOXmlMap.size());
@@ -244,6 +246,7 @@ public class AccountsHandler  extends AbstractModule {
         zohoXMLList.add(addZohoXmlList);
         zohoXMLList.add(updateZOHOXmlMap);
 //        4. 删除
+        logger.debug("###############################[build2ZohoXmlSkeleton], 开始获取 Accounts【delete】的的XML#####################");
         logger.debug("打印删除ZohoIDs集合 deleteZOHOIDsList...\n"+org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,","));
         zohoXMLList.add(deleteZOHOIDsList);//org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,",")
         return zohoXMLList;

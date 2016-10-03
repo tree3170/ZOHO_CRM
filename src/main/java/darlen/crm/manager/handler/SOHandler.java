@@ -285,12 +285,14 @@ public class SOHandler extends AbstractModule{
 
         //TODO add最大条数为100，
         //2. 添加
+        logger.debug("###############################[build2ZohoXmlSkeleton], 开始获取 SO【Insert】的的XML#####################");
         logger.debug("begin组装 AddZOHOXML...\n");
         List<String> addZohoXmlList = buildAdd2ZohoXml(addAccountMap,className,fieldMappingProps);
         logger.debug("end组装 AddZOHOXML...size:::"+addZohoXmlList.size());
 
         //TODO confirm to 王继：如果有多条记录，因为每条API调用都需要带id， 该如何更新？ 是否支持批量更新？
         //3. 更新
+        logger.debug("###############################[build2ZohoXmlSkeleton], 开始获取 SO【Update】的的XML#####################");
         logger.debug("begin组装 updateZOHOXml...\n");
         Map<String,String> updateZOHOXmlMap  = buildUpd2ZohoXml(updateAccountMap,className,fieldMappingProps);
         logger.debug("end组装 updateZOHOXml...size:::"+updateZOHOXmlMap.size());
@@ -300,7 +302,7 @@ public class SOHandler extends AbstractModule{
         zohoXMLList.add(updateZOHOXmlMap);
         //TODO: for delete
         //4. 删除
-
+        logger.debug("###############################[build2ZohoXmlSkeleton], 开始获取 SO 【Delete】的的XML#####################");
         logger.debug("打印删除ZohoIDs集合 deleteZOHOIDsList...\n"+org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,","));
         zohoXMLList.add(deleteZOHOIDsList);//org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,",")
         return zohoXMLList;

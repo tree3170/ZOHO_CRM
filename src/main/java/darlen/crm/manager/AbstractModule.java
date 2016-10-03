@@ -406,7 +406,7 @@ public abstract  class AbstractModule  implements IModule{
      * refer:http://blog.csdn.net/sd4000784/article/details/7448221
      */
     public static Map<String,Object> getDBFieldNameValueMap(String className,Object dbFields) throws Exception {
-        logger.debug("entering the getDBFieldNameValueMap...className = "+className+", dbFields = "+dbFields);
+//        logger.debug("entering the getDBFieldNameValueMap...className = "+className+", dbFields = "+dbFields);
         Map<String,Object> map = new HashMap();
         Class clazz = Class.forName(className);
         Field[] fields = clazz.getDeclaredFields();
@@ -429,7 +429,7 @@ public abstract  class AbstractModule  implements IModule{
                 }
             }
         }
-        CommonUtils.printMap(map,"打印DBfield的map");
+//        CommonUtils.printMap(map,"打印DBfield的map");
         return map;
     }
     /**
@@ -440,7 +440,7 @@ public abstract  class AbstractModule  implements IModule{
      * @return
      */
     public List getZOHOFLsByProps(Properties properties, Map dbFieldNameValueMap) {
-        logger.debug("entering getZOHOFLsByProps...");
+//        logger.debug("entering getZOHOFLsByProps...");
         List allFls = new ArrayList();
         List<Product> products = new ArrayList<Product>();
         List<FL> commonFls = new ArrayList<FL>();
