@@ -12,12 +12,10 @@ import darlen.crm.jaxb.Accounts.Response;
 import darlen.crm.jaxb.Accounts.Result;
 import darlen.crm.jaxb.common.ProdRow;
 import darlen.crm.manager.AbstractModule;
-import darlen.crm.manager.ConfigManager;
 import darlen.crm.model.result.Accounts;
 import darlen.crm.model.result.User;
 import darlen.crm.util.*;
 import org.apache.log4j.Logger;
-import org.junit.Test;
 
 import java.text.ParseException;
 import java.util.*;
@@ -167,12 +165,12 @@ public class AccountsHandler  extends AbstractModule {
     public List buildDBObjList() throws Exception {
         logger.debug("# AccountHandler [buildDBObjList]...");
         List dbAcctList = new ArrayList();
-        Map<String,Object> erpIDProductsMap = new HashMap<String, Object>();
+        Map<String,Object> erpIDProductsMap = DBUtils.getAccountMap();;
 //        for(int i = 6; i< 300;i++){
 //            getDBObj(erpIDProductsMap,1);
 //        }
 //        getAcctDBObj2(erpIDProductsMap);
-        DBUtils.getAccountList(erpIDProductsMap);
+
         dbAcctList.add(erpIDProductsMap);
         CommonUtils.printList(dbAcctList, "Build DB Object :::");
         return dbAcctList;

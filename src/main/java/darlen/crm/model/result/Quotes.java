@@ -68,6 +68,7 @@ public class Quotes {
     private String latestEditBy;
     /**LatestEditTime*/
     private String latestEditTime;
+    private List<ProductDetails> pds;
 
     public String getErpID() {
         return erpID;
@@ -221,6 +222,14 @@ public class Quotes {
         this.latestEditTime = latestEditTime;
     }
 
+    public List<ProductDetails> getPds() {
+        return pds;
+    }
+
+    public void setPds(List<ProductDetails> pds) {
+        this.pds = pds;
+    }
+
     @Override
     public String toString() {
         return "Quotes{" +
@@ -243,6 +252,7 @@ public class Quotes {
                 ", grandTotal='" + grandTotal + '\'' +
                 ", latestEditBy='" + latestEditBy + '\'' +
                 ", latestEditTime='" + latestEditTime + '\'' +
+                ", pds=" + pds +
                 '}';
     }
 }

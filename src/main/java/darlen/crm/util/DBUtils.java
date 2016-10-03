@@ -92,11 +92,11 @@ public class DBUtils {
 
     public static void main(String[] args) throws Exception {
         getConnection();
-//        CommonUtils.printList(getAccountList(), "打印所有的Customer：：：");
-//        CommonUtils.printList(getProductList(), "打印所有的 Products：：：");
-//        getSOList();
-//        getInvoiceList();
-//        CommonUtils.printList(getSOList(), "打印所有的销售订单：：：");
+//        CommonUtils.printList(getAccountMap(), "打印所有的Customer：：：");
+//        CommonUtils.printList(getProductMap(), "打印所有的 Products：：：");
+//        getSOMap();
+//        getInvoiceMap();
+//        CommonUtils.printList(getSOMap(), "打印所有的销售订单：：：");
     }
 
     /**
@@ -120,8 +120,9 @@ public class DBUtils {
      * @throws SQLException
      * @throws ParseException
      */
-    public synchronized static List<Accounts> getAccountList(Map<String,Object> dbIDModuleObjMap) throws Exception {
-        List<Accounts> accountList = new ArrayList<Accounts>();
+    public synchronized static Map<String,Object> getAccountMap() throws Exception {
+        Map<String,Object> dbIDModuleObjMap = new HashMap<String, Object>();
+//        List<Accounts> accountList = new ArrayList<Accounts>();
         String sql = "select * from dbo.Customer " +
                 "where CustomerID in (1,8,14,20)"; //暂时只用三条数据
         ResultSet rs = exeQuery(sql);
@@ -180,15 +181,16 @@ public class DBUtils {
                 account.setLatestEditTime(lastEditTime);
 
                 account.setLatestEditBy(lastEditBy);
-                accountList.add(account);
+//                accountList.add(account);
                 dbIDModuleObjMap.put(erpID,account);
             }
         }
-        return accountList;
+        return dbIDModuleObjMap;
     }
 
-    public synchronized static List<Products> getProductList(Map<String,Object> dbIDModuleObjMap) throws Exception {
-        List<Products> productsList = new ArrayList<Products>();
+    public synchronized static Map<String,Object> getProductMap() throws Exception {
+        Map<String,Object> dbIDModuleObjMap = new HashMap<String, Object>();
+//        List<Products> productsList = new ArrayList<Products>();
         String sql = "select * from dbo.item " +
                 "where itemid in (6,9,10,130)"; //暂时只用三条数据
         ResultSet rs = exeQuery(sql);
@@ -228,12 +230,12 @@ public class DBUtils {
                 String latestEditTime = isDevMod ? ThreadLocalDateUtil.formatDate(new Date()):ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
 //                String latestEditTime = ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
                 product.setLatestEditTime(latestEditTime);
-                productsList.add(product);
+//                productsList.add(product);
                 dbIDModuleObjMap.put(erpID,product);
             }
         }
-        logger.debug("Product size:::" + productsList.size());
-        return productsList;
+        logger.debug("Product size:::" + dbIDModuleObjMap.size());
+        return dbIDModuleObjMap;
     }
 
     /**
@@ -249,7 +251,152 @@ public class DBUtils {
      * @throws SQLException
      * @throws ParseException
      */
-    public synchronized static List<SO> getSOList(Map<String,Object> dbIDModuleObjMap) throws Exception{
+    public synchronized static Map<String,Object> getQuotesMap() throws Exception{
+        Map<String,Object> dbIDModuleObjMap = new HashMap<String, Object>();
+//        List<Quotes> moduleList = new ArrayList<Quotes>();
+        String sql = "select s1.soid , s1.cusName,s2.soid ,s2.Item_SOID,s2.ItemID,s2.ItemName from  item_SO s2  left join  SO s1 on s1.soid = s2.SOID";
+        sql = "select s1.soid , s1.cusName,s2.Item_SOID,s2.ItemID,s2.ItemName, item.Name as itemName\n" +
+                " from SO s1 \n" +
+                "left join  item_SO s2  on s1.soid = s2.SOID\n" +
+                "left join  item item  on s2.itemid = item.itemid\n" +
+                " order by s1.soid\n";
+        sql = "SELECT q.QuoteID AS ERPID, q.CustomerID, q.QuoteRef, q.CUSNAME AS CUSTOMERNAME, q.EXCHANGERATE AS EXGRATE ,\n" +
+                "iq.Item_QuoteID,item.ITEMID AS PROD_ID, item.NAME AS PROD_NAME, iq.QuotePrice AS PROD_UNITPRICE,  iq.QUANTITY AS PROD_QUANTITY, iq.ITEMDISCOUNT AS PROD_DISCOUNT, iq.DESCRIPTION AS PROD_DESC , \n" +
+                "q.*\n" +
+                " FROM Quote q\n" +
+                "LEFT JOIN  Item_Quote iq  ON q.QuoteID = iq.QuoteID\n" +
+                "LEFT JOIN  ITEM item  ON iq.ItemID = item.ITEMID\n" +
+                "where q.QuoteID in (13,16,27)\n" +
+                " ORDER BY q.QuoteID";
+        ResultSet rs = exeQuery(sql);
+        String preErpID = "";
+        List<ProductDetails> pds = new ArrayList<ProductDetails>();
+        Quotes quotes = null;
+        while (rs != null && rs.next()){
+            String lastEditBy = StringUtils.nullToString(rs.getString("LatestEditBy"));
+            if(containERPAcct(lastEditBy)){
+                /**DB中的SO id*/
+                String curErpID = StringUtils.nullToString(rs.getString("SOID"));
+                //相同SO，代表这个SO有多个Product，不需要新创建SO，只需要把product添加到已有的List<ProductDetails> pds中
+                if(preErpID.equals(curErpID) && quotes != null){
+                    /**
+                     * 处理list<ProductDetail>, 根据db中的SOID关联Item_SO表，拿出所有的product Detail,注意为空情况
+                     Double.valueOf(so.getErpExchangeRate())
+                     */
+                    pds.add(assembleProduct(rs));
+                    quotes.setPds(pds);
+                } else{//代表不同SO,需要重新创建SO对象
+                    //erpid 不相同之前，先把上一个SO添加到list中（排除第一条数据对第一次遍历SO）
+//                    if(null != quotes )moduleList.add(quotes);
+                    //因为是不同的SO对象了，所以把SO添加到list之后，需要重新创建SO和Product对象, 并且把preErpID指向当前的ERP ID
+                    quotes = new Quotes();
+                    pds = new ArrayList<ProductDetails>();
+                    preErpID = curErpID;
+                    quotes.setErpID(curErpID);
+                    //TODO 销售编号与SoNumber需要确认,不需要，这个字段是ZOHO ID,从配置文件中获取
+                    //                so.setSALESORDERID(rs.getString("ItemRef"));
+                    //TODO 销售拥有者
+                    //        so.setOwerID("85333000000071039");
+                    //        so.setOwner("qq");
+//                    User user = new User("80487000000076001","marketing");
+                    User user = new User(ConfigManager.getZohoUserfromProps(lastEditBy),lastEditBy);
+                    quotes.setUser(user);
+                    String soNumber =StringUtils.nullToString(rs.getString("QuoteRef"));
+                    /**SONumber 和Subject一致*/
+                    quotes.setSubject(soNumber);
+                    quotes.setQuotesNo(soNumber);
+                    /**
+                     * TODO
+                     * Account id 和Name一般是同时存在的；
+                     * 如果只存在id，Name可以不对；
+                     * 如果只存在Name，那么会新创建一个客户；
+                     * 例外：但如果有ID，那么ID必需存在已经创建的客户中
+                     */
+                    String erpAcctID = StringUtils.nullToString(rs.getString("CustomerID"));
+                    String zohoAcctID = ConfigManager.getAcctsfromProps(erpAcctID);
+                    logger.debug("[getSOMap],ERP ID = "+curErpID+", CustomerID ="+erpAcctID+", ZOHO Account ID="+zohoAcctID);
+//                    quotes.setACCOUNTID(zohoAcctID);//"80487000000096005"
+                    quotes.setCustNO(StringUtils.nullToString(rs.getString("CusRef")));
+                    quotes.setCustName(StringUtils.nullToString(rs.getString("CusName")));
+                    /**
+                     * 客户名Account Name：PriPac Design & Communication AB, 注意&符号，以后会改成CDATA形式
+                     */
+                    //so.setAcctName(rs.getString("CusName"));//"永昌紙品"
+                    //报价名称（查找类型）
+                    quotes.setQuotesNo(StringUtils.nullToString(rs.getString("QuoteRef")));
+                    //客户名ERP_Currency,DB中用CurrencyName表示
+                    quotes.setErpCurrency(StringUtils.nullToString(rs.getString("CurrencyName")));
+                    //公司联络人Contact
+                    quotes.setContact(StringUtils.nullToString(rs.getString("CusContact")));
+                    //客户邮件地址
+//                    quotes.setMailAddress(StringUtils.nullToString(rs.getString("CusMailAddress")));
+//                    quotes.setEmail(StringUtils.nullToString(rs.getString("CusEmail")));
+                    //客户PONo
+//                    quotes.setPoNO(StringUtils.nullToString(rs.getString("CustomerPONo")));
+//                    quotes.setDeliveryAddress(rs.getString("CusDeliveryAddress"));
+//                    quotes.setTel(StringUtils.nullToString(rs.getString("CusTel")));
+//                    quotes.setFax(StringUtils.nullToString(rs.getString("CusFax")));
+                    BigDecimal exchangeRate = rs.getBigDecimal("ExchangeRate");
+                    quotes.setErpExchangeRate(exchangeRate.toString());
+                    /**TODO:不是直接顯示ID，要顯示PaymentTerm表中的Name字段         */
+                    quotes.setPaymentTerm(StringUtils.nullToString(rs.getString("PaymentTermID")));
+                    quotes.setPayMethod(StringUtils.nullToString(rs.getString("PayMethod")));
+//                    quotes.setDeliveryMethod(StringUtils.nullToString(rs.getString("DeliveryMethod")));
+//                    quotes.setPaymentPeriod(StringUtils.nullToString(rs.getString("PaymentPeriod")));
+                    //销售订单日期SODate
+                    String quoteDate = ThreadLocalDateUtil.formatDate(rs.getTimestamp("QuoteDate"));
+                    quotes.setQuotesDate(quoteDate);
+                    boolean isDevMod  = "1".equals(ConfigManager.get(Constants.PROPS_ZOHO_FILE,Constants.ZOHO_PROPS_DEV_MODE));
+                    String latestEditTime = isDevMod ? ThreadLocalDateUtil.formatDate(new Date()):ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
+//                    String currentDate = ThreadLocalDateUtil.formatDate(new Date());
+                    quotes.setLatestEditTime(latestEditTime);
+//                    so.setCreationTime("2016-09-01 10:10:10");
+                    quotes.setLatestEditBy(user.getUserName());
+
+                    /**
+                     * TODO  , 需要计算： 待定
+                     * 设置product detail右下角那堆属于SO的字段:Discount,Sub Total,Grand Total
+                     */
+                    quotes.setDiscount("0");
+                    quotes.setSubTotal("0");//小计
+                    quotes.setGrandTotal("0");//累计
+                    //Customer Discount == Discount
+                    BigDecimal cusDiscount = rs.getBigDecimal("CusDiscount");
+                    quotes.setCusDiscount(StringUtils.nullToString(cusDiscount.multiply(exchangeRate)));
+                    /**Discount来自销售订单中的“折扣” */
+                    quotes.setDiscount(StringUtils.nullToString(cusDiscount.multiply(exchangeRate)));
+                    /**Sub Total 来自销售订单中的“小计”*/
+                    //TODO : 小计-->估计是total,但是在SO中没有Total，那么就需要自己去计算
+                    //so.setSubTotal(String.valueOf(total.multiply(exgRate)));
+                    /**Grand Total来自销售订单中的“累计”*/
+                    //TODO : 累计-->估计应该是total-折扣
+                    //so.setGrandTotal(String.valueOf(total.multiply(exgRate).subtract(cusDiscount)));
+                    //处理第一条Product
+                    pds.add(assembleProduct(rs));
+                    quotes.setPds(pds);
+                    dbIDModuleObjMap.put(curErpID,quotes);
+                }
+            }
+        }
+        return dbIDModuleObjMap;
+//        return moduleList;
+    }
+
+    /**
+     * TODO:不是直接顯示ID，要顯示PaymentTerm表中的Name字段
+     * TODO: 如何显示
+     * 1. 重点在处理各种ID和Name  ：
+     *    a.AccountID --> Accounts.properties
+     *    b.ProductID --> Products.properties
+     *    c.UserID --> zohoUser.properties
+     *    d.PaytermID --> payterm.properties
+     * 2. 重点在Product Detail的处理：处理多个Product和1个Product情况
+     * @return
+     * @throws SQLException
+     * @throws ParseException
+     */
+    public synchronized static Map<String,Object> getSOMap() throws Exception{
+        Map<String,Object> dbIDModuleObjMap = new HashMap<String, Object>();
         List<SO> moduleList = new ArrayList<SO>();
         String sql = "select s1.soid , s1.cusName,s2.soid ,s2.Item_SOID,s2.ItemID,s2.ItemName from  item_SO s2  left join  SO s1 on s1.soid = s2.SOID";
         sql = "select s1.soid , s1.cusName,s2.Item_SOID,s2.ItemID,s2.ItemName, item.Name as itemName\n" +
@@ -311,8 +458,9 @@ public class DBUtils {
                      */
                      String erpAcctID = StringUtils.nullToString(rs.getString("CustomerID"));
                      String zohoAcctID = ConfigManager.getAcctsfromProps(erpAcctID);
-                     logger.debug("[getSOList],ERP ID = "+curErpID+", CustomerID ="+erpAcctID+", ZOHO Account ID="+zohoAcctID);
+                     logger.debug("[getSOMap],ERP ID = "+curErpID+", CustomerID ="+erpAcctID+", ZOHO Account ID="+zohoAcctID);
                     so.setACCOUNTID(zohoAcctID);//"80487000000096005"
+                    so.setCustomerNO(StringUtils.nullToString(rs.getString("CusRef")));
                     /**
                      * 客户名Account Name：PriPac Design & Communication AB, 注意&符号，以后会改成CDATA形式
                      */
@@ -373,7 +521,8 @@ public class DBUtils {
                 }
             }
         }
-        return moduleList;
+        return dbIDModuleObjMap;
+//        return moduleList;
     }
 
     /**
@@ -390,8 +539,9 @@ public class DBUtils {
      * @throws SQLException
      * @throws ParseException
      */
-    public synchronized static List<Invoices> getInvoiceList(Map<String,Object> dbIDModuleObjMap) throws Exception{
-        List<Invoices> moduleList = new ArrayList<Invoices>();
+    public synchronized static Map<String,Object> getInvoiceMap() throws Exception{
+        Map<String,Object> dbIDModuleObjMap = new HashMap<String, Object>();
+//        List<Invoices> moduleList = new ArrayList<Invoices>();
         String sql = "SELECT inv.InvoiceID AS ERPID, inv.CUSNAME AS CUSTOMERNAME, inv.EXCHANGERATE AS EXGRATE ,\n" +
                 "item_inv.Item_InvoiceID,item.ITEMID AS PROD_ID, item.NAME AS PROD_NAME, item_inv.InvoicePrice AS PROD_UNITPRICE,  item_inv.QUANTITY AS PROD_QUANTITY, item_inv.ITEMDISCOUNT AS PROD_DISCOUNT, item_inv.DESCRIPTION AS PROD_DESC , \n" +
                 "inv.*\n" +
@@ -418,7 +568,7 @@ public class DBUtils {
                     invoices.setPds(pds);
                 } else{//代表不同SO,需要重新创建SO对象
                     //erpid 不相同之前，先把上一个Module添加到list中（排除第一条数据对第一次遍历Module）
-                    if(null != invoices )moduleList.add(invoices);
+//                    if(null != invoices )moduleList.add(invoices);
                     //因为是不同的SO对象了，所以把SO添加到list之后，需要重新创建Module和pds对象, 并且把preErpID指向当前的ERP ID
                     invoices = new Invoices();
                     pds = new ArrayList<ProductDetails>();
@@ -534,13 +684,13 @@ public class DBUtils {
                     invoices.setGrandTotal(StringUtils.nullToString(total.multiply(exgRate).subtract(cusDiscount)));
                     pds.add(assembleProduct(rs));
                     invoices.setPds(pds);
-                    moduleList.add(invoices);
+//                    moduleList.add(invoices);
                     dbIDModuleObjMap.put(curErpID,invoices);
                 }
             }
 
         }
-        return moduleList;
+        return dbIDModuleObjMap;
     }
 
     /**

@@ -156,10 +156,10 @@ public class QuotesHandler extends AbstractModule {
     public List buildDBObjList() throws Exception {
         logger.debug("# InvoicesHandler [buildDBObjList]...");
         List dbAcctList = new ArrayList();
-        Map<String,Object> idInvoicesMap = new HashMap<String, Object>();
+        Map<String,Object> idInvoicesMap = DBUtils.getInvoiceMap();
 //        getDBObj(idInvoicesMap);
 //        Invoices accouts2 = getDBObj2(idInvoicesMap);
-        DBUtils.getInvoiceList(idInvoicesMap);
+
         dbAcctList.add(idInvoicesMap);
         CommonUtils.printList(dbAcctList, "打印DB对象：：：");
         return dbAcctList;

@@ -10,20 +10,14 @@ package darlen.crm.manager.handler;
 
 import darlen.crm.jaxb.Invoices.Response;
 import darlen.crm.jaxb.Invoices.Result;
-import darlen.crm.jaxb.common.FL;
-import darlen.crm.jaxb.common.ProdDetails;
 import darlen.crm.jaxb.common.ProdRow;
-import darlen.crm.jaxb.common.Product;
 import darlen.crm.manager.AbstractModule;
 import darlen.crm.model.result.Invoices;
 import darlen.crm.model.result.ProductDetails;
 import darlen.crm.model.result.User;
 import darlen.crm.util.*;
 import org.apache.log4j.Logger;
-import org.junit.Test;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.util.*;
 
@@ -185,10 +179,10 @@ public class InvoicesHandler extends AbstractModule {
     public List buildDBObjList() throws Exception {
         logger.debug("# InvoicesHandler [buildDBObjList]...");
         List dbAcctList = new ArrayList();
-        Map<String,Object> idInvoicesMap = new HashMap<String, Object>();
+        Map<String,Object> idInvoicesMap = DBUtils.getInvoiceMap();
 //        getDBObj(idInvoicesMap);
 //        Invoices accouts2 = getDBObj2(idInvoicesMap);
-        DBUtils.getInvoiceList(idInvoicesMap);
+        ;
         dbAcctList.add(idInvoicesMap);
         CommonUtils.printList(dbAcctList, "打印DB对象：：：");
         return dbAcctList;

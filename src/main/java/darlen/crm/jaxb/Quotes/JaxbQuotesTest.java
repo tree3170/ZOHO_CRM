@@ -56,7 +56,7 @@ public class JaxbQuotesTest {
         row.setPds(pds);
         rows.add(row);
         invoices.setRows(rows);
-        result.setInvoices(invoices);
+        result.setQuotes(invoices);
         response.setResult(result);
         String str = JaxbUtil.convertToXml(response);
         System.out.println("转换pds为FL前：Object to XML"+str);

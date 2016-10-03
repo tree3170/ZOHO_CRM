@@ -10,17 +10,13 @@ package darlen.crm.manager.handler;
 
 import darlen.crm.jaxb.Products.Response;
 import darlen.crm.jaxb.Products.Result;
-import darlen.crm.jaxb.common.FL;
 import darlen.crm.jaxb.common.ProdRow;
 import darlen.crm.manager.AbstractModule;
 import darlen.crm.model.result.Products;
 import darlen.crm.model.result.User;
 import darlen.crm.util.*;
 import org.apache.log4j.Logger;
-import org.junit.Test;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.util.*;
 
@@ -172,10 +168,10 @@ public class ProductHandler extends AbstractModule{
     public List buildDBObjList() throws Exception {
         logger.debug("# ProductHandler [buildDBObjList]...");
         List dbAcctList = new ArrayList();
-        Map<String,Object> erpIDProductsMap = new HashMap<String, Object>();
+        Map<String,Object> erpIDProductsMap = DBUtils.getProductMap();
 //        getDBObj(erpIDProductsMap);
 //        getDBObj2(erpIDProductsMap);
-        DBUtils.getProductList(erpIDProductsMap);
+
         dbAcctList.add(erpIDProductsMap);
         CommonUtils.printList(dbAcctList, "Build DB Object :::");
         return dbAcctList;

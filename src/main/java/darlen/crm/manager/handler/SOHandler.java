@@ -11,19 +11,14 @@ package darlen.crm.manager.handler;
 import darlen.crm.jaxb.SO.Response;
 import darlen.crm.jaxb.SO.Result;
 import darlen.crm.jaxb.common.FL;
-import darlen.crm.jaxb.common.ProdDetails;
 import darlen.crm.jaxb.common.ProdRow;
-import darlen.crm.jaxb.common.Product;
 import darlen.crm.manager.AbstractModule;
 import darlen.crm.model.result.ProductDetails;
 import darlen.crm.model.result.SO;
 import darlen.crm.model.result.User;
 import darlen.crm.util.*;
 import org.apache.log4j.Logger;
-import org.junit.Test;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.util.*;
 
@@ -179,12 +174,12 @@ public class SOHandler extends AbstractModule{
     public List buildDBObjList() throws Exception {
         logger.debug("# SOHandler [buildDBObjList]...");
         List dbAcctList = new ArrayList();
-        Map<String,Object> idSOMap = new HashMap<String, Object>();
+        Map<String,Object> idSOMap = DBUtils.getSOMap();
 //        SO accounts = getDBObj(idSOMap);
 //        SO accouts2 = getDBObj2(idSOMap);
 //        accouts2.setSubject("tree31701");
 //        dbAcctList.add(accounts);
-        DBUtils.getSOList(idSOMap);
+//        DBUtils.getSOMap(idSOMap);
         dbAcctList.add(idSOMap);
         CommonUtils.printList(dbAcctList, "DB Account obj");
         return dbAcctList;
