@@ -577,6 +577,9 @@ public abstract  class AbstractModule  implements IModule{
             if(ModuleNameKeys.Products.toString().equalsIgnoreCase(moduleName)){
                 moduleUrl = zohoPropsMap.get(Constants.INSERT_PRODUCTS_URL);
             }
+            if(ModuleNameKeys.Quotes.toString().equalsIgnoreCase(moduleName)){
+                moduleUrl = zohoPropsMap.get(Constants.INSERT_QUOTES_URL);
+            }
             if(ModuleNameKeys.SalesOrders.toString().equalsIgnoreCase(moduleName)){
                 moduleUrl = zohoPropsMap.get(Constants.INSERT_SO_URL);
             }
@@ -590,6 +593,9 @@ public abstract  class AbstractModule  implements IModule{
             if(ModuleNameKeys.Products.toString().equalsIgnoreCase(moduleName)){
                 moduleUrl = zohoPropsMap.get(Constants.UPDATE_PRODUCTS_URL);
             }
+            if(ModuleNameKeys.Quotes.toString().equalsIgnoreCase(moduleName)){
+                moduleUrl = zohoPropsMap.get(Constants.UPDATE_QUOTES_URL);
+            }
             if(ModuleNameKeys.SalesOrders.toString().equalsIgnoreCase(moduleName)){
                 moduleUrl = zohoPropsMap.get(Constants.UPDATE_SO_URL);
             }
@@ -602,6 +608,9 @@ public abstract  class AbstractModule  implements IModule{
             }
             if(ModuleNameKeys.Products.toString().equalsIgnoreCase(moduleName)){
                 moduleUrl = zohoPropsMap.get(Constants.DELETE_PRODUCTS_URL);
+            }
+            if(ModuleNameKeys.Quotes.toString().equalsIgnoreCase(moduleName)){
+                moduleUrl = zohoPropsMap.get(Constants.UPDATE_QUOTES_URL);
             }
             if(ModuleNameKeys.SalesOrders.toString().equalsIgnoreCase(moduleName)){
                 moduleUrl = zohoPropsMap.get(Constants.DELETE_SO_URL);

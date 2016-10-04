@@ -57,7 +57,7 @@ public class JaxbUtil {
 		}
         try {
             //如果是开发模式，需要打印这个log
-            if( "1".equals(ConfigManager.get(Constants.PROPS_ZOHO_FILE,Constants.ZOHO_PROPS_DEV_MODE))){
+            if( ConfigManager.isDevMod()){
                  logger.debug("end the [JaxbUtil] convertToXml..."+result);
             }
         } catch (Exception e) {

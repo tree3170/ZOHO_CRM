@@ -530,7 +530,8 @@ public class InvoicesManager_junitTest extends AbstractModule{
      */
     private List getAllFLList(Invoices invoices) throws Exception {
         Map<String,Object> dbFieldNameValueMap = getDBFieldNameValueMap("darlen.crm.model.result.Invoices",invoices);
-        List zohoFieldList = getZOHOFLsByProps(ConfigManager.readProperties("/mapping/dbRdInvoicesFieldMapping.properties"), dbFieldNameValueMap);
+        //"/mapping/dbRdInvoicesFieldMapping.properties"
+        List zohoFieldList = getZOHOFLsByProps(ConfigManager.readProperties(Constants.PROPS_INVOICE_DB_MAPPING), dbFieldNameValueMap);
         return zohoFieldList;
     }
     /**

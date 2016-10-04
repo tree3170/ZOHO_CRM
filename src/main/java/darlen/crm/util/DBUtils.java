@@ -811,8 +811,7 @@ public class DBUtils {
             }else if("java.lang.String".equals(objectType)){
                 ps.setString(i + 1, StringUtils.nullToString(o));
             }else  if("java.util.Date".equals(objectType)){
-
-                ps.setTimestamp(i + 1, new Timestamp(new Date().getTime()));
+                ps.setTimestamp(i + 1, new Timestamp(((Date)o).getTime()));
             }
 
             //TODO BigDecemal,

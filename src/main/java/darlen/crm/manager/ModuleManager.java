@@ -78,7 +78,7 @@ public class ModuleManager {
     public static List exeAccounts() throws Exception {
         //for Accounts
         module = AccountsHandler.getInstance();
-        return module.execSend();
+
 //        List zohoXMLList = new ArrayList();
 //        zohoXMLList.add(0);
 //        zohoXMLList.add(0);
@@ -96,22 +96,9 @@ public class ModuleManager {
 //            System.err.println("遍历次数"+i);
 //            module.retrieveZohoRecords(ModuleNameKeys.Accounts.toString(), 1, 2);
 //        }
+        return module.execSend();
     }
 
-    private static void testFetch(int fromIndex,int toIndex) throws Exception {
-//         fromIndex = 1;  toIndex = 100;
-        String zohoStr = module.retrieveZohoRecords(ModuleNameKeys.Accounts.toString(), fromIndex, toIndex);
-        Response response = JaxbUtil.converyToJavaBean(zohoStr, Response.class);
-        if(response.getResult()!= null){
-            List<ProdRow> rows = response.getResult().getAccounts().getRows();
-            if(rows.size() == 100){
-                System.err.println("遍历次数："+((fromIndex/100)+1));
-                testFetch(fromIndex+100,toIndex+100);
-            }
-        }
-
-
-    }
 
     public static List exeProducts() throws Exception {
         //for Accounts
@@ -133,13 +120,12 @@ public class ModuleManager {
 
     public static List exeSO() throws Exception {
 
-        module = AccountsHandler.getInstance();
+        module = SOHandler.getInstance();
 
         //module.buildSkeletonFromZohoList();
         //module = ProductHandler.getInstance();
         //module.buildSkeletonFromZohoList();
         //
-        ////for Accounts
         //module = SOHandler.getInstance();
         //module.build2ZohoXmlSkeleton();
         //module.buildDBObjList();
@@ -155,124 +141,160 @@ public class ModuleManager {
         return module.execSend();
     }
 
+
+
+    /**
+     *关于report的格式：：：AccountFailNum|ProductFailNum|QuoteFailNum|SOFailNum|InvoiceFailNum
+     *
+     * TODO ： 如果执行某个模块出错，那么该怎么处理，是继续下去还是可以执行其他的模块
+     * @throws Exception
+     */
+    public static void exeAllSend()throws Exception{
+         //writeFiles();
+        //启动时间
+        Date startDate = new Date();
+        logger.debug("##################################################开始执行Account Module##################################################");
+        logger.debug("\n\n\n####################################################################################################");
+        List acctsList = exeAccounts();
+        logger.debug("##################################################开始执行Product Module##################################################");
+        logger.debug("\n\n\n####################################################################################################");
+        List prodList = exeProducts();
+        //logger.debug("##################################################开始执行Quotes Module##################################################==");
+        //logger.debug("\n\n\n####################################################################################################");
+        //List quoteList = exeQuotes();
+        logger.debug("##################################################开始执行SO Module##################################################==");
+        logger.debug("\n\n\n####################################################################################################");
+        List soList = exeSO();
+        logger.debug("##################################################开始执行Invoices Module##################################################");
+        logger.debug("\n\n\n####################################################################################################");
+        List invList = exeInvoice();
+        //格式：AccountFailNum|ProductFailNum|QuoteFailNum|SOFailNum|InvoiceFailNum
+        String insertFailStr = StringUtils.nullToString(acctsList.get(0))+"|"//AccountFailNum
+                +StringUtils.nullToString(prodList.get(0))+"|"//ProductFailNum
+                //+StringUtils.nullToString(quoteList.get(0))//QuoteFailNum
+                +StringUtils.nullToString(0)+"|"//QuoteFailNum
+                +StringUtils.nullToString(soList.get(0))+"|"//SOFailNum
+                +StringUtils.nullToString(invList.get(0));//InvoiceFailNum
+
+        String updateFailStr = StringUtils.nullToString(acctsList.get(1))+"|"
+                +StringUtils.nullToString(prodList.get(1))+"|"
+                //+StringUtils.nullToString(quoteList.get(1))
+                +StringUtils.nullToString(0)+"|"
+                +StringUtils.nullToString(soList.get(1))+"|"
+                +StringUtils.nullToString(invList.get(1));
+
+        String deleteFailStr = StringUtils.nullToString(acctsList.get(2))+"|"
+                +StringUtils.nullToString(prodList.get(2))+"|"
+                //+StringUtils.nullToString(quoteList.get(2))+"|"
+                +StringUtils.nullToString(0)+"|"
+                +StringUtils.nullToString(soList.get(2))+"|"
+                +StringUtils.nullToString(invList.get(2));
+
+        //结束时间new Date()
+        Date endDate = new Date();
+        List updERPList = new ArrayList();
+        updERPList.add(startDate);
+        updERPList.add(endDate);
+        updERPList.add(insertFailStr);
+        updERPList.add(updateFailStr);
+        updERPList.add(deleteFailStr);
+        CommonUtils.printList(updERPList,"#####最后更新Report");
+        //执行更新Report操作
+        String sql = "INSERT INTO ZOHO_EXCE_REPORT (START_TIME, END_TIME,INS_FAILED,UPD_FAILED,DEL_FAILED) VALUES(?,?,?,?,?)";
+        DBUtils.exeUpdReport(sql, updERPList);
+    }
+
+
+
+    public static void main(String[] args) throws Exception {
+        //1. 环境检测
+        //envAutoChecking();
+        //2.执行
+        exeAllSend();
+
+
+        exe();
+    }
+    /**
+     * 在使用Manager之前一定要自检，判断环境是否可用，如果不可用，必需停止，排除环境因素后才能继续执行
+     * 比如：读写properties、DB连接等等
+     * @throws Exception
+     */
+    public static void envAutoChecking()throws Exception{
+        ConfigManager.envAutoChecking();
+        logger.debug("$$$$$$$$$$$$$$$$$$$$$$$$$环境检测正常,请继续执行下面工作$$$$$$$$$$$$$$$$$$$$$$");
+    }
     /**
      * 真是情况是不需要提前写入File的，因为是执行顺序是Accounts，Products，Quote,SO,Invoices
      * 这里是为了方便写入文件
+     * 写入Accounts.properties和Product.properties
      * @throws Exception
      */
-    public static void writeFiles() throws Exception {
+    public static void testWriteFiles() throws Exception {
         module = AccountsHandler.getInstance();
         module.buildSkeletonFromZohoList();
         module = ProductHandler.getInstance();
         module.buildSkeletonFromZohoList();
     }
 
+    /**
+     *
+     * @param fromIndex
+     * @param toIndex
+     * @throws Exception
+     */
+    private static void testFetch(int fromIndex,int toIndex) throws Exception {
+//         fromIndex = 1;  toIndex = 100;
+        String zohoStr = module.retrieveZohoRecords(ModuleNameKeys.Accounts.toString(), fromIndex, toIndex);
+        Response response = JaxbUtil.converyToJavaBean(zohoStr, Response.class);
+        if(response.getResult()!= null){
+            List<ProdRow> rows = response.getResult().getAccounts().getRows();
+            if(rows.size() == 100){
+                System.err.println("遍历次数："+((fromIndex/100)+1));
+                testFetch(fromIndex+100,toIndex+100);
+            }
+        }
+    }
 
 
     /**
      * 测试获取对象类型
      */
-private static void testRefect(){
-    List list = new ArrayList();
-    list.add(1);
-    list.add("test");
-//    module = AccountsHandler.getInstance();
-    list.add(new Date());
+    private static void testRefect(){
+        List list = new ArrayList();
+        list.add(1);
+        list.add("test");
+        //    module = AccountsHandler.getInstance();
+        list.add(new Date());
 
-    for(Object o : list){
-        if(o instanceof  Integer){
-//            System.out.println("Integer");
-        }
-    }
-
-    for(int i = 0; i <list.size();i ++){
-        try{
-            Object o = list.get(i);
-            //1. 获取对象类型
-            String objectType = list.get(i).getClass().getName();
-            System.out.println("对象类型："+objectType);
-            if( o instanceof  Integer){
-                System.out.println("Integer");
-            }else if(o instanceof String){
-                System.out.println("String");
-            }else  if(o instanceof  Date){
-                System.out.println("Integer");
+        for(Object o : list){
+            if(o instanceof  Integer){
+                //            System.out.println("Integer");
             }
-            //2. 获取对象中Method返回类型
-//            Method method = list.get(i).getClass().getMethod("get",null);
-//            Class returnTypeClass = method.getReturnType();
-//            System.out.println("对象【"+objectType+"】类型为:"+returnTypeClass);
-        }catch(Exception e){
-            System.out.println(e);
         }
-    }
+
+        for(int i = 0; i <list.size();i ++){
+            try{
+                Object o = list.get(i);
+                //1. 获取对象类型
+                String objectType = list.get(i).getClass().getName();
+                System.out.println("对象类型："+objectType);
+                if( o instanceof  Integer){
+                    System.out.println("Integer");
+                }else if(o instanceof String){
+                    System.out.println("String");
+                }else  if(o instanceof  Date){
+                    System.out.println("Integer");
+                }
+                //2. 获取对象中Method返回类型
+                //            Method method = list.get(i).getClass().getMethod("get",null);
+                //            Class returnTypeClass = method.getReturnType();
+                //            System.out.println("对象【"+objectType+"】类型为:"+returnTypeClass);
+            }catch(Exception e){
+                System.out.println(e);
+            }
+        }
 
 
-}
-
-    public static void exeAllSend()throws Exception{
-         //writeFiles();
-        Date startDate = new Date();
-        List acctsList = exeAccounts();
-        List prodList = exeProducts();
-        List quoteList = exeQuotes();
-        List soList = exeSO();
-        List invList = exeInvoice();
-        String insertFailStr = StringUtils.nullToString(acctsList.get(0))+"|"+StringUtils.nullToString(prodList.get(0))+"|"
-                +StringUtils.nullToString(quoteList.get(0))+"|"+StringUtils.nullToString(soList.get(0))+"|"
-                +StringUtils.nullToString(invList.get(0));
-
-        String updateFailStr = StringUtils.nullToString(acctsList.get(1))+"|"+StringUtils.nullToString(prodList.get(1))+"|"
-                +StringUtils.nullToString(quoteList.get(1))+"|"+StringUtils.nullToString(soList.get(1))+"|"
-                +StringUtils.nullToString(invList.get(1));
-
-        String deleteFailStr = StringUtils.nullToString(acctsList.get(2))+"|"+StringUtils.nullToString(prodList.get(2))+"|"
-                +StringUtils.nullToString(quoteList.get(2))+"|"+StringUtils.nullToString(soList.get(2))+"|"
-                +StringUtils.nullToString(invList.get(2));
-
-        List updERPList = new ArrayList();
-        updERPList.add(startDate);
-        updERPList.add(new Date());
-        updERPList.add(insertFailStr);
-        updERPList.add(updateFailStr);
-        updERPList.add(deleteFailStr);
-        //updReport(updERPList);
-
-
-        String sql = "INSERT INTO ZOHO_EXCE_REPORT (START_TIME, END_TIME,INS_FAILED,UPD_FAILED,DEL_FAILED) VALUES(?,?,?,?,?)";
-        DBUtils.exeUpdReport(sql, updERPList);
-    }
-
-    /**
-     * 在使用Manager之前一定要自检，判断环境是否可用，如果不可用，必需停止，排除环境因素后才能继续执行
-     * 比如：读写properties、DB连接等等
-     * @throws Exception
-     */
-    public static void testEnv()throws Exception{
-        // 1. 检测Properties
-
-        // 2. 检测DB连接
-
-        logger.debug("$$$$$$$$$$$$$$$$$$$$$$$$$环境检测正常,请继续执行下面工作$$$$$$$$$$$$$$$$$$$$$$");
-    }
-
-    public static void main(String[] args) throws Exception {
-        //TODO 在执行环境之前一定要排除环境因素，比如说读写properties文件
-
-        //ThreadLocalDateUtil.formatDate(new Date());
-        Date startTime = new Date();
-        testEnv();
-//        writeFiles();
-//        exeAccounts();
-//        exeProducts();
-//        exeSO();
-//        exeInvoice();
-        exeAllSend();
-
-        Date endTime = new Date();
-//        updReport(startTime,endTime,new ArrayList());
-//        testRefect();
-
-        exe();
     }
 }

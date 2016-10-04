@@ -101,6 +101,8 @@ public interface Constants {
     public static final String ZOHO_PROPS_DEV_MODE="DEV_MODE";
 
     /**设置Properties文件名*/
+
+    // for secure folder
     //PropertiesConfiguration初始化，不需要前面的斜杠
     public static final String PROPS_ZOHO_FILE ="secure/zoho.properties";//-->secure/zoho.properties
     //PropertiesConfiguration，不需要前面的斜杠
@@ -109,6 +111,14 @@ public interface Constants {
     public static final String PROPS_USER_FILE = "secure/zohoUser.properties";//-->/secure/zohoUser.properties
     public static final String PROPS_PROD_FILE = "secure/Products.properties";//-->/secure/Product.properties
     public static final String PROPS_ACCT_FILE ="secure/Accounts.properties";//-->/secure/Account.properties
+
+    //for mapping folder
+    public static final String PROPS_ACCT_DB_MAPPING ="mapping/dbRdAccountsFieldMapping.properties";
+    public static final String PROPS_PROD_DB_MAPPING ="mapping/dbRdProductsFieldMapping.properties";
+    public static final String PROPS_QUOTE_DB_MAPPING ="mapping/dbRdQuotesFieldMapping.properties";
+    public static final String PROPS_SO_DB_MAPPING ="mapping/dbRdSOFieldMapping.properties";
+    public static final String PROPS_INVOICE_DB_MAPPING ="mapping/dbRdInvoicesFieldMapping.properties";
+
 
 
     /**Max Add size*/

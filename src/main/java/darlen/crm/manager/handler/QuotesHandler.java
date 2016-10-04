@@ -224,7 +224,8 @@ public class QuotesHandler extends AbstractModule {
         List deleteZOHOIDsList  = (List)zohoComponentList.get(2);
 
         String className = "darlen.crm.model.result.Invoices";
-        Properties fieldMappingProps = ConfigManager.readProperties("/mapping/dbRdInvoicesFieldMapping.properties");
+        //"/mapping/dbRdQuotesFieldMapping.properties"
+        Properties fieldMappingProps = ConfigManager.readProperties(Constants.PROPS_QUOTE_DB_MAPPING);
         //TODO add最大条数为100，
         //2. 添加
         logger.debug("###############################[build2ZohoXmlSkeleton], 开始获取 Quotes【Insert】的的XML#####################");
@@ -326,6 +327,7 @@ public class QuotesHandler extends AbstractModule {
                 quotes.setRows(Arrays.asList(rows.get(i)));
                 result.setQuotes(quotes);
                 response.setResult(result);
+                if(ConfigManager.isDevMod())
                 logger.debug("组装更新的第"+(i+1)+"条数据：：：");
                 str = JaxbUtil.convertToXml(response);
                 updateZphoXmlMap.put(StringUtils.nullToString(key),str.replace("pds","FL"));

@@ -228,7 +228,8 @@ public class AccountsHandler  extends AbstractModule {
         List deleteZOHOIDsList  = (List)zohoComponentList.get(2);
 
         String className = "darlen.crm.model.result.Accounts";
-        Properties fieldMappingProps = ConfigManager.readProperties("/mapping/dbRdAccountsFieldMapping.properties");
+        //"/mapping/dbRdAccountsFieldMapping.properties"
+        Properties fieldMappingProps = ConfigManager.readProperties(Constants.PROPS_ACCT_DB_MAPPING);
 
         //TODO add最大条数为100，
 //        2. 添加
@@ -397,7 +398,8 @@ public class AccountsHandler  extends AbstractModule {
                 accounts.setRows(Arrays.asList(rows.get(i)));
                 result.setAccounts(accounts);
                 response.setResult(result);
-                logger.debug("组装更新的第"+(i+1)+"条数据：：：");
+                if(ConfigManager.isDevMod())
+                     logger.debug("组装更新的第"+(i+1)+"条数据：：：");
                 str = JaxbUtil.convertToXml(response);
                 updateZphoXmlMap.put(StringUtils.nullToString(key),str);
                 i++;

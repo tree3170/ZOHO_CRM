@@ -274,7 +274,8 @@ public class ProductHandler extends AbstractModule{
 
 
         String className = "darlen.crm.model.result.Products";
-        Properties fieldMappingProps = ConfigManager.readProperties("/mapping/dbRdProductsFieldMapping.properties");
+        //"/mapping/dbRdProductsFieldMapping.properties"
+        Properties fieldMappingProps = ConfigManager.readProperties(Constants.PROPS_PROD_DB_MAPPING);
         //TODO add最大条数为100，
 //        2. 添加
         logger.debug("###############################[build2ZohoXmlSkeleton], 开始获取Product【添加】的Product的XML#####################");
@@ -435,6 +436,7 @@ public class ProductHandler extends AbstractModule{
                 products.setRows(Arrays.asList(rows.get(i)));
                 result.setProducts(products);
                 response.setResult(result);
+                if(ConfigManager.isDevMod())
                 logger.debug("组装更新的第"+(i+1)+"条数据：：：");
                 str = JaxbUtil.convertToXml(response);
 

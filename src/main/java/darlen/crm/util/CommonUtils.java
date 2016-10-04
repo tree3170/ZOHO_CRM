@@ -15,6 +15,7 @@ import darlen.crm.manager.ConfigManager;
 import darlen.crm.model.fields.common.Fields;
 import darlen.crm.model.fields.common.Section;
 import darlen.crm.model.result.User;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
@@ -46,7 +47,7 @@ public class CommonUtils {
      * @param fileName
      * @return
      */
-    public static String getFileNamePath(String path,String fileName){
+    public static String getFileNamePath(String path,String fileName) throws IOException, ConfigurationException {
         //判断path是不是以/或者\结尾，如果不是，需要加上来
         String wholePath = "";
         if(!StringUtils.isEmptyString(path)){
@@ -65,8 +66,9 @@ public class CommonUtils {
             //在WEB中，CommonUtils.class.getClassLoader().getResource("/").getPath()+wholePath，CommonUtils.class.getResourceAsStream(relativePath)
             filePath = CommonUtils.class.getClassLoader().getResource("/").getPath()+wholePath;
         }
-
-        logger.debug("[getFileNamePath], file path :"+filePath);
+        if(ConfigManager.isDevMod()){
+            logger.debug("[getFileNamePath], file path :"+filePath);
+        }
         return filePath;
     }
 
@@ -262,18 +264,18 @@ public class CommonUtils {
         if(!StringUtils.isEmptyString(id)) post.setParameter(Constants.HTTP_POST_PARAM_ID,id);*/
         setPostMethodParams(post,map);
         HttpClient httpclient = new HttpClient();
-        PrintWriter myout = null;
+        //PrintWriter myout = null;
         String postResp = "";
         try
         {
             long t1 = System.currentTimeMillis();
             int result = httpclient.executeMethod(post);
-            logger.error("HTTP Response status code: " + result);
-            logger.error(">> Time taken " + (System.currentTimeMillis() - t1));
+            logger.debug("HTTP Response status code: " + result);
+            logger.debug(">> Time taken " + (System.currentTimeMillis() - t1));
 
             // writing the response to a file
-            myout = new PrintWriter(new File("response.xml"));
-            myout.print(post.getResponseBodyAsString());
+            //myout = new PrintWriter(new File("response.xml"));
+            //myout.print(post.getResponseBodyAsString());
 
             //-----------------------Get response as a string ----------------
             postResp = post.getResponseBodyAsString();
@@ -286,7 +288,7 @@ public class CommonUtils {
         }catch(Exception e){
             logger.error("#[executePostMethod] executed occurs error"+e);
         } finally{
-            myout.close();
+            //myout.close();
             post.releaseConnection();
         }
         return  postResp;
@@ -324,7 +326,7 @@ public class CommonUtils {
         for(Map.Entry<?,?> entry : map.entrySet()){
             str += entry.getKey()+"="+entry.getValue()+"; ";
         }
-        logger.debug("begin print map : "+custMsg+"\n"+str);
+        logger.debug("begin print map : "+custMsg+"\n##\t ====> "+str);
     }
     /**
      * 打印list
@@ -336,7 +338,7 @@ public class CommonUtils {
         for(int i = 0; i < list.size(); i++){
             str+= list.get(i)+"; ";
         }
-        logger.debug("begin print List : "+custMsg+"\n"+str);
+        logger.debug("begin print List : "+custMsg+"\n##\t ====> "+str);
     }
 
     /**

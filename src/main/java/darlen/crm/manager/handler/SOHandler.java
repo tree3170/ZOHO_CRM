@@ -282,7 +282,8 @@ public class SOHandler extends AbstractModule{
         List deleteZOHOIDsList  = (List)zohoComponentList.get(2);
 
         String className = "darlen.crm.model.result.SO";
-        Properties fieldMappingProps = ConfigManager.readProperties("/mapping/dbRdSOFieldMapping.properties");
+        //"/mapping/dbRdSOFieldMapping.properties"
+        Properties fieldMappingProps = ConfigManager.readProperties(Constants.PROPS_SO_DB_MAPPING);
 
         //TODO add最大条数为100，
         //2. 添加
@@ -498,6 +499,7 @@ public class SOHandler extends AbstractModule{
                 so.setRows(Arrays.asList(rows.get(i)));
                 result.setSo(so);
                 response.setResult(result);
+                if(ConfigManager.isDevMod())
                 logger.debug("组装更新的第"+(i+1)+"条数据：：：");
                 str = JaxbUtil.convertToXml(response);
                 updateZphoXmlMap.put(StringUtils.nullToString(key),str.replace("pds","FL"));
