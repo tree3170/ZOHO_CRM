@@ -8,6 +8,7 @@
  * */
 package darlen.crm.jaxb.common;
 
+
 import javax.xml.bind.annotation.*;
 import java.util.List;
 
@@ -27,7 +28,6 @@ import java.util.List;
 public class ProdRow {
     @XmlAttribute(name="no")
     private Integer no;
-
     @XmlElement(name = "FL")
     private List<FL> fls;
     /**在这里暂时先把Product Details的FL转换成pds*/

@@ -8,7 +8,10 @@
  * */
 package darlen.crm.jaxb.common;
 
+import darlen.crm.util.CDataAdapter;
+
 import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * darlen.crm.jaxb_xml_object.leads
@@ -24,10 +27,12 @@ import javax.xml.bind.annotation.*;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(propOrder = {})
 public class FL {
+    //@XmlJavaTypeAdapter(CDataAdapter.class)
     @XmlAttribute(name="val")
     private String fieldName;
 
     //    @XmlElement(name="FL")
+    @XmlJavaTypeAdapter(CDataAdapter.class)
     @XmlValue
     private String fieldValue;
 

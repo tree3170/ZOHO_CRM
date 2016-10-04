@@ -14,4 +14,7 @@
 
 ## 问题
 * 1. &lt;问题
-* 2.
+* 2. CDATA问题,分三步，具体查看test下面的cdata例子：  参考：http://zhaoyx.iteye.com/blog/1856259
+    a. 首先创建适配器类：CDataAdapter.java
+    b. 实现JaxbUtil.java -->注意CharacterEscapeHandler这个字符设置
+    c. 对已有的的用于转化的java Bean中的需要用到CDATA的字段，应用@XmlJavaTypeAdapter(CDataAdapter.class)

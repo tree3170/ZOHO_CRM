@@ -1,4 +1,4 @@
-package darlen.crm.jaxb_xml_object.t1;
+package darlen.crm.jaxb_xml_object.cdata;
 
 import java.util.Date;
 
@@ -16,12 +16,12 @@ public class JaxbTest1 {
 	public void showMarshaller()  {
 		Book book = new Book();
 		book.setId(100);
-		book.setAuthor("James");
+		book.setAuthor("James@#^#$#$%^&*()<>?:{}[]");
 		book.setCalendar(new Date());
 		book.setPrice(23.45f);	 //默认是0.0
 		
 		String str = JaxbUtil.convertToXml(book);
-		System.out.println(str);
+		//System.out.println(str);
 	}
 
 	/**

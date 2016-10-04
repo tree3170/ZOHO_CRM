@@ -210,7 +210,8 @@ public class ModuleManager {
         //1. 环境检测
         //envAutoChecking();
         //2.执行
-        exeAllSend();
+        //exeAllSend();
+        exeAccounts();
 
 
         exe();

@@ -48,7 +48,8 @@
 * 4. 后天：log分类问题
 * 5. Quartz可以随时触发问题，当遇到不可遇因素，能否主动停止Quarz
 * 6. 至少需要2个自定义异常类： 1--> 前端执行情况  2-->最后面post的时候如果出错，因为这个时候是会有执行结果的（想了下或许不要）
-* 7. jaxb -->CDATA
+* 7. jaxb -->CDATA 【done】
+* 8. 关于Remark这个字段需要确认
 
 # 20161004
 * 1. 删除顺序(invoice/so/quote/product/account)【待定】【API Import：DONE】

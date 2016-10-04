@@ -1,4 +1,5 @@
-package darlen.crm.jaxb_xml_object.t1;
+package darlen.crm.jaxb_xml_object.cdata;
+
 
 import java.util.Date;
 
@@ -8,12 +9,13 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement
 @XmlType(name = "book", propOrder = { "author", "calendar", "price", "id" })
 public class Book {
-
+    @XmlJavaTypeAdapter(CDataAdapter.class)
 	@XmlElement(required = true)
 	private String author;
 
