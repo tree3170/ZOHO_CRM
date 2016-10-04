@@ -12,6 +12,7 @@ import darlen.crm.jaxb.Invoices.Response;
 import darlen.crm.jaxb.Invoices.Result;
 import darlen.crm.jaxb.common.ProdRow;
 import darlen.crm.manager.AbstractModule;
+import darlen.crm.manager.ConfigManager;
 import darlen.crm.model.result.Invoices;
 import darlen.crm.model.result.ProductDetails;
 import darlen.crm.model.result.User;
@@ -260,7 +261,7 @@ public class InvoicesHandler extends AbstractModule {
         List deleteZOHOIDsList  = (List)zohoComponentList.get(2);
 
         String className = "darlen.crm.model.result.Invoices";
-        Properties fieldMappingProps =CommonUtils.readProperties("/mapping/dbRdInvoicesFieldMapping.properties");
+        Properties fieldMappingProps = ConfigManager.readProperties("/mapping/dbRdInvoicesFieldMapping.properties");
         //TODO add最大条数为100，
         //2. 添加
         logger.debug("###############################[build2ZohoXmlSkeleton], 开始获取 Invoices【insert】的的XML#####################");
@@ -294,12 +295,17 @@ public class InvoicesHandler extends AbstractModule {
      * 添加（testAddAcctRecord）
      * 删除（testDelAcctRecord）
      */
-    public void execSend() throws Exception {
+    public List execSend() throws Exception {
         logger.debug("# InvoicesHandler [execSend]...");
         List zohoXMLList = build2ZohoXmlSkeleton();
-        addRecords(ModuleNameKeys.Invoices.toString(),Constants.ZOHO_CRUD_ADD,zohoXMLList);
-        updateRecords(ModuleNameKeys.Invoices.toString(),Constants.ZOHO_CRUD_UPDATE,zohoXMLList);
-        delRecords(ModuleNameKeys.Invoices.toString(),Constants.ZOHO_CRUD_DELETE,zohoXMLList);
+        int addFailNum = addRecords(ModuleNameKeys.Invoices.toString(),Constants.ZOHO_CRUD_ADD,zohoXMLList);
+        int updFailNum = updateRecords(ModuleNameKeys.Invoices.toString(),Constants.ZOHO_CRUD_UPDATE,zohoXMLList);
+        int delFailNum = delRecords(ModuleNameKeys.Invoices.toString(),Constants.ZOHO_CRUD_DELETE,zohoXMLList);
+        List result = new ArrayList();
+        result.add(0,addFailNum);
+        result.add(1,updFailNum);
+        result.add(2,delFailNum);
+        return result;
     }
 //    public void addRecords(){
 //        try {

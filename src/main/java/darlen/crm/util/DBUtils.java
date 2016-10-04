@@ -106,7 +106,7 @@ public class DBUtils {
      */
     private static boolean containERPAcct(String lastEditBy) throws IOException, ConfigurationException {
         //accountPropsMap.containsKey(lastEditBy)
-        if(!StringUtils.isEmptyString(lastEditBy) && "".equals(ConfigManager.getZohoUserfromProps(lastEditBy))){
+        if(!StringUtils.isEmptyString(lastEditBy) && !"".equals(ConfigManager.getZohoUserfromProps(lastEditBy))){
             return true;
         }logger.debug("#不包含ERP ACCT【"+lastEditBy+"】， 忽略...");
         return false;
@@ -175,8 +175,8 @@ public class DBUtils {
                 account.setCreationTime(StringUtils.nullToString(rs.getString("CreationTime")));
                 String creationTime = ThreadLocalDateUtil.formatDate(rs.getTimestamp("CreationTime"));
                 //TODO 暂时测试阶段用最新的时间
-                boolean isDevMod  = "1".equals(ConfigManager.get(Constants.PROPS_ZOHO_FILE,Constants.ZOHO_PROPS_DEV_MODE));
-                String lastEditTime = isDevMod ? ThreadLocalDateUtil.formatDate(new Date()):ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
+//                boolean isDevMod  = "1".equals(ConfigManager.get(Constants.PROPS_ZOHO_FILE,Constants.ZOHO_PROPS_DEV_MODE));
+                String lastEditTime = ConfigManager.isDevMod() ? ThreadLocalDateUtil.formatDate(new Date()):ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
                 account.setCreationTime(creationTime);
                 account.setLatestEditTime(lastEditTime);
 
@@ -226,8 +226,8 @@ public class DBUtils {
                 product.setBarcode(StringUtils.nullToString(rs.getString("Barcode")));
                 product.setRemark(StringUtils.nullToString(rs.getString("Remark")));
                 product.setLatestEditBy(lastEditBy);
-                boolean isDevMod  = "1".equals(ConfigManager.get(Constants.PROPS_ZOHO_FILE,Constants.ZOHO_PROPS_DEV_MODE));
-                String latestEditTime = isDevMod ? ThreadLocalDateUtil.formatDate(new Date()):ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
+//                boolean isDevMod  = "1".equals(ConfigManager.get(Constants.PROPS_ZOHO_FILE,Constants.ZOHO_PROPS_DEV_MODE));
+                String latestEditTime = ConfigManager.isDevMod() ? ThreadLocalDateUtil.formatDate(new Date()):ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
 //                String latestEditTime = ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
                 product.setLatestEditTime(latestEditTime);
 //                productsList.add(product);
@@ -346,8 +346,8 @@ public class DBUtils {
                     //销售订单日期SODate
                     String quoteDate = ThreadLocalDateUtil.formatDate(rs.getTimestamp("QuoteDate"));
                     quotes.setQuotesDate(quoteDate);
-                    boolean isDevMod  = "1".equals(ConfigManager.get(Constants.PROPS_ZOHO_FILE,Constants.ZOHO_PROPS_DEV_MODE));
-                    String latestEditTime = isDevMod ? ThreadLocalDateUtil.formatDate(new Date()):ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
+//                    boolean isDevMod  = "1".equals(ConfigManager.get(Constants.PROPS_ZOHO_FILE,Constants.ZOHO_PROPS_DEV_MODE));
+                    String latestEditTime = ConfigManager.isDevMod() ? ThreadLocalDateUtil.formatDate(new Date()):ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
 //                    String currentDate = ThreadLocalDateUtil.formatDate(new Date());
                     quotes.setLatestEditTime(latestEditTime);
 //                    so.setCreationTime("2016-09-01 10:10:10");
@@ -489,8 +489,8 @@ public class DBUtils {
                     //销售订单日期SODate
                     String SODate = ThreadLocalDateUtil.formatDate(rs.getTimestamp("SODate"));
                     so.setErpDueDate(SODate);
-                    boolean isDevMod  = "1".equals(ConfigManager.get(Constants.PROPS_ZOHO_FILE,Constants.ZOHO_PROPS_DEV_MODE));
-                    String latestEditTime = isDevMod ? ThreadLocalDateUtil.formatDate(new Date()):ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
+//                    boolean isDevMod  = "1".equals(ConfigManager.get(Constants.PROPS_ZOHO_FILE,Constants.ZOHO_PROPS_DEV_MODE));
+                    String latestEditTime = ConfigManager.isDevMod() ? ThreadLocalDateUtil.formatDate(new Date()):ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
 //                    String currentDate = ThreadLocalDateUtil.formatDate(new Date());
                     so.setLatestEditTime(latestEditTime);
 //                    so.setCreationTime("2016-09-01 10:10:10");
@@ -656,8 +656,8 @@ public class DBUtils {
                      */
                     BigDecimal total = rs.getBigDecimal("Total");
                     invoices.setTotal(StringUtils.nullToString(total.multiply(exgRate)));
-                    boolean isDevMod  = "1".equals(ConfigManager.get(Constants.PROPS_ZOHO_FILE,Constants.ZOHO_PROPS_DEV_MODE));
-                    String latestEditTime = isDevMod ? ThreadLocalDateUtil.formatDate(new Date()):ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
+//                    boolean isDevMod  = "1".equals(ConfigManager.get(Constants.PROPS_ZOHO_FILE,Constants.ZOHO_PROPS_DEV_MODE));
+                    String latestEditTime = ConfigManager.isDevMod() ? ThreadLocalDateUtil.formatDate(new Date()):ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
 //                    String lastEditTime = ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
                     invoices.setLatestEditTime(latestEditTime);
     //            String dueDate = ThreadLocalDateUtil.formatDate(rs.getTimestamp("invoiceDate"));
@@ -701,8 +701,14 @@ public class DBUtils {
     private static ProductDetails assembleProduct(ResultSet rs) throws Exception {
 //        List<ProductDetails> pds = new ArrayList<ProductDetails>();
         ProductDetails pd =new ProductDetails();
+        //ERP ID -->某条数据的DB ID
         String erpID = StringUtils.nullToString(rs.getString("erpID"));
+        //PROD_ID-->某条数据中产品的ID
         String prodID = ConfigManager.getProdfromProps(StringUtils.nullToString(rs.getString("PROD_ID")));
+        //TODO 当Prod ID或者AccountsID或者userID为空时， throw exception，因为就算发到ZOHO也是会出错
+//        if(StringUtils.isEmptyString(prodID)){
+//            throw Exception("");
+//        }
         String prodName = StringUtils.nullToString(rs.getString("PROD_NAME"));
         BigDecimal unitPrice = rs.getBigDecimal("PROD_UNITPRICE");
         BigDecimal exchangeRate = rs.getBigDecimal("EXGRATE");
@@ -759,6 +765,15 @@ public class DBUtils {
         }
         return rs;
     }
+
+    /**
+     * 更新ERP report 表
+     * @param sql
+     * @param list
+     * @throws SQLException
+     * @throws IOException
+     * @throws ConfigurationException
+     */
     public static void exeUpdReport(String sql,List list) throws SQLException, IOException, ConfigurationException {
         ResultSet rs = null;
         Connection conn = getConnection();

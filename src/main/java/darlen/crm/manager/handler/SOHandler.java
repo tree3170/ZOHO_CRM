@@ -13,6 +13,7 @@ import darlen.crm.jaxb.SO.Result;
 import darlen.crm.jaxb.common.FL;
 import darlen.crm.jaxb.common.ProdRow;
 import darlen.crm.manager.AbstractModule;
+import darlen.crm.manager.ConfigManager;
 import darlen.crm.model.result.ProductDetails;
 import darlen.crm.model.result.SO;
 import darlen.crm.model.result.User;
@@ -281,7 +282,7 @@ public class SOHandler extends AbstractModule{
         List deleteZOHOIDsList  = (List)zohoComponentList.get(2);
 
         String className = "darlen.crm.model.result.SO";
-        Properties fieldMappingProps =CommonUtils.readProperties("/mapping/dbRdSOFieldMapping.properties");
+        Properties fieldMappingProps = ConfigManager.readProperties("/mapping/dbRdSOFieldMapping.properties");
 
         //TODO add最大条数为100，
         //2. 添加
@@ -315,12 +316,17 @@ public class SOHandler extends AbstractModule{
      * 添加（testAddAcctRecord）
      * 删除（testDelAcctRecord）
      */
-    public void execSend() throws Exception {
+    public List execSend() throws Exception {
         logger.debug("# SOHandler [execSend]...");
         List zohoXMLList = build2ZohoXmlSkeleton();
-        addRecords(ModuleNameKeys.SalesOrders.toString(),Constants.ZOHO_CRUD_ADD,zohoXMLList);
-        updateRecords(ModuleNameKeys.SalesOrders.toString(),Constants.ZOHO_CRUD_UPDATE,zohoXMLList);
-        delRecords(ModuleNameKeys.SalesOrders.toString(),Constants.ZOHO_CRUD_DELETE,zohoXMLList);
+        int addFailNum = addRecords(ModuleNameKeys.SalesOrders.toString(),Constants.ZOHO_CRUD_ADD,zohoXMLList);
+        int updFailNum = updateRecords(ModuleNameKeys.SalesOrders.toString(),Constants.ZOHO_CRUD_UPDATE,zohoXMLList);
+        int delFailNum = delRecords(ModuleNameKeys.SalesOrders.toString(),Constants.ZOHO_CRUD_DELETE,zohoXMLList);
+        List result = new ArrayList();
+        result.add(0,addFailNum);
+        result.add(1,updFailNum);
+        result.add(2,delFailNum);
+        return result;
     }
 //    public void addRecords(){
 //        try {

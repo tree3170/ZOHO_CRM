@@ -12,6 +12,7 @@ import darlen.crm.jaxb.Accounts.Response;
 import darlen.crm.jaxb.Accounts.Result;
 import darlen.crm.jaxb.common.ProdRow;
 import darlen.crm.manager.AbstractModule;
+import darlen.crm.manager.ConfigManager;
 import darlen.crm.model.result.Accounts;
 import darlen.crm.model.result.User;
 import darlen.crm.util.*;
@@ -227,7 +228,7 @@ public class AccountsHandler  extends AbstractModule {
         List deleteZOHOIDsList  = (List)zohoComponentList.get(2);
 
         String className = "darlen.crm.model.result.Accounts";
-        Properties fieldMappingProps =CommonUtils.readProperties("/mapping/dbRdAccountsFieldMapping.properties");
+        Properties fieldMappingProps = ConfigManager.readProperties("/mapping/dbRdAccountsFieldMapping.properties");
 
         //TODO add最大条数为100，
 //        2. 添加
@@ -257,14 +258,21 @@ public class AccountsHandler  extends AbstractModule {
      * ========================Ⅴ：发送xml data到ZOHO，并执行更新、添加或者删除操作
      * 更新（testUpdateAcctRecord）
      * 添加（testAddAcctRecord）
-     * 删除（testDelAcctRecord）
+     * 删除（testDelAcctRecord） --->最后才执行，因为如果产品存在于其他模块，会产生删不掉的情况
+     *
+     * @return
      */
-    public void execSend() throws Exception {
+    public List execSend() throws Exception {
         logger.debug("# AccountHandler [execSend]...");
         List zohoXMLList = build2ZohoXmlSkeleton();
-        addRecords(ModuleNameKeys.Accounts.toString(),Constants.ZOHO_CRUD_ADD,zohoXMLList);
-        updateRecords(ModuleNameKeys.Accounts.toString(),Constants.ZOHO_CRUD_UPDATE,zohoXMLList);
-        delRecords(ModuleNameKeys.Accounts.toString(),Constants.ZOHO_CRUD_DELETE,zohoXMLList);
+        int addFailNum = addRecords(ModuleNameKeys.Accounts.toString(),Constants.ZOHO_CRUD_ADD,zohoXMLList);
+        int updFailNum = updateRecords(ModuleNameKeys.Accounts.toString(),Constants.ZOHO_CRUD_UPDATE,zohoXMLList);
+        int delFailNum = delRecords(ModuleNameKeys.Accounts.toString(),Constants.ZOHO_CRUD_DELETE,zohoXMLList);
+        List result = new ArrayList();
+        result.add(0,addFailNum);
+        result.add(1,updFailNum);
+        result.add(2,delFailNum);
+        return result;
     }
 //    public void addRecords(String moduleName){
 //        try {

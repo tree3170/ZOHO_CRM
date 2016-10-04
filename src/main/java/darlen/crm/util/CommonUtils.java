@@ -56,10 +56,16 @@ public class CommonUtils {
             }
         }
         wholePath = path + fileName;
-        //在单独的java程序中 ClassLoader.getSystemResource(wholePath).getPath();
-        String filePath = ClassLoader.getSystemResource(wholePath).getPath();
-        //在WEB中，CommonUtils.class.getClassLoader().getResource("/").getPath()+wholePath
-//        String  filePath =CommonUtils.class.getClassLoader().getResource("/").getPath()+wholePath;
+        //TODO 如果取不到，就换另外一种方式获取
+        String filePath = "";
+        //在单独的java程序中 ClassLoader.getSystemResource(wholePath).getPath();CommonUtils.class.getResourceAsStream(relativePath)
+        if( null != ClassLoader.getSystemResource(wholePath) ){
+            filePath =ClassLoader.getSystemResource(wholePath).getPath();
+        }else if(null != CommonUtils.class.getClassLoader().getResource("/")){
+            //在WEB中，CommonUtils.class.getClassLoader().getResource("/").getPath()+wholePath，CommonUtils.class.getResourceAsStream(relativePath)
+            filePath = CommonUtils.class.getClassLoader().getResource("/").getPath()+wholePath;
+        }
+
         logger.debug("[getFileNamePath], file path :"+filePath);
         return filePath;
     }

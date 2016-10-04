@@ -21,9 +21,7 @@ http://www.springframework.org/schema/context/spring-context-3.2.xsd">
     <!-- quartz-2.x的配置 -->
     <bean id="myJobTrigger"
           class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
-        <property name="jobDetail">
-            <ref bean="myJobDetail" />
-        </property>
+        <property name="jobDetail" ref="myJobDetail"></property>
         <property name="cronExpression">
             <!--middle night 24. do it  -->
             <value>0  */1 * * *  ? </value>
@@ -35,12 +33,10 @@ http://www.springframework.org/schema/context/spring-context-3.2.xsd">
     <!-- job的配置开始 -->
     <bean id="myJobDetail"
           class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
-        <property name="targetObject">
-            <ref bean="myJob" />
-        </property>
-        <property name="targetMethod">
-            <value>exe</value>
-        </property>
+        <property name="concurrent" value="false"></property>
+        <property name="targetObject" ref="myJob"></property>
+        <property name="targetMethod" value="exe"> </property>
+
     </bean>
     <!-- job的配置结束 -->
 

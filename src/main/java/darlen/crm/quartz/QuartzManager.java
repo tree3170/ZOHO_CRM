@@ -29,8 +29,11 @@ import java.util.Date;
  */
 public class QuartzManager {
     public void exe() throws Exception {
-        ModuleManager.testSend();
-        System.out.println(ConfigManager.get(Constants.PROPS_DB_FILE,"DB_USERNAME"));
-        System.out.println("打印时间：date:" + ThreadLocalDateUtil.formatDate(new Date()) + "; marketing =" + ConfigManager.getProdfromProps("marketing"));
+//        ModuleManager.exeAllSend();
+//        System.out.println(ConfigManager.get("secure/db.properties", "DB_USERNAME"));
+//        System.out.println("======"+ConfigManager.getProdfromProps("marketing"));
+//        System.out.println(ConfigManager.get(Constants.PROPS_DB_FILE,"DB_USERNAME"));
+//        System.out.println("打印时间：date:" + ThreadLocalDateUtil.formatDate(new Date()) + "; marketing =" + ConfigManager.getProdfromProps("marketing"));
+        ConfigManager.envAutoChecking();
     }
 }

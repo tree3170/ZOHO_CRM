@@ -12,6 +12,7 @@ import darlen.crm.jaxb.Products.Response;
 import darlen.crm.jaxb.Products.Result;
 import darlen.crm.jaxb.common.ProdRow;
 import darlen.crm.manager.AbstractModule;
+import darlen.crm.manager.ConfigManager;
 import darlen.crm.model.result.Products;
 import darlen.crm.model.result.User;
 import darlen.crm.util.*;
@@ -273,7 +274,7 @@ public class ProductHandler extends AbstractModule{
 
 
         String className = "darlen.crm.model.result.Products";
-        Properties fieldMappingProps =CommonUtils.readProperties("/mapping/dbRdProductsFieldMapping.properties");
+        Properties fieldMappingProps = ConfigManager.readProperties("/mapping/dbRdProductsFieldMapping.properties");
         //TODO add最大条数为100，
 //        2. 添加
         logger.debug("###############################[build2ZohoXmlSkeleton], 开始获取Product【添加】的Product的XML#####################");
@@ -304,12 +305,17 @@ public class ProductHandler extends AbstractModule{
      * 添加（testAddAcctRecord）
      * 删除（testDelAcctRecord）
      */
-    public void execSend() throws Exception {
+    public List execSend() throws Exception {
         logger.debug("# ProductHandler [execSend]...");
         List zohoXMLList = build2ZohoXmlSkeleton();
-        addRecords(ModuleNameKeys.Products.toString(),Constants.ZOHO_CRUD_ADD,zohoXMLList);
-        updateRecords(ModuleNameKeys.Products.toString(),Constants.ZOHO_CRUD_UPDATE,zohoXMLList);
-        delRecords(ModuleNameKeys.Products.toString(),Constants.ZOHO_CRUD_DELETE,zohoXMLList);
+        int addFailNum = addRecords(ModuleNameKeys.Products.toString(),Constants.ZOHO_CRUD_ADD,zohoXMLList);
+        int updFailNum = updateRecords(ModuleNameKeys.Products.toString(),Constants.ZOHO_CRUD_UPDATE,zohoXMLList);
+        int delFailNum = delRecords(ModuleNameKeys.Products.toString(),Constants.ZOHO_CRUD_DELETE,zohoXMLList);
+        List result = new ArrayList();
+        result.add(0,addFailNum);
+        result.add(1,updFailNum);
+        result.add(2,delFailNum);
+        return result;
     }
 //    public void addRecords(){
 //        try {

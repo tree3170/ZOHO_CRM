@@ -287,10 +287,11 @@ public class InvoicesManager_junitTest extends AbstractModule{
      * 添加（testAddAcctRecord）
      * 删除（testDelAcctRecord）
      */
-    public void execSend(){
+    public List execSend(){
 //        addRecords(ModuleNameKeys.Invoices.toString(),"ADD");
 //        updateRecords(ModuleNameKeys.Invoices.toString(),"UPDATE");
 //        delRecords(ModuleNameKeys.Invoices.toString(),"DELETE");
+        return new ArrayList();
     }
 
 
@@ -529,7 +530,7 @@ public class InvoicesManager_junitTest extends AbstractModule{
      */
     private List getAllFLList(Invoices invoices) throws Exception {
         Map<String,Object> dbFieldNameValueMap = getDBFieldNameValueMap("darlen.crm.model.result.Invoices",invoices);
-        List zohoFieldList = getZOHOFLsByProps(CommonUtils.readProperties("/mapping/dbRdInvoicesFieldMapping.properties"), dbFieldNameValueMap);
+        List zohoFieldList = getZOHOFLsByProps(ConfigManager.readProperties("/mapping/dbRdInvoicesFieldMapping.properties"), dbFieldNameValueMap);
         return zohoFieldList;
     }
     /**

@@ -51,6 +51,14 @@ public interface IModule {
 //    4.4. 删除
     public int addRecords(String moduleName,int curdKey,List zohoXMLList);
     public int updateRecords(String moduleName,int curdKey,List zohoXMLList);
+    /**
+     * 返回第一个是失败的次数，第二个是需要删除的ZOHO IDlist
+     * 因为删除的顺序必需是倒序：Invoices/SO/Quotes/Products/Accounts
+     * @return
+     * @throws Exception
+     */
     public int delRecords(String moduleName,int curdKey,List zohoXMLList);
-    public void execSend() throws Exception;
+
+
+    public List execSend() throws Exception;
 }

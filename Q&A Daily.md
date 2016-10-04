@@ -41,13 +41,29 @@
    * 确定UI
    * 确定账户13个账户人
 
+# 20161004
+* 1. 删除顺序(invoice/so/quote/product/account)【待定】【API Import：DONE】
+【待定，因为Product使用APi删除不了的情况是ERP ID不在DB中或者为空，这种情况下是不存在的，
+ 例外：如果客户直接使用UI创建的话，这种情况不予维护。 为了区分这种情况，添加一个字段API Import，标志是否使用API导入【done】】
+* 2. 获取FilePath，取不到就换另外一种方式获取【done】
+* 3. 环境检测【doing】，主要是filepath和DB连接情况【done】
+* 4. report 调整【start time,end time,add,update,delete】【doing】
+* 5. UI confirm【doing】
+* 6. 增加接口，就是说客户直接可以搜索，拿到DB中正确的结果-->以便到时候数据出问题了方便调查是哪条数据出问题【TODO】
+* 7. 当Prod ID或者AccountsID或者userID为空时， throw exception，因为就算发到ZOHO也是会出错【doing】
+* 8. 关于invoice/so/quote需要删掉了才能添加-->没有更新，因为产品如果删除了，就更新不了--》confirm to Ken--> 有没有可能删除产品？？？
+* 9. quartz 在我需要的时候启动而不是Web启动时就启用【TODO】
+* 10 有时间写一个公共的异常类，有可能不是在这个项目完成【TODO】
+* 11. 晚上继续跑整个程序，然后优化继续log...【doing】
+
+
 # 20161003
-* 1. 实现ZOHO_EXEC_REPORT：这是一个关于report的表，里面会记录操作时间、Insert失败次数、Update失败次数、Delete失败次数、ModuleName
+* 1. 实现ZOHO_EXEC_REPORT：这是一个关于report的表，里面会记录操作时间、Insert失败次数、Update失败次数、Delete失败次数、ModuleName【done】
 * 2. 每次所有程序执行***完***，更新执行时间，以便每次调用是LatestEditTime是否在执行时间之后，如果是，则可以放入ZOHO列表中
 * 3. 实现Connection线程池为SQL
-* 4. 引入Spring MVC，先把框架搭建起来，然后测试数据库连接情况，测试各个properties等文件是否可以拿到，然后搭建一个简单的页面，点击按钮，执行一次操作（今晚的工作）
-* ， 还是先引用Quatz，等这个ok之后我就有时间慢慢做接下来的一些东西
-* 5. 明天一定要完成Quatz引入和Email框架的引入
+* 4. 引入Spring MVC，先把框架搭建起来，然后测试数据库连接情况，测试各个properties等文件是否可以拿到，然后搭建一个简单的页面，点击按钮，执行一次操作（今晚的工作）【80%】
+* ， 还是先引用Quartz，等这个ok之后我就有时间慢慢做接下来的一些东西
+* 5. 明天一定要完成Quartz引入和Email框架的引入
 
 # 20161002
 * 1. LastEditTime修改时间这个判断还没加上【20161003】【一定完成20161003】

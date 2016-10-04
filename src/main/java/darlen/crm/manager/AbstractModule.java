@@ -234,7 +234,7 @@ public abstract  class AbstractModule  implements IModule{
         CommonUtils.printMap(erpIDTimeMap,"ERPID 和 LastEditTime Map");
         CommonUtils.printList(delZohoIDList,"Remove ZOHO ID list");
 
-        //当Module是Product或者是Account的时候，需要把ERPID 和ZOHOID分别写入不同文件中，为了以后在数据库读取Accounts和Product使用
+        //当Module是Product或者是Account的时候，需要把所有的ERPID 和ZOHOID分别写入不同文件中，为了以后在数据库读取Accounts和Product使用
         if(ModuleNameKeys.Accounts.toString().equals(moduleName)  || ModuleNameKeys.Products.toString().equals(moduleName)){
             ConfigManager.writeVal2Props(erpZohoIDMap,ModuleNameKeys.Accounts.toString().
                     equals(moduleName) ? Constants.PROPS_ACCT_FILE : Constants.PROPS_PROD_FILE);
@@ -265,6 +265,7 @@ public abstract  class AbstractModule  implements IModule{
             String erpID = entry.getKey();
             String zohoID = erpZohoIDMap.get(erpID);
             if(dbIDModuleObjMap.containsKey(erpID)){//update
+                //TODO 添加lastestEditTime是否被修改
                 updateModuleObjMap.put(zohoID, dbIDModuleObjMap.get(erpID));
             }else{ //delete
                 if(!delZohoIDList.contains(zohoID)){
@@ -435,6 +436,7 @@ public abstract  class AbstractModule  implements IModule{
     /**
      * 根据properties和有效的dbFieldNameValueMap确定返回给zoho的fieldname（获取properties中的key对应的value）和fieldvalue
      * 注意：此方法是用于含有Product Detail的情况
+     * 默认添加API Import 标志
      * @param properties
      * @param dbFieldNameValueMap
      * @return
@@ -444,6 +446,12 @@ public abstract  class AbstractModule  implements IModule{
         List allFls = new ArrayList();
         List<Product> products = new ArrayList<Product>();
         List<FL> commonFls = new ArrayList<FL>();
+
+        //默认添加是否是API导入的字段
+        FL isAPIFL = new FL();
+        isAPIFL.setFieldName("API Import");
+        isAPIFL.setFieldValue("true");
+        commonFls.add(isAPIFL);
 
         for(Map.Entry entry : properties.entrySet()){
             if(dbFieldNameValueMap.containsKey(entry.getKey())){
@@ -612,7 +620,7 @@ public abstract  class AbstractModule  implements IModule{
         logger.debug("#[addRecords], 从ZOHO获取回来的所有记录的XML:::moduleName = "+moduleName+", Operatiton ="+curdKey+", url ="+moduleUrl);
         List<String> addZohoXMLList = (List<String> ) zohoXMLList.get(0);
         for(int i = 0; i < addZohoXMLList.size(); i ++){
-            logger.debug("添加第"+(i+1)+"条数据");
+            logger.debug("添加【"+moduleName+"】第"+(i+1)+"条数据");
             Map<String,String> postParams = new HashMap<String, String>();
             postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,moduleUrl);
             postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,addZohoXMLList.get(i));
@@ -636,7 +644,7 @@ public abstract  class AbstractModule  implements IModule{
         Map<String,String> updZohoXMLMap = (Map<String,String>) zohoXMLList.get(1);
         int i = 1 ;
         for(Map.Entry<String,String> zohoIDUpdXmlEntry : updZohoXMLMap.entrySet()){
-            logger.debug("更新第" + (i) + "条数据，ZOHO ID为" + zohoIDUpdXmlEntry.getKey());//xml为："+zohoIDUpdXmlEntry.getValue()
+            logger.debug("更新【"+moduleName+"】第" + (i) + "条数据，ZOHO ID为" + zohoIDUpdXmlEntry.getKey());//xml为："+zohoIDUpdXmlEntry.getValue()
             Map<String,String> postParams = new HashMap<String, String>();
             postParams.put(Constants.HTTP_POST_PARAM_ID,zohoIDUpdXmlEntry.getKey());
             postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,moduleUrl);
@@ -658,14 +666,20 @@ public abstract  class AbstractModule  implements IModule{
 
     }
 
-
+    /**
+     * 返回第一个是失败的次数，第二个是需要删除的ZOHO IDlist
+     * 因为删除的顺序必需是倒序：Invoices/SO/Quotes/Products/Accounts
+     * @return
+     * @throws Exception
+     */
     public int delRecords(String moduleName, int curdKey,List zohoXMLList){
+        //List result = new ArrayList();
         int failNum = 0;
         String moduleUrl  = getModuleUrl(moduleName, curdKey);
         List deleteZOHOIDsList = (List)zohoXMLList.get(2);
         for(int i = 0; i < deleteZOHOIDsList.size(); i++){
             String id = StringUtils.nullToString(deleteZOHOIDsList.get(i));
-            logger.debug("删除第"+(i+1)+"条数据");
+            logger.debug("删除【"+moduleName+"】第"+(i+1)+"条数据");
             Map<String,String> postParams = new HashMap<String, String>();
             postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,moduleUrl);
             postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
@@ -680,6 +694,9 @@ public abstract  class AbstractModule  implements IModule{
                 failNum ++;
             }
         }
+        //result.add(0,failNum);
+        //result.add(1,deleteZOHOIDsList);
+        //return result;
         return failNum;
     }
 

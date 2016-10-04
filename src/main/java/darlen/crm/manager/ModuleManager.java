@@ -10,19 +10,11 @@ package darlen.crm.manager;
 
 import darlen.crm.jaxb.Accounts.Response;
 import darlen.crm.jaxb.common.ProdRow;
-import darlen.crm.manager.handler.AccountsHandler;
-import darlen.crm.manager.handler.InvoicesHandler;
-import darlen.crm.manager.handler.ProductHandler;
-import darlen.crm.manager.handler.SOHandler;
-import darlen.crm.util.Constants;
-import darlen.crm.util.DBUtils;
-import darlen.crm.util.JaxbUtil;
-import darlen.crm.util.ModuleNameKeys;
+import darlen.crm.manager.handler.*;
+import darlen.crm.util.*;
 import org.apache.log4j.Logger;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -83,10 +75,10 @@ public class ModuleManager {
         System.out.println("第N次执行结果，｛add/update/delete｝成功多少，失败多少"+ ModuleNameKeys.Accounts);
     }
 
-    public static void exeAccounts() throws Exception {
+    public static List exeAccounts() throws Exception {
         //for Accounts
         module = AccountsHandler.getInstance();
-        module.execSend();
+        return module.execSend();
 //        List zohoXMLList = new ArrayList();
 //        zohoXMLList.add(0);
 //        zohoXMLList.add(0);
@@ -121,35 +113,46 @@ public class ModuleManager {
 
     }
 
-    public static void exeProducts() throws Exception {
+    public static List exeProducts() throws Exception {
         //for Accounts
         module = ProductHandler.getInstance();
 //        module.build2ZohoXmlSkeleton();
 //        module.buildDBObjList();
 //        List zohoXMLList =module.build2ZohoXmlSkeleton();
 //        module.updateRecords(ModuleNameKeys.Products.toString(), Constants.ZOHO_CRUD_UPDATE,zohoXMLList);
-        module.execSend();
+        return  module.execSend();
+    }
+    public static List exeQuotes() throws Exception {
+        //for invoice
+        module = QuotesHandler.getInstance();
+
+        //module.build2ZohoXmlSkeleton();
+        //module.build2ZohoXmlSkeleton();
+        return module.execSend();
     }
 
-    public static void exeSO() throws Exception {
+    public static List exeSO() throws Exception {
 
         module = AccountsHandler.getInstance();
-        module.buildSkeletonFromZohoList();
-        module = ProductHandler.getInstance();
-        module.buildSkeletonFromZohoList();
 
-        //for Accounts
-        module = SOHandler.getInstance();
-//        module.build2ZohoXmlSkeleton();
-//        module.buildDBObjList();
-        module.execSend();
+        //module.buildSkeletonFromZohoList();
+        //module = ProductHandler.getInstance();
+        //module.buildSkeletonFromZohoList();
+        //
+        ////for Accounts
+        //module = SOHandler.getInstance();
+        //module.build2ZohoXmlSkeleton();
+        //module.buildDBObjList();
+        return  module.execSend();
+
     }
-    public static void exeInvoice() throws Exception {
+    public static List exeInvoice() throws Exception {
         //for invoice
         module = InvoicesHandler.getInstance();
-        module.execSend();
-//        module.build2ZohoXmlSkeleton();
-//        module.build2ZohoXmlSkeleton();
+
+        //module.build2ZohoXmlSkeleton();
+        //module.build2ZohoXmlSkeleton();
+        return module.execSend();
     }
 
     /**
@@ -164,19 +167,7 @@ public class ModuleManager {
         module.buildSkeletonFromZohoList();
     }
 
-    public static void updReport() throws Exception {
-        //start time, end time()
-        String sql = "insert into ZOHO_EXCE_REPORT (start_time, end_time,ins_num,upd_num,del_num,module) values(?,?,?,?,?,?)";
-        List list = new ArrayList();
-        list.add(new Date());
-        list.add(new Date());
-        list.add(3);
-        list.add(4);
-        list.add(5);
-        list.add("Products");
-        DBUtils.exeUpdReport(sql, list);
 
-    }
 
     /**
      * 测试获取对象类型
@@ -219,13 +210,37 @@ private static void testRefect(){
 
 }
 
-    public static void testSend()throws Exception{
-         writeFiles();
-//        exeAccounts();
-//        exeProducts();
-//        exeSO();
-//        exeInvoice();
-//        updReport();
+    public static void exeAllSend()throws Exception{
+         //writeFiles();
+        Date startDate = new Date();
+        List acctsList = exeAccounts();
+        List prodList = exeProducts();
+        List quoteList = exeQuotes();
+        List soList = exeSO();
+        List invList = exeInvoice();
+        String insertFailStr = StringUtils.nullToString(acctsList.get(0))+"|"+StringUtils.nullToString(prodList.get(0))+"|"
+                +StringUtils.nullToString(quoteList.get(0))+"|"+StringUtils.nullToString(soList.get(0))+"|"
+                +StringUtils.nullToString(invList.get(0));
+
+        String updateFailStr = StringUtils.nullToString(acctsList.get(1))+"|"+StringUtils.nullToString(prodList.get(1))+"|"
+                +StringUtils.nullToString(quoteList.get(1))+"|"+StringUtils.nullToString(soList.get(1))+"|"
+                +StringUtils.nullToString(invList.get(1));
+
+        String deleteFailStr = StringUtils.nullToString(acctsList.get(2))+"|"+StringUtils.nullToString(prodList.get(2))+"|"
+                +StringUtils.nullToString(quoteList.get(2))+"|"+StringUtils.nullToString(soList.get(2))+"|"
+                +StringUtils.nullToString(invList.get(2));
+
+        List updERPList = new ArrayList();
+        updERPList.add(startDate);
+        updERPList.add(new Date());
+        updERPList.add(insertFailStr);
+        updERPList.add(updateFailStr);
+        updERPList.add(deleteFailStr);
+        //updReport(updERPList);
+
+
+        String sql = "INSERT INTO ZOHO_EXCE_REPORT (START_TIME, END_TIME,INS_FAILED,UPD_FAILED,DEL_FAILED) VALUES(?,?,?,?,?)";
+        DBUtils.exeUpdReport(sql, updERPList);
     }
 
     /**
@@ -234,20 +249,30 @@ private static void testRefect(){
      * @throws Exception
      */
     public static void testEnv()throws Exception{
+        // 1. 检测Properties
+
+        // 2. 检测DB连接
+
         logger.debug("$$$$$$$$$$$$$$$$$$$$$$$$$环境检测正常,请继续执行下面工作$$$$$$$$$$$$$$$$$$$$$$");
     }
 
     public static void main(String[] args) throws Exception {
         //TODO 在执行环境之前一定要排除环境因素，比如说读写properties文件
-          testEnv();
+
+        //ThreadLocalDateUtil.formatDate(new Date());
+        Date startTime = new Date();
+        testEnv();
 //        writeFiles();
 //        exeAccounts();
 //        exeProducts();
 //        exeSO();
 //        exeInvoice();
-//        updReport();
+        exeAllSend();
+
+        Date endTime = new Date();
+//        updReport(startTime,endTime,new ArrayList());
 //        testRefect();
-        testSend();
+
         exe();
     }
 }
