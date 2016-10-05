@@ -19,7 +19,7 @@ package darlen.crm.model.result;
  *
  * @author Darlen liu
  */
-public class Accounts {
+public class Accounts extends IModule{
     /**db-->CustomerID*/
     private String erpID;
     /**客户拥有者*/

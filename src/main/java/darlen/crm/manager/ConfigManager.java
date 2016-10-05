@@ -259,8 +259,15 @@ public class ConfigManager {
      * @throws IOException
      * @throws ConfigurationException
      */
-    public static boolean isDevMod() throws IOException, ConfigurationException {
-        return  "1".equals(ConfigManager.get(Constants.PROPS_ZOHO_FILE,Constants.ZOHO_PROPS_DEV_MODE));
+    public static boolean isDevMod()  {
+        try {
+            return  "1".equals(ConfigManager.get(Constants.PROPS_ZOHO_FILE,Constants.ZOHO_PROPS_DEV_MODE));
+        } catch (ConfigurationException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        return false;
     }
 
     /**

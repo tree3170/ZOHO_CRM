@@ -25,7 +25,7 @@ import java.util.Map;
  *
  * @author Darlen liu
  */
-public interface IModule {
+public interface IModuleHandler {
     public  String retrieveZohoRecordByID(String moduleName,String zohoID) throws Exception;
 //    1.这里仅仅只是组装zohoAcctObjList
     public List buildSkeletonFromZohoList() throws Exception ;

@@ -35,7 +35,7 @@ import java.util.*;
  *
  * @author Darlen liu
  */
-public abstract  class AbstractModule  implements IModule{
+public abstract  class AbstractModule  implements IModuleHandler {
     private static Logger logger =  Logger.getLogger(AbstractModule.class);
     /**
      * 使用ZOHO API时必需要的密钥
@@ -222,7 +222,7 @@ public abstract  class AbstractModule  implements IModule{
             ////4. 组装finalStr=prefProduct+"</pds>" + suffixProduct
             //String finalStr = prefProduct+"</pds>" + suffixProduct;
             String finalStr = prexPds.replaceAll("</product></FL>","</product></pds>");
-            logger.debug("finalStr::"+finalStr );
+            logger.debug("finalStr::" + finalStr);
             str = finalStr;
         }
         return str;
@@ -391,7 +391,11 @@ public abstract  class AbstractModule  implements IModule{
             String zohoID = erpZohoIDMap.get(erpID);
             if(dbIDModuleObjMap.containsKey(erpID)){//update
                 //TODO 添加lastestEditTime是否被修改
-                updateModuleObjMap.put(zohoID, dbIDModuleObjMap.get(erpID));
+                if(ConfigManager.isDevMod()){
+                     updateModuleObjMap.put(zohoID, dbIDModuleObjMap.get(erpID));
+                }else{
+
+                }
             }else{ //delete
                 if(!delZohoIDList.contains(zohoID)){
                     delZohoIDList.add(zohoID);
@@ -636,7 +640,7 @@ public abstract  class AbstractModule  implements IModule{
         }
         allFls.add(commonFls);
         allFls.add(products);
-        logger.debug("【getZOHOFLsByProps】,经过DB和properties的过滤后，所有有效的ZOHO Field List："+Constants.COMMENT_PREFIX +allFls);
+        logger.debug("【getZOHOFLsByProps】,经过DB和properties的过滤后，所有有效的ZOHO Field List：" + Constants.COMMENT_PREFIX + allFls);
         //CommonUtils.printList(allFls, "ZOHO Field List:");
         return allFls;
 

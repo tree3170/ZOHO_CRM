@@ -58,13 +58,13 @@ import java.util.*;
 public class ModuleManager {
 
     private static Logger logger = Logger.getLogger(ModuleManager.class);
-    private  static  IModule module ;
+    private  static IModuleHandler module ;
 
-    public IModule getModule() {
+    public IModuleHandler getModule() {
         return module;
     }
 
-    public void setModule(IModule module) {
+    public void setModule(IModuleHandler module) {
         this.module = module;
     }
 
@@ -224,7 +224,7 @@ public class ModuleManager {
      */
     public static void execAllModuleHouseKeep() throws Exception {
         //1, for Account
-        IModule acctModule = AccountsHandler.getInstance();
+        IModuleHandler acctModule = AccountsHandler.getInstance();
        // List  zohoAcctCompList =  acctModule.buildSkeletonFromZohoList();
         //拿出ZOHO中ERP为空或者Dulplicate的record，直接删除
         List delZohoIDList = getDelZohoIDs(acctModule);//(List)zohoAcctCompList.get(2);
@@ -232,7 +232,7 @@ public class ModuleManager {
         acctModule.delRecords(ModuleNameKeys.Accounts.toString(),Constants.ZOHO_CRUD_DELETE,delZohoIDList);
 
         //2. for Product,获取需要删除的所有Product的ID集合
-        IModule prodModule = ProductHandler.getInstance();
+        IModuleHandler prodModule = ProductHandler.getInstance();
         List delProdIDList = getDelZohoIDs(prodModule);
 
         //if(null != zohoCompList && zohoCompList.size() >=3){
@@ -266,7 +266,7 @@ public class ModuleManager {
      * @return
      * @throws Exception
      */
-    private static List getDelZohoIDs(IModule module) throws Exception {
+    private static List getDelZohoIDs(IModuleHandler module) throws Exception {
         List  zohoProdCompList =  module.buildSkeletonFromZohoList();
         List<String> delProdIDList = new ArrayList<String>();
 
@@ -338,9 +338,9 @@ public class ModuleManager {
         //1. 环境检测
         //envAutoChecking();
         //2.执行
-        //exeAllModuleSend();
+        exeAllModuleSend();
         //3. 执行House Keep
-        execAllModuleHouseKeep();
+        //execAllModuleHouseKeep();
         //exeProducts();
         //exeSO();
         //exeInvoice();
