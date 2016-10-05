@@ -314,15 +314,18 @@ public class DBUtils {
                      */
                     String erpAcctID = StringUtils.nullToString(rs.getString("CustomerID"));
                     String zohoAcctID = ConfigManager.getAcctsfromProps(erpAcctID);
-                    logger.debug("[getSOMap],ERP ID = "+curErpID+", CustomerID ="+erpAcctID+", ZOHO Account ID="+zohoAcctID);
-//                    quotes.setACCOUNTID(zohoAcctID);//"80487000000096005"
+                    logger.debug("【getQuotesMap】 ,ERP ID = "+curErpID+", CustomerID ="+erpAcctID+", ZOHO Account ID="+zohoAcctID);
+                    quotes.setCustID(zohoAcctID);//"80487000000096005"
+                    quotes.setACCOUNTID(zohoAcctID);
                     quotes.setCustNO(StringUtils.nullToString(rs.getString("CusRef")));
+
+
                     quotes.setCustName(StringUtils.nullToString(rs.getString("CusName")));
                     /**
                      * 客户名Account Name：PriPac Design & Communication AB, 注意&符号，以后会改成CDATA形式
                      */
                     //so.setAcctName(rs.getString("CusName"));//"永昌紙品"
-                    //报价名称（查找类型）
+                    //报价名称
                     quotes.setQuotesNo(StringUtils.nullToString(rs.getString("QuoteRef")));
                     //客户名ERP_Currency,DB中用CurrencyName表示
                     quotes.setErpCurrency(StringUtils.nullToString(rs.getString("CurrencyName")));
@@ -458,7 +461,7 @@ public class DBUtils {
                      */
                      String erpAcctID = StringUtils.nullToString(rs.getString("CustomerID"));
                      String zohoAcctID = ConfigManager.getAcctsfromProps(erpAcctID);
-                     logger.debug("[getSOMap],ERP ID = "+curErpID+", CustomerID ="+erpAcctID+", ZOHO Account ID="+zohoAcctID);
+                    logger.debug("【getSOMap】,ERP ID = "+curErpID+", CustomerID ="+erpAcctID+", ZOHO Account ID="+zohoAcctID);
                     so.setACCOUNTID(zohoAcctID);//"80487000000096005"
                     so.setCustomerNO(StringUtils.nullToString(rs.getString("CusRef")));
                     /**

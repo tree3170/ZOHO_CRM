@@ -262,7 +262,8 @@ public abstract  class AbstractModule  implements IModule{
      * 1. erpZohoIDMap<erpID,zohoID> = zohoListObj.get(0)
      * 2. erpIDTimeMap<erpID,lastEditTime> = zohoListObj.get(1)
      * 3. delZohoIDList = zohoListObj.get(2) ：zoho ID list-->ERP ID 为空时的 加入删除列表
-     * 4. zohoIDProdIDsMap --> ZOHO ID 和 product ID list的集合
+     * 4. zohoIDProdIDsMap --> Acct ZOHO ID 和 product ID list的集合 -->
+     *                  当删除Quotes，SO,Invoices模块的时候用，(注意不是ZOHO ID，因为直接删除acct ID，相关模块也会被删除)
      * @param rows
      * @param zohoIDName  --> ZOHO
      * @param erpIDName ERP ID-->  DB
@@ -274,11 +275,13 @@ public abstract  class AbstractModule  implements IModule{
 
         Map<String,String> erpZohoIDMap = new HashMap<String, String>();
         Map<String,String> erpIDTimeMap = new HashMap<String, String>();
+        Map<String,List> acctZohoIDProdIDsMap = new HashMap<String, List>();
         Map<String,List> zohoIDProdIDsMap = new HashMap<String, List>();
         List delZohoIDList = new ArrayList();
         zohoCompList.add(erpZohoIDMap);
         zohoCompList.add(erpIDTimeMap);
         zohoCompList.add(delZohoIDList);
+        zohoCompList.add(acctZohoIDProdIDsMap);
         zohoCompList.add(zohoIDProdIDsMap);
 
         for (int i = 0; i < rows.size() ; i++){
@@ -286,6 +289,7 @@ public abstract  class AbstractModule  implements IModule{
             String zohoID = "";
             String erpID = "";
             String lastEditTime = "";
+            String custID = "";
             // 1. 处理common字段
             List<FL> fls = rows.get(i).getFls();
             boolean hasERPID = true;
@@ -310,6 +314,11 @@ public abstract  class AbstractModule  implements IModule{
                 if(Constants.ZOHO_FIELD_LAST_TIME.equals(fieldName)){
                     lastEditTime = fieldVal;
                 }
+
+                if(Constants.ZOHO_FIELD_CUSTOMER_ID.equals(fieldName)  || Constants.ZOHO_FIELD_ACCT_ID.equals(fieldName)){
+                    custID = fieldVal;
+                }
+
             }
             erpZohoIDMap.put(erpID, zohoID);
             erpIDTimeMap.put(erpID, lastEditTime);
@@ -334,6 +343,8 @@ public abstract  class AbstractModule  implements IModule{
                         }
                     }
                 }
+                //注意使用Customer ZOHO ID，而不是zohoID
+                acctZohoIDProdIDsMap.put(custID, productIDs);
                 zohoIDProdIDsMap.put(zohoID, productIDs);
             }
         }
@@ -344,6 +355,7 @@ public abstract  class AbstractModule  implements IModule{
         logger.debug("1.3 【buildZohoComponentList：" + moduleName + "】, ERPID 和 ZOHOID Map：\n##\t ====> " + erpZohoIDMap);
         logger.debug("1.3 【buildZohoComponentList：" + moduleName + "】, ERPID 和 LastEditTime Map：\n##\t ====> " + erpIDTimeMap);
         logger.debug("1.3 【buildZohoComponentList：" + moduleName + "】, Remove ZOHO ID list：\n##\t ====> " + delZohoIDList);
+        logger.debug("1.3 【buildZohoComponentList：" + moduleName + "】, Customer ZOHO ID 与Product ID list：\n##\t ====> " + acctZohoIDProdIDsMap);
         logger.debug("1.3 【buildZohoComponentList：" + moduleName + "】, ZOHO ID 与Product ID list：\n##\t ====> " + zohoIDProdIDsMap);
         //CommonUtils.printList(erpIDProdIDsMap,"ZOHO ID 与Product ID list");
 
@@ -396,13 +408,13 @@ public abstract  class AbstractModule  implements IModule{
         }
 
         List sendToZohoAcctList = new ArrayList();
-        logger.debug("3.3 【build2Zoho3PartObj】,addMap组装到ZOHO的对象的集合：\n##\t ====> " + erpZohoIDMap);
+        logger.debug("3.3 【build2Zoho3PartObj】,addMap组装到ZOHO的对象的集合：\n##\t ====> " + addModuleObjMap);
         //CommonUtils.printMap(addModuleObjMap, "addMap组装到ZOHO的对象的集合：：：\n");
         sendToZohoAcctList.add(addModuleObjMap);
-        logger.debug("3.3 【build2Zoho3PartObj】,updateMap组装到ZOHO的对象的集合：\n##\t ====> " + erpZohoIDMap);
+        logger.debug("3.3 【build2Zoho3PartObj】,updateMap组装到ZOHO的对象的集合：\n##\t ====> " + updateModuleObjMap);
         //CommonUtils.printMap(updateModuleObjMap,"updateMap组装到ZOHO的对象的集合：：：\n");
         sendToZohoAcctList.add(updateModuleObjMap);
-        logger.debug("3.3 【build2Zoho3PartObj】,delZOHOSOIDList组装到ZOHO的对象的集合: \n##\t ====> " + erpZohoIDMap);
+        logger.debug("3.3 【build2Zoho3PartObj】,delZohoIDList组装到ZOHO的对象的集合: \n##\t ====> " + delZohoIDList);
         //CommonUtils.printList(delZohoIDList, "delZOHOSOIDList组装到ZOHO的对象的集合：：：\n");
         sendToZohoAcctList.add(delZohoIDList);
 
@@ -860,6 +872,7 @@ public abstract  class AbstractModule  implements IModule{
         try {
             CommonUtils.executePostMethod(postParams);
         } catch(Exception e) {
+            //<response uri="/crm/private/xml/Accounts/deleteRecords"><error><code>4600</code><message>Unable to process your request. Please verify if the name and value is appropriate for the "id" parameter.</message></error></response>
             execFailNum++;
             String operation = "";
             if(Constants.ZOHO_CRUD_ADD == crudKey){

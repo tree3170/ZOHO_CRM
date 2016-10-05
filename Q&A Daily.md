@@ -20,6 +20,7 @@
    https://crm.zoho.com.cn/crm/private/xml/SalesOrders/deleteRecords?id=80487000000100803&authtoken=00f65ee9c91b4906dbf4c1bd46bb1452&scope=crmapi
    * update模块Quotes、SO、Invoice时，如果有模块中的product删除情况，那此时API是做不到删除某个产品的，比如说以前三个产品，现在改成了2个产品
    * selectedColumns 不能包含Product里面的字段
+   * 如果我修改了Module的名字，后面发现不支持国际化，所以想重用以前Module的名字，该怎么办？
 
 ## 问题： Ken
    * 确定日期格式问题，这个是datetime的表示的【datetime】
@@ -47,9 +48,9 @@
    * 确定账户13个账户人
 
 # 20161005
-* 1. 跑所有数据【doing，优先级Ⅲ】-->前提是写出删除程序能删除所有数据
-* 2. 优化log【doing，优先级Ⅳ】
-* 3. UI更改【doing，优先级Ⅱ】
+* 1. 跑所有数据【doing，优先级Ⅲ】-->前提是写出删除程序能删除所有数据【删除数据DONE】--》明天跑所有数据
+* 2. 优化log【doing，优先级Ⅳ】--》优化了一部分，需要跑所有数据时再优化
+* 3. UI更改【doing，优先级Ⅱ】 --> 明天
 * 4. 后天：log分类问题
 * 5. Quartz可以随时触发问题，当遇到不可遇因素，能否主动停止Quartz
 * 6. 至少需要2个自定义异常类： 1--> 前端执行情况  2-->最后面post的时候如果出错，因为这个时候是会有执行结果的（想了下或许不要）
@@ -60,6 +61,7 @@
 	如果无效，则拿出ZOHO ID，分别查询在Quotes、Invoices、SO中存在此产品的模块，
 	如果product ID存在于这些模块中，则先删除这些模块，最后再删除product模块
 * 10. 每次到ZOHO做完操作后，记录时间到file文件中【doing ，优先级Ⅱ】
+* 11. 解析返回的response是成功还是失败【】-->明天完成commonPostMethod
 
 # 20161004
 * 1. 删除顺序(invoice/so/quote/product/account)【待定】【API Import：DONE】

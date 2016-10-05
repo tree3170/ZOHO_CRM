@@ -281,7 +281,10 @@ public class CommonUtils {
             postResp = post.getResponseBodyAsString();
             logger.error("postResp=======>"+postResp);
 
+            //TODO 解析返回的response是成功还是失败
             /**
+             * <response uri="/crm/private/xml/Accounts/deleteRecords"><error><code>4600</code><message>Unable to process your request. Please verify if the name and value is appropriate for the "id" parameter.</message></error></response>
+
              * sample response=======><?xml version="1.0" encoding="UTF-8" ?>
              <response uri="/crm/private/xml/Leads/updateRecords"><result><message>Record(s) updated successfully</message><recorddetail><FL val="Id">85333000000072001</FL><FL val="Created Time">2016-07-13 23:58:11</FL><FL val="Modified Time">2016-08-22 21:36:36</FL><FL val="Created By"><![CDATA[qq qq]]></FL><FL val="Modified By"><![CDATA[tree3170]]></FL></recorddetail></result></response>
              */

@@ -41,6 +41,9 @@ public class Quotes {
     private  String QuotesDate;
     /**客户编号custNO*/
     private String custNO;
+    /**客户ID */
+    private String ACCOUNTID;
+    private String custID;
     /**客户名字custName*/
     private String custName;
     /**公司联络人Contact*/
@@ -116,6 +119,22 @@ public class Quotes {
 
     public void setCustNO(String custNO) {
         this.custNO = custNO;
+    }
+
+    public String getACCOUNTID() {
+        return ACCOUNTID;
+    }
+
+    public void setACCOUNTID(String ACCOUNTID) {
+        this.ACCOUNTID = ACCOUNTID;
+    }
+
+    public String getCustID() {
+        return custID;
+    }
+
+    public void setCustID(String custID) {
+        this.custID = custID;
     }
 
     public String getCustName() {
@@ -239,7 +258,9 @@ public class Quotes {
                 ", user=" + user +
                 ", QuotesDate='" + QuotesDate + '\'' +
                 ", custNO='" + custNO + '\'' +
-                ", custName='" + custName + '\'' +
+                ", ACCOUNTID='" + ACCOUNTID + '\'' +
+                ", Customer ID='" + custID + '\'' +
+                ", Customer Name='" + custName + '\'' +
                 ", contact='" + contact + '\'' +
                 ", paymentTerm='" + paymentTerm + '\'' +
                 ", payMethod='" + payMethod + '\'' +

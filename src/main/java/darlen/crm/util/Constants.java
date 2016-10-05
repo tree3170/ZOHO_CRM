@@ -140,6 +140,8 @@ public interface Constants {
     public static final String ZOHO_FIELD_ZOHOID_DUL_PREFIX = "dulERPID_";
     public static final String ZOHO_FIELD_PDS = "pds";
     public static final String ZOHO_FIELD_API_IMPORT = "API Import";
+    public static final String ZOHO_FIELD_CUSTOMER_ID = "Customer Name_ID";
+    public static final String ZOHO_FIELD_ACCT_ID = "ACCOUNTID";
 
 
     /**COMMON KEYS*/

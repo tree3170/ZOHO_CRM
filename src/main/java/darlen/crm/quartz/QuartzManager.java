@@ -29,7 +29,7 @@ import java.util.Date;
  */
 public class QuartzManager {
     public void exe() throws Exception {
-//        ModuleManager.exeAllSend();
+//        ModuleManager.exeAllModuleSend();
 //        System.out.println(ConfigManager.get("secure/db.properties", "DB_USERNAME"));
 //        System.out.println("======"+ConfigManager.getProdfromProps("marketing"));
 //        System.out.println(ConfigManager.get(Constants.PROPS_DB_FILE,"DB_USERNAME"));
