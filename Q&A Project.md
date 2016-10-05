@@ -46,6 +46,11 @@
 * 12. 沿用装饰模式修改HandleModule等类
 * 13. 增加接口，就是说客户直接可以搜索，拿到DB中正确的结果-->以便到时候数据出问题了方便调查是哪条数据出问题
 * 14. Report
+* 15. API执行次数消耗【confirm】
+    a. update/delete必需是每个
+    b. update模块Quotes、SO、Invoice时，需要先删除，再add-->
+    b. house keep , 搜索每个product存在与Quotes、SO、Invoice，然后也是每条执行删除
+
 
 
 

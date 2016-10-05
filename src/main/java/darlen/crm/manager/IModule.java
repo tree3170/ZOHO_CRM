@@ -26,6 +26,7 @@ import java.util.Map;
  * @author Darlen liu
  */
 public interface IModule {
+    public  String retrieveZohoRecordByID(String moduleName,String zohoID) throws Exception;
 //    1.这里仅仅只是组装zohoAcctObjList
     public List buildSkeletonFromZohoList() throws Exception ;
 //    1.1 从ZOHO获取有效的xml
@@ -49,15 +50,15 @@ public interface IModule {
 //    4.2. 添加
 //    4.3. 更新
 //    4.4. 删除
-    public int addRecords(String moduleName,int curdKey,List zohoXMLList);
-    public int updateRecords(String moduleName,int curdKey,List zohoXMLList);
+    public int addRecords(String moduleName,int curdKey,List<String> addZohoXMLList);
+    public int updateRecords(String moduleName,int curdKey,Map<String,String> updZohoXMLMap);
     /**
      * 返回第一个是失败的次数，第二个是需要删除的ZOHO IDlist
      * 因为删除的顺序必需是倒序：Invoices/SO/Quotes/Products/Accounts
      * @return
      * @throws Exception
      */
-    public int delRecords(String moduleName,int curdKey,List zohoXMLList);
+    public int delRecords(String moduleName,int curdKey,List<String> deleteZOHOIDsList);
 
 
     public List execSend() throws Exception;

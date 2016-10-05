@@ -16,6 +16,9 @@ public interface Constants {
 //    public static  enum ModuleNameKeys{Leads,Accounts,Contacts,Invoices,Products,Quotes,SalesOrders};
     public static  String MODULE_NAME_KEYS_ALL = "Leads,Accounts,Contacts,Invoices,Products,Quotes,SalesOrders";
 
+    /**设置开发模式*/
+    public static final String ZOHO_PROPS_DEV_MODE="DEV_MODE";
+
     /**定义result中每个module的key , for 每一个result的xml*/
     public static final String ELEMENT_RESULT_KEY="result";
     public static final String ELEMENT_ROW_KEY="row";
@@ -97,8 +100,7 @@ public interface Constants {
 
 
 
-    /**设置开发模式*/
-    public static final String ZOHO_PROPS_DEV_MODE="DEV_MODE";
+
 
     /**设置Properties文件名*/
 
@@ -131,5 +133,16 @@ public interface Constants {
     public static final int ZOHO_CRUD_UPDATE = 2;
     public static final int ZOHO_CRUD_DELETE = 3;
 
+    /**针对ZOHO一些固定的字段*/
+    public static final String ZOHO_FIELD_PRODUCT_ID = "Product Id";
+    public static final String ZOHO_FIELD_LAST_TIME = "LatestEditTime";
+    public static final String ZOHO_FIELD_ZOHOID_EMPTY_PREFIX = "emptyERPID_";
+    public static final String ZOHO_FIELD_ZOHOID_DUL_PREFIX = "dulERPID_";
+    public static final String ZOHO_FIELD_PDS = "pds";
+    public static final String ZOHO_FIELD_API_IMPORT = "API Import";
+
+
+    /**COMMON KEYS*/
+    public static final String COMMENT_PREFIX = "\n##\t ====> ";
 
 }

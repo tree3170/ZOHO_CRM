@@ -93,7 +93,7 @@ public class AccountsHandler  extends AbstractModule {
      * 3. delZohoIDList = zohoListObj.get(2) ：zoho ID list-->ERP ID 为空时的 加入删除列表
      */
     public List buildSkeletonFromZohoList() throws Exception {
-        logger.debug("# AccountHandler [buildSkeletonFromZohoList]...");
+        logger.debug("# Ⅰ: AccountHandler 【buildSkeletonFromZohoList】...");
         //0 遍历获取List<Response>
 
 //      1. 从ZOHO获取有效的xml
@@ -125,9 +125,9 @@ public class AccountsHandler  extends AbstractModule {
 
     /**
      *  从ZOHO获取所有的记录，并返回所有的记录（原因是因为每次ZOHO最大能获取200条，并且没法知道获取最大条数）
-     *  1. 从ZOHO获取有效的xml
-     *  2. xml 转 java bean
-     *  3. 由javabean获取所有的row记录，如果没有取完，需要重新取
+     *  1.1  从ZOHO获取有效的xml
+     *  1.2. xml 转 java bean
+     *  1.3. 由javabean获取所有的row记录，如果没有取完，需要重新取
      *     //如果已经达到了最大的查询条数，则代表还可以继续下一次查询；如果没有，则代表记录已经获取完
      * @param fromIndex
      * @param toIndex
@@ -136,23 +136,26 @@ public class AccountsHandler  extends AbstractModule {
      * @throws Exception
      */
     private List<ProdRow> retrieveAllRowsFromZoho(int fromIndex, int toIndex, List<ProdRow> allRows) throws Exception {
-        logger.debug("# AccountHandler [retrieveAllRowsFromZoho]...");
+        logger.debug("# 1.1 AccountHandler 【retrieveAllRowsFromZoho】...fromIndex="+fromIndex+", toIndex="+toIndex+", row size="+allRows.size());
 //     1. 从ZOHO获取有效的xml
         String zohoStr =  handleAccounts.retrieveZohoRecords(ModuleNameKeys.Accounts.toString(),fromIndex,toIndex);
 
 //      2. xml 转 java bean
         Response response = JaxbUtil.converyToJavaBean(zohoStr, Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
-        logger.debug("转化ZOHO获取XML回来的Java对象\n#" + response);
+        logger.debug("1.2 【retrieveAllRowsFromZoho】，转化ZOHO获取XML回来的Java对象\n#" + response);
 
 //      3. 由javabean获取所有的row记录，如果没有取完，需要重新取
+        logger.debug("# 1.3 AccountHandler 【retrieveAllRowsFromZoho】，如果没有取完，需要迭代遍历...");
         //TODO 如果没有数据<response uri="/crm/private/xml/Products/getRecords"><nodata><code>4422</code><message>There is no data to show</message></nodata></response>
         if(null != response.getResult()){
             List<ProdRow>  currentRows = response.getResult().getAccounts().getRows();
             allRows.addAll(currentRows);
             //如果已经达到了最大的查询条数，则代表还可以继续下一次查询；如果没有，则代表记录已经获取完
             if(currentRows.size() == Constants.MAX_FETCH_SIZE){
-                logger.debug("#通过RetrieveRecord需要已经遍历的次数：" + ((toIndex / Constants.MAX_FETCH_SIZE) + 1));
-                retrieveAllRowsFromZoho(fromIndex + Constants.MAX_FETCH_SIZE, toIndex + Constants.MAX_FETCH_SIZE, allRows);
+                fromIndex = fromIndex + Constants.MAX_FETCH_SIZE;
+                toIndex = toIndex + Constants.MAX_FETCH_SIZE;
+                logger.debug("#通过RetrieveRecord需要已经遍历的次数：" + ((toIndex / Constants.MAX_FETCH_SIZE) ));
+                retrieveAllRowsFromZoho(fromIndex,toIndex , allRows);
             }
         }
         return allRows;
@@ -164,7 +167,7 @@ public class AccountsHandler  extends AbstractModule {
      * 2.idAccountsMap<ERPID,Accounts> --> dbAcctList.get(1)
      */
     public List buildDBObjList() throws Exception {
-        logger.debug("# AccountHandler [buildDBObjList]...");
+        logger.debug("# Ⅱ： AccountHandler 【buildDBObjList】...");
         List dbAcctList = new ArrayList();
         Map<String,Object> erpIDProductsMap = DBUtils.getAccountMap();;
 //        for(int i = 6; i< 300;i++){
@@ -173,12 +176,13 @@ public class AccountsHandler  extends AbstractModule {
 //        getAcctDBObj2(erpIDProductsMap);
 
         dbAcctList.add(erpIDProductsMap);
-        CommonUtils.printList(dbAcctList, "Build DB Object :::");
+        logger.debug("【buildDBObjList】,打印DB对象："+Constants.COMMENT_PREFIX +dbAcctList);
+        //CommonUtils.printList(dbAcctList, "Build DB Object :::");
         return dbAcctList;
     }
 
     /**
-     * 由获得的ZOHO所有对象集合和从DB获取的对象集合(dbIDModuleObjMap)，经过过滤，获取的组装需要***发送到ZOHO的对象集合骨架***
+     * Ⅲ 由获得的ZOHO所有对象集合和从DB获取的对象集合(dbIDModuleObjMap)，经过过滤，获取的组装需要***发送到ZOHO的对象集合骨架***
      * 1.updateModuleObjMap<>：如果Zoho ID存在于DB对象集合中，则判断 lastEditTime是否被修改，如果修改了，则直接组装到updateAccountMap中
      * 2.delZohoIDList：如果ZOHO ID不存在于dbIDModuleObjMap中，则直接把DB ID添加到delZohoIDList
      * 3.addModuleObjMap：如果dbIDModuleObjMap中的id不存在于erpIDTimeMap中，则添加ZOHOID和Module对象到addModuleObjMap
@@ -189,7 +193,7 @@ public class AccountsHandler  extends AbstractModule {
      * @return
      */
     public List build2ZohoObjSkeletonList() throws Exception {
-        logger.debug("# AccountHandler [build2ZohoObjSkeletonList]...");
+        logger.debug("# Ⅲ: AccountHandler 【build2ZohoObjSkeletonList】...");
 //        1. 获取ZOHO对象的骨架集合
         List allZohoObjList = buildSkeletonFromZohoList();
         Map<String,String> erpZohoIDMap = new HashMap<String, String>();
@@ -212,7 +216,7 @@ public class AccountsHandler  extends AbstractModule {
 
 
     /**
-     * 由发送到ZOHO的骨架对象，组装发送到ZOHO 的XML，分别为添加、更新、删除三个对象集合
+     * Ⅳ 由发送到ZOHO的骨架对象，组装发送到ZOHO 的XML，分别为添加、更新、删除三个对象集合
      * addZohoXmlList : List<String> --> 每一百条数据组装成xml放入list里面
      * updateZOHOXmlMap ：Map<zohoID,zohoXML>  --> 以zohoID为key，xml为value
      * deleteZOHOIDsList： zohoID的集合
@@ -220,8 +224,9 @@ public class AccountsHandler  extends AbstractModule {
      * @throws Exception
      */
     public List build2ZohoXmlSkeleton() throws Exception {
-        logger.debug("# AccountHandler [build2ZohoXmlSkeleton]...");
+        logger.debug("# Ⅳ: AccountHandler 【build2ZohoXmlSkeleton】...");
         //1. 获取发送到ZOHO的三大对象集合骨架
+        logger.debug("4.1 【build2ZohoXmlSkeleton】, 开始执行方法：build2ZohoObjSkeletonList");
         List zohoComponentList = build2ZohoObjSkeletonList();
         Map<String,Accounts> addAccountMap =  (Map<String,Accounts> )zohoComponentList.get(0);
         Map<String,Accounts> updateAccountMap =  (Map<String,Accounts> )zohoComponentList.get(1);
@@ -231,25 +236,22 @@ public class AccountsHandler  extends AbstractModule {
         //"/mapping/dbRdAccountsFieldMapping.properties"
         Properties fieldMappingProps = ConfigManager.readProperties(Constants.PROPS_ACCT_DB_MAPPING);
 
-        //TODO add最大条数为100，
 //        2. 添加
-        logger.debug("###############################[build2ZohoXmlSkeleton], 开始获取 Accounts【insert】的的XML#####################");
-        logger.debug("begin组装 AddZOHOXML...\n");
+        logger.debug("4.2 【build2ZohoXmlSkeleton】, 开始获取 Accounts【insert】的的XML#####################");
         List<String> addZohoXmlList = buildAdd2ZohoXml(addAccountMap,className,fieldMappingProps);
-        logger.debug("end组装 AddZOHOXML..size:::."+addZohoXmlList.size());
+        logger.debug("end组装 AddZOHOXML..size:"+addZohoXmlList.size());
 
 //        3. 更新
-        logger.debug("###############################[build2ZohoXmlSkeleton], 开始获取 Accounts【update】的的XML#####################");
+        logger.debug("4.3 【build2ZohoXmlSkeleton】, 开始获取 Accounts【update】的的XML#####################");
         logger.debug("begin组装 updateZOHOXml...\n");
         Map<String,String> updateZOHOXmlMap  = buildUpd2ZohoXml(updateAccountMap,className,fieldMappingProps);
-        logger.debug("end组装 updateZOHOXml...size:::"+updateZOHOXmlMap.size());
+        logger.debug("end组装 updateZOHOXml...size:"+updateZOHOXmlMap.size());
 
         List zohoXMLList = new ArrayList();
         zohoXMLList.add(addZohoXmlList);
         zohoXMLList.add(updateZOHOXmlMap);
 //        4. 删除
-        logger.debug("###############################[build2ZohoXmlSkeleton], 开始获取 Accounts【delete】的的XML#####################");
-        logger.debug("打印删除ZohoIDs集合 deleteZOHOIDsList...\n"+org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,","));
+        logger.debug("4.4 【build2ZohoXmlSkeleton】, 打印需要删除的ZOHO ID的集合"+Constants.COMMENT_PREFIX+org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,","));
         zohoXMLList.add(deleteZOHOIDsList);//org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,",")
         return zohoXMLList;
     }
@@ -264,11 +266,11 @@ public class AccountsHandler  extends AbstractModule {
      * @return
      */
     public List execSend() throws Exception {
-        logger.debug("# AccountHandler [execSend]...");
+        logger.debug("# Ⅴ: AccountHandler 【execSend】...");
         List zohoXMLList = build2ZohoXmlSkeleton();
-        int addFailNum = addRecords(ModuleNameKeys.Accounts.toString(),Constants.ZOHO_CRUD_ADD,zohoXMLList);
-        int updFailNum = updateRecords(ModuleNameKeys.Accounts.toString(),Constants.ZOHO_CRUD_UPDATE,zohoXMLList);
-        int delFailNum = delRecords(ModuleNameKeys.Accounts.toString(),Constants.ZOHO_CRUD_DELETE,zohoXMLList);
+        int addFailNum = addRecords(ModuleNameKeys.Accounts.toString(),Constants.ZOHO_CRUD_ADD,(List<String>)zohoXMLList.get(0));
+        int updFailNum = updateRecords(ModuleNameKeys.Accounts.toString(),Constants.ZOHO_CRUD_UPDATE,(Map<String,String>) zohoXMLList.get(1));
+        int delFailNum = delRecords(ModuleNameKeys.Accounts.toString(),Constants.ZOHO_CRUD_DELETE,(List)zohoXMLList.get(2));
         List result = new ArrayList();
         result.add(0,addFailNum);
         result.add(1,updFailNum);
@@ -352,7 +354,7 @@ public class AccountsHandler  extends AbstractModule {
      * @throws Exception
      */
     public List<String>  buildAdd2ZohoXml(Map accountMap,String className,Properties fieldMappingProps) throws Exception {
-        logger.debug("# AccountHandler [buildAdd2ZohoXml]...");
+        logger.debug("# 4.2 AccountHandler 【buildAdd2ZohoXml】...");
         List<String> addZohoXmlList= new ArrayList<String>();
         Response response = new Response();
         Result result = new Result();
@@ -379,7 +381,7 @@ public class AccountsHandler  extends AbstractModule {
      * @throws Exception
      */
     private Map<String,String> buildUpd2ZohoXml(Map accountMap,String className,Properties fieldMappingProps) throws Exception {
-        logger.debug("# AccountHandler [buildUpd2ZohoXml]...");
+        logger.debug("# 4.3 AccountHandler 【buildAdd2ZohoXml】...");
         Map<String,String> updateZphoXmlMap = new HashMap<String, String>();
         String str = "";
         Response response = new Response();
@@ -399,7 +401,7 @@ public class AccountsHandler  extends AbstractModule {
                 result.setAccounts(accounts);
                 response.setResult(result);
                 if(ConfigManager.isDevMod())
-                     logger.debug("组装更新的第"+(i+1)+"条数据：：：");
+                     logger.debug("4.3 组装更新的第"+(i+1)+"条数据：：：");
                 str = JaxbUtil.convertToXml(response);
                 updateZphoXmlMap.put(StringUtils.nullToString(key),str);
                 i++;

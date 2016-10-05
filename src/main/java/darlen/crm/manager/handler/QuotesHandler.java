@@ -102,12 +102,12 @@ public class QuotesHandler extends AbstractModule {
      * delZOHOIDList = = zohoComponentObjList.get(2): 里面是所有 ERP ID 为空时的 ZOHO ID
      */
     public List buildSkeletonFromZohoList() throws Exception {
-        logger.debug("# InvoicesHandler [buildSkeletonFromZohoList]...");
+        logger.debug("# Ⅰ InvoicesHandler 【buildSkeletonFromZohoList】...");
 //      1. 获取所有的记录
         List<ProdRow> rows = new ArrayList<ProdRow>();
         retrieveAllRowsFromZoho(1, Constants.MAX_FETCH_SIZE, rows);
 
-//      2. 获取Zoho组件的集合，其中包含三个对象，分别为 erpZohoIDMap，erpZohoIDTimeMap，delZohoIDList（zoho ID list）
+//      2. 获取Zoho组件的集合，其中包含四个对象，分别为 erpZohoIDMap，erpZohoIDTimeMap，delZohoIDList（zoho ID list），zohoIDProdIDsMap
         List  zohoModuleList = buildZohoComponentList(rows, Constants.MODULE_QUOTES_ID, Constants.ERPID,ModuleNameKeys.Quotes.toString());
 
         return zohoModuleList;
@@ -126,22 +126,23 @@ public class QuotesHandler extends AbstractModule {
      * @throws Exception
      */
     private List<ProdRow> retrieveAllRowsFromZoho(int fromIndex, int toIndex, List<ProdRow> allRows) throws Exception {
-        logger.debug("# InvoicesHandler [retrieveAllRowsFromZoho]...");
+        logger.debug("# 1.1 InvoicesHandler 【retrieveAllRowsFromZoho】...");
 //     1. 从ZOHO获取有效的xml
         String zohoStr =  retrieveZohoRecords(ModuleNameKeys.Quotes.toString(),fromIndex,toIndex);
 
 //      2. xml 转 java bean
-        Response response = JaxbUtil.converyToJavaBean(zohoStr, Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
-        logger.debug("转化ZOHO获取XML回来的Java对象\n#" + response);
+        Response response = JaxbUtil.converyToJavaBean(convertFLToPdsXmlTag2(zohoStr), Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
+        logger.debug("1.2 【retrieveAllRowsFromZoho】，转化ZOHO获取XML回来的Java对象\n#" + response);
 
 //      3. 由javabean获取所有的row记录，如果没有取完，需要重新取
+        logger.debug("# 1.3 【retrieveAllRowsFromZoho】，如果没有取完，需要迭代遍历...");
         //TODO 如果没有数据<response uri="/crm/private/xml/Products/getRecords"><nodata><code>4422</code><message>There is no data to show</message></nodata></response>
         if(null != response.getResult()){
             List<ProdRow>  currentRows = response.getResult().getQuotes().getRows();
             allRows.addAll(currentRows);
             //如果已经达到了最大的查询条数，则代表还可以继续下一次查询；如果没有，则代表记录已经获取完
             if(currentRows.size() == Constants.MAX_FETCH_SIZE){
-                logger.debug("#通过RetrieveRecord需要已经遍历的次数：" + ((toIndex / Constants.MAX_FETCH_SIZE) + 1));
+                logger.debug("#通过RetrieveRecord需要已经遍历的次数：" + ((toIndex / Constants.MAX_FETCH_SIZE) ));
                 retrieveAllRowsFromZoho(fromIndex + Constants.MAX_FETCH_SIZE, toIndex + Constants.MAX_FETCH_SIZE, allRows);
             }
         }
@@ -155,14 +156,15 @@ public class QuotesHandler extends AbstractModule {
      * 2.idAccountsMap<CustomerID,Accounts> --> dbAcctList.get(1)
      */
     public List buildDBObjList() throws Exception {
-        logger.debug("# InvoicesHandler [buildDBObjList]...");
+        logger.debug("# Ⅱ：QuotesHandler 【buildDBObjList】...");
         List dbAcctList = new ArrayList();
         Map<String,Object> idInvoicesMap = DBUtils.getInvoiceMap();
 //        getDBObj(idInvoicesMap);
 //        Invoices accouts2 = getDBObj2(idInvoicesMap);
 
         dbAcctList.add(idInvoicesMap);
-        CommonUtils.printList(dbAcctList, "打印DB对象：：：");
+        logger.debug("【buildDBObjList】,打印DB对象："+Constants.COMMENT_PREFIX +dbAcctList);
+        //CommonUtils.printList(dbAcctList, "打印DB对象：：：");
         return dbAcctList;
     }
 
@@ -179,7 +181,7 @@ public class QuotesHandler extends AbstractModule {
      * @return
      */
     public List build2ZohoObjSkeletonList() throws Exception {
-        logger.debug("# InvoicesHandler [build2ZohoObjSkeletonList]...");
+        logger.debug("# Ⅲ: QuotesHandler 【build2ZohoObjSkeletonList】...");
         //1. 获取ZOHO对象的骨架集合
         List allZohoObjList = buildSkeletonFromZohoList();
         Map<String,String> erpZohoIDMap = new HashMap<String, String>();
@@ -208,7 +210,7 @@ public class QuotesHandler extends AbstractModule {
      */
 
     /**
-     * 由发送到ZOHO的骨架对象，组装发送到ZOHO 的XML，分别为添加、更新、删除三个对象集合
+     * Ⅳ: 由发送到ZOHO的骨架对象，组装发送到ZOHO 的XML，分别为添加、更新、删除三个对象集合
      * List<String> addZohoXmlList :每一百条数据组装成xml放入list里面
      * Map<zohoID,zohoXML> updateZOHOXmlMap ：以zohoID为key，xml为value
      * deleteZOHOIDsList： zohoID的集合
@@ -216,8 +218,9 @@ public class QuotesHandler extends AbstractModule {
      * @throws Exception
      */
     public List build2ZohoXmlSkeleton() throws Exception {
-        logger.debug("# InvoicesHandler [build2ZohoXmlSkeleton]...");
+        logger.debug("# Ⅳ: QuotesHandler 【build2ZohoXmlSkeleton】...");
         //1. 获取发送到ZOHO对象集合骨架
+        logger.debug("4.1 【build2ZohoXmlSkeleton】, 开始执行方法：build2ZohoObjSkeletonList");
         List zohoComponentList = build2ZohoObjSkeletonList();
         Map<String,Invoices> addAccountMap =  (Map<String,Invoices> )zohoComponentList.get(0);
         Map<String,Invoices> updateAccountMap =(Map<String,Invoices> )zohoComponentList.get(1);
@@ -226,27 +229,21 @@ public class QuotesHandler extends AbstractModule {
         String className = "darlen.crm.model.result.Invoices";
         //"/mapping/dbRdQuotesFieldMapping.properties"
         Properties fieldMappingProps = ConfigManager.readProperties(Constants.PROPS_QUOTE_DB_MAPPING);
-        //TODO add最大条数为100，
         //2. 添加
-        logger.debug("###############################[build2ZohoXmlSkeleton], 开始获取 Quotes【Insert】的的XML#####################");
-        logger.debug("begin组装 AddZOHOXML...\n");
+        logger.debug("4.2 【build2ZohoXmlSkeleton】, 开始获取 Quotes【insert】的的XML#####################");
         List<String> addZohoXmlList =  buildAdd2ZohoXml(addAccountMap,className,fieldMappingProps);
         logger.debug("end组装 AddZOHOXML...size:::"+addZohoXmlList.size());
 
-        //TODO confirm to 王继：如果有多条记录，因为每条API调用都需要带id， 该如何更新？ 是否支持批量更新？
         //3. 更新
-        logger.debug("###############################[build2ZohoXmlSkeleton], 开始获取 Quotes【Update】的的XML#####################");
-        logger.debug("begin组装 updateZOHOXml...\n");
+        logger.debug("4.3 【build2ZohoXmlSkeleton】, 开始获取 Quotes【update】的的XML#####################");
         Map<String,String> updateZOHOXmlMap  = buildUpd2ZohoXml(updateAccountMap,className,fieldMappingProps);
         logger.debug("end组装 updateZOHOXml...size:::"+updateZOHOXmlMap.size());
 
         List zohoXMLList = new ArrayList();
         zohoXMLList.add(addZohoXmlList);
         zohoXMLList.add(updateZOHOXmlMap);
-        //TODO: for delete
         //4. 删除
-        logger.debug("###############################[build2ZohoXmlSkeleton], 开始获取 Quotes 【Delete】的的XML#####################");
-        logger.debug("打印删除ZohoIDs集合 deleteZOHOIDsList...\n"+org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,","));
+        logger.debug("4.4 【build2ZohoXmlSkeleton】, 打印需要删除的ZOHO ID的集合"+Constants.COMMENT_PREFIX+org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,","));
         zohoXMLList.add(deleteZOHOIDsList);//org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,",")
         return zohoXMLList;
     }
@@ -259,11 +256,11 @@ public class QuotesHandler extends AbstractModule {
      * 删除（testDelAcctRecord）
      */
     public List execSend() throws Exception {
-        logger.debug("# InvoicesHandler [execSend]...");
+        logger.debug("# Ⅴ：InvoicesHandler [execSend]...");
         List zohoXMLList = build2ZohoXmlSkeleton();
-        int addFailNum = addRecords(ModuleNameKeys.Quotes.toString(),Constants.ZOHO_CRUD_ADD,zohoXMLList);
-        int updFailNum = updateRecords(ModuleNameKeys.Quotes.toString(),Constants.ZOHO_CRUD_UPDATE,zohoXMLList);
-        int delFailNum = delRecords(ModuleNameKeys.Quotes.toString(),Constants.ZOHO_CRUD_DELETE,zohoXMLList);
+        int addFailNum = addRecords(ModuleNameKeys.Quotes.toString(),Constants.ZOHO_CRUD_ADD,(List<String>)zohoXMLList.get(0));
+        int updFailNum = updateRecords(ModuleNameKeys.Quotes.toString(),Constants.ZOHO_CRUD_UPDATE,(Map<String,String>) zohoXMLList.get(1));
+        int delFailNum = delRecords(ModuleNameKeys.Quotes.toString(),Constants.ZOHO_CRUD_DELETE,(List)zohoXMLList.get(2));
         List result = new ArrayList();
         result.add(0,addFailNum);
         result.add(1,updFailNum);
@@ -280,7 +277,7 @@ public class QuotesHandler extends AbstractModule {
      * @throws Exception
      */
     private List<String> buildAdd2ZohoXml(Map accountMap,String className,Properties fieldMappingProps) throws Exception {
-        logger.debug("# InvoicesHandler [buildAdd2ZohoXml]...");
+        logger.debug("# 4.2 InvoicesHandler [buildAdd2ZohoXml]...");
         List<String> addZohoXmlList= new ArrayList<String>();
         Response response = new Response();
         Result result = new Result();
@@ -309,7 +306,7 @@ public class QuotesHandler extends AbstractModule {
      * @throws Exception
      */
     private Map<String,String> buildUpd2ZohoXml(Map accountMap,String className,Properties fieldMappingProps) throws Exception {
-        logger.debug("# InvoicesHandler [buildUpd2ZohoXml]...");
+        logger.debug("# 4.3 InvoicesHandler [buildUpd2ZohoXml]...");
         Map<String,String> updateZphoXmlMap = new HashMap<String, String>();
         String str = "";
         Response response = new Response();
@@ -328,7 +325,7 @@ public class QuotesHandler extends AbstractModule {
                 result.setQuotes(quotes);
                 response.setResult(result);
                 if(ConfigManager.isDevMod())
-                logger.debug("组装更新的第"+(i+1)+"条数据：：：");
+                logger.debug("4.3 组装更新的第"+(i+1)+"条数据：：：");
                 str = JaxbUtil.convertToXml(response);
                 updateZphoXmlMap.put(StringUtils.nullToString(key),str.replace("pds","FL"));
                 i++;

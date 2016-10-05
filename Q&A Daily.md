@@ -16,6 +16,10 @@
 
    # 20161002
    * 关于产品存在与其他module时不能删掉【估计只能手动先删除关联的模块，最后再删除产品。。。】， 还有product detail不能删除的问题
+   不能删除Invoice和Quotes
+   https://crm.zoho.com.cn/crm/private/xml/SalesOrders/deleteRecords?id=80487000000100803&authtoken=00f65ee9c91b4906dbf4c1bd46bb1452&scope=crmapi
+   * update模块Quotes、SO、Invoice时，如果有模块中的product删除情况，那此时API是做不到删除某个产品的，比如说以前三个产品，现在改成了2个产品
+   * selectedColumns 不能包含Product里面的字段
 
 ## 问题： Ken
    * 确定日期格式问题，这个是datetime的表示的【datetime】
@@ -30,6 +34,7 @@
    * 是如何计算SO的价格的？需要找Ken confirm【待确认】
    * LatestEditBy在ERP系统中能被修改吗？因为我看产品等module中存的是name而不是ID，那么如果修改了，产品等module中的所有模块会不会一起跟着修改？【待确认】
    * 明天对SO、Invoices数据的正确性需要找用户和Ken确认正确性【待确认】
+   * 关于Quotes，SO，Invoices中的Product是否能删掉在ERP中？？【待确认】
 
    #20160930
    * 关于LatestEditTime和CreationTime为空的情况【待确认】
@@ -42,23 +47,28 @@
    * 确定账户13个账户人
 
 # 20161005
-* 1. 跑所有数据
-* 2. 优化log
-* 3. UI更改
+* 1. 跑所有数据【doing，优先级Ⅲ】-->前提是写出删除程序能删除所有数据
+* 2. 优化log【doing，优先级Ⅳ】
+* 3. UI更改【doing，优先级Ⅱ】
 * 4. 后天：log分类问题
-* 5. Quartz可以随时触发问题，当遇到不可遇因素，能否主动停止Quarz
+* 5. Quartz可以随时触发问题，当遇到不可遇因素，能否主动停止Quartz
 * 6. 至少需要2个自定义异常类： 1--> 前端执行情况  2-->最后面post的时候如果出错，因为这个时候是会有执行结果的（想了下或许不要）
 * 7. jaxb -->CDATA 【done】
-* 8. 关于Remark这个字段需要确认
+* 8. 关于Remark这个字段需要确认【CONFIRM】
+* 9. 完成一个删除功能，【doing，优先级Ⅰ】
+	先判断Product是否有效（ERP ID是否与DB一致），
+	如果无效，则拿出ZOHO ID，分别查询在Quotes、Invoices、SO中存在此产品的模块，
+	如果product ID存在于这些模块中，则先删除这些模块，最后再删除product模块
+* 10. 每次到ZOHO做完操作后，记录时间到file文件中【doing ，优先级Ⅱ】
 
 # 20161004
 * 1. 删除顺序(invoice/so/quote/product/account)【待定】【API Import：DONE】
 【待定，因为Product使用APi删除不了的情况是ERP ID不在DB中或者为空，这种情况下是不存在的，
  例外：如果客户直接使用UI创建的话，这种情况不予维护。 为了区分这种情况，添加一个字段API Import，标志是否使用API导入【done】】
-* 2. 获取FilePath，取不到就换另外一种方式获取【done】
-* 3. 环境检测【doing】，主要是filepath和DB连接情况【done】
-* 4. report 调整【start time,end time,add,update,delete】【doing】
-* 5. UI confirm【doing】
+* 2. 获取FilePath，取不到就换另外一种方式获取【DONE】
+* 3. 环境检测【doing】，主要是filepath和DB连接情况【DONE】
+* 4. report 调整【start time,end time,add,update,delete】【DONE】
+* 5. UI confirm【95%，除了Remark字段】
 * 6. 增加接口，就是说客户直接可以搜索，拿到DB中正确的结果-->以便到时候数据出问题了方便调查是哪条数据出问题【TODO】
 * 7. 当Prod ID或者AccountsID或者userID为空时， throw exception，因为就算发到ZOHO也是会出错【doing】
 * 8. 关于invoice/so/quote需要删掉了才能添加-->没有更新，因为产品如果删除了，就更新不了--》confirm to Ken--> 有没有可能删除产品？？？

@@ -38,7 +38,7 @@ public class JaxbUtil {
 	 * @return 
 	 */
 	public static String convertToXml(Object obj, String encoding) {
-        logger.debug("entering the [JaxbUtil] convertToXml...");
+        //logger.debug("entering the [JaxbUtil] convertToXml...");
 		String result = null;
 		try {
 			JAXBContext context = JAXBContext.newInstance(obj.getClass());

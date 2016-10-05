@@ -90,14 +90,13 @@ public abstract  class AbstractModule  implements IModule{
 
 
     /**
-     * 1.1 获取ZOHO某个module的XML数据
+     * 根据ID获取ZOHO某个module的数据
      * 暂定每次遍历100条
      * @param moduleName
      * @return
      * @throws Exception
      */
-    public  String retrieveZohoRecords(String moduleName,int fromIndex,int toIndex) throws Exception {//,String moduleName
-        //TODO remove url and selectedColums and newFormat三个参数
+    public  String retrieveZohoRecordByID(String moduleName,String zohoID) throws Exception {
         String retZohoStr = "";
         String url = "";
         String selectedColumns = "";
@@ -109,6 +108,10 @@ public abstract  class AbstractModule  implements IModule{
             url = zohoPropsMap.get(Constants.FETCH_PRODUCTS_URL);
             selectedColumns = "Products(Modified Time,PRODUCTID,Product Name,ERP ID,LatestEditTime)";
         }
+        if(ModuleNameKeys.Quotes.toString().equalsIgnoreCase(moduleName)){
+            url = zohoPropsMap.get(Constants.FETCH_QUOTES_URL);
+            selectedColumns = "Quotes(Modified Time,QUOTEID,Subject,ERP ID,LatestEditTime)";
+        }
         if(ModuleNameKeys.SalesOrders.toString().equalsIgnoreCase(moduleName)){
             url = zohoPropsMap.get(Constants.FETCH_SO_URL);
             selectedColumns = "SalesOrders(Modified Time,SALESORDERID,Subject,ERP ID,LatestEditTime)";
@@ -117,7 +120,59 @@ public abstract  class AbstractModule  implements IModule{
             url = zohoPropsMap.get(Constants.FETCH_INVOICES_URL);
             selectedColumns = "Invoices(Modified Time,INVOICEID,Subject,ERP ID,LatestEditTime)";
         }
-        System.out.println("从ZOHO获取回来的所有记录的XML:::moduleName = "+moduleName+", url ="+url);
+        logger.debug("从ZOHO获取回来的所有记录的XML:::moduleName = "+moduleName+", url ="+url);
+        try {
+            Map<String,String> postParams = new HashMap<String, String>();
+            postParams.put(Constants.HTTP_POST_PARAM_ID,zohoID);
+            postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,url);
+            postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN, AUTHTOKEN);
+            postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
+            //default set the newFormat as 2，因为有可能需要的字段为空
+            postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, zohoPropsMap.get(Constants.ZOHO_PROPS_NEWFORMAT_2));
+            if(!StringUtils.isEmptyString(selectedColumns)){
+                postParams.put(Constants.HTTP_POST_PARAM_SELECTCOLS,selectedColumns);
+            }
+            retZohoStr =  CommonUtils.executePostMethod(postParams);
+        } catch(Exception e) {
+            logger.error("执行搜索Module操作出现错误",e);
+            throw e;
+        }
+        return retZohoStr;
+    }
+
+    /**
+     * 1.1 获取ZOHO某个module的XML数据
+     * 暂定每次遍历100条
+     * @param moduleName
+     * @return
+     * @throws Exception
+     */
+    public  String retrieveZohoRecords(String moduleName,int fromIndex,int toIndex) throws Exception {//,String moduleName
+        String retZohoStr = "";
+        String url = "";
+        String selectedColumns = "";
+        if(ModuleNameKeys.Accounts.toString().equalsIgnoreCase(moduleName)){
+            url = zohoPropsMap.get(Constants.FETCH_ACCOUTNS_URL);
+            selectedColumns = "Accounts(Modified Time,ACCOUNTID,Account Name,ERP ID,LatestEditTime)";
+        }
+        if(ModuleNameKeys.Products.toString().equalsIgnoreCase(moduleName)){
+            url = zohoPropsMap.get(Constants.FETCH_PRODUCTS_URL);
+            selectedColumns = "Products(Modified Time,PRODUCTID,Product Name,ERP ID,LatestEditTime)";
+        }
+        if(ModuleNameKeys.Quotes.toString().equalsIgnoreCase(moduleName)){
+            url = zohoPropsMap.get(Constants.FETCH_QUOTES_URL);
+            //TODO: 因为取不到Product里面的字段，所以暂时忽略selectColumns
+            //selectedColumns = "Quotes(Modified Time,QUOTEID,Subject,ERP ID,LatestEditTime)";
+        }
+        if(ModuleNameKeys.SalesOrders.toString().equalsIgnoreCase(moduleName)){
+            url = zohoPropsMap.get(Constants.FETCH_SO_URL);
+            //selectedColumns = "SalesOrders(Modified Time,SALESORDERID,Subject,ERP ID,LatestEditTime)";
+        }
+        if(ModuleNameKeys.Invoices.toString().equalsIgnoreCase(moduleName)){
+            url = zohoPropsMap.get(Constants.FETCH_INVOICES_URL);
+            //selectedColumns = "Invoices(Modified Time,INVOICEID,Subject,ERP ID,LatestEditTime)";
+        }
+        logger.debug("从ZOHO获取回来的所有记录的XML:::moduleName = " + moduleName + ", url =" + url);
         try {
             String sortOrderString = "desc";
             String sortColumnString = "Modified Time";
@@ -141,13 +196,37 @@ public abstract  class AbstractModule  implements IModule{
             }
             retZohoStr =  CommonUtils.executePostMethod(postParams);
         } catch(Exception e) {
-            logger.error("执行搜索Module操作出现错误",e);
+            logger.error("1.1 【retrieveZohoRecords:"+moduleName+"】执行搜索Module操作出现错误",e);
             throw e;
         }
         return retZohoStr;
     }
 
 
+    /**
+     * 关于Product Detail，把product detail所在的FL标签转化为pds标签
+     * 使用范围：SO/Invoice/Quota等含有product Detail的Module
+     * @param str
+     * @return
+     */
+    public static String convertFLToPdsXmlTag2(String str){
+        //1.由 Product Details之前的FL转换为pds:如何找到前后匹配的FL
+        if(str.indexOf("Product Details") != -1){
+            String prexPds = str.replace("<FL val=\"Product Details\">","<pds val=\"Product Details\">");
+            //        System.out.println("prex::"+prexPds );
+            //2. 获取最后一个</product>前面的字符串
+            //String prefProduct = prexPds.substring(0,prexPds.lastIndexOf("</product>")+10);
+            //String suffixProduct= prexPds.substring(prexPds.lastIndexOf("</product>")+10);
+            ////3.取出suffixProduct字符串的第一个为</FL>之后的字符串
+            //suffixProduct = suffixProduct.substring(suffixProduct.indexOf("</FL>")+5);
+            ////4. 组装finalStr=prefProduct+"</pds>" + suffixProduct
+            //String finalStr = prefProduct+"</pds>" + suffixProduct;
+            String finalStr = prexPds.replaceAll("</product></FL>","</product></pds>");
+            logger.debug("finalStr::"+finalStr );
+            str = finalStr;
+        }
+        return str;
+    }
 
     /**
      * 关于Product Detail，把product detail所在的FL标签转化为pds标签
@@ -167,39 +246,47 @@ public abstract  class AbstractModule  implements IModule{
             suffixProduct = suffixProduct.substring(suffixProduct.indexOf("</FL>")+5);
             //4. 组装finalStr=prefProduct+"</pds>" + suffixProduct
             String finalStr = prefProduct+"</pds>" + suffixProduct;
-            System.out.println("suffix::"+finalStr );
+            System.out.println("finalStr::"+finalStr );
             str = finalStr;
         }
         return str;
     }
 
     /**
-     * 1.3
-     * 获取Zoho组件的集合，其中包含三个对象，分别为 erpZohoIDMap，erpZohoIDTimeMap，delZohoIDList（zoho ID list）
+     * 1.3 获取Zoho组件的集合，其中包含四大个对象，分别为 erpZohoIDMap，erpZohoIDTimeMap，delZohoIDList（zoho ID list），zohoIDProdIDsMap
+     * <ul>
+     *      <li> 1. 处理common字段</>
+     *      <li> 2. 处理Product Detail  -- >  Quotes，SO,Invoices</>
+     * <ul/>
+     *
      * 1. erpZohoIDMap<erpID,zohoID> = zohoListObj.get(0)
      * 2. erpIDTimeMap<erpID,lastEditTime> = zohoListObj.get(1)
      * 3. delZohoIDList = zohoListObj.get(2) ：zoho ID list-->ERP ID 为空时的 加入删除列表
+     * 4. zohoIDProdIDsMap --> ZOHO ID 和 product ID list的集合
      * @param rows
-     * @param zohoIDName  -->ZOHO
+     * @param zohoIDName  --> ZOHO
      * @param erpIDName ERP ID-->  DB
      * @return  zohoCompList
      */
     public List buildZohoComponentList(List<ProdRow> rows, String zohoIDName, String erpIDName,String moduleName) throws Exception {
-        logger.debug("entering the buildZohoComponentList...zohoIDName="+zohoIDName+", erpIDName = "+erpIDName+", moduleName="+moduleName);
+        logger.debug(" 1.3 【buildZohoComponentList：" + moduleName + "】...zohoIDName="+zohoIDName+", erpIDName = "+erpIDName+", moduleName="+moduleName);
         List  zohoCompList = new ArrayList();
 
         Map<String,String> erpZohoIDMap = new HashMap<String, String>();
         Map<String,String> erpIDTimeMap = new HashMap<String, String>();
+        Map<String,List> zohoIDProdIDsMap = new HashMap<String, List>();
         List delZohoIDList = new ArrayList();
         zohoCompList.add(erpZohoIDMap);
         zohoCompList.add(erpIDTimeMap);
         zohoCompList.add(delZohoIDList);
+        zohoCompList.add(zohoIDProdIDsMap);
 
         for (int i = 0; i < rows.size() ; i++){
             logger.debug("遍历第"+(i+1)+"条数据:::"+rows.get(i));
             String zohoID = "";
             String erpID = "";
             String lastEditTime = "";
+            // 1. 处理common字段
             List<FL> fls = rows.get(i).getFls();
             boolean hasERPID = true;
             for(FL fl : fls){
@@ -210,17 +297,17 @@ public abstract  class AbstractModule  implements IModule{
                 }
                 if(erpIDName.equals(fieldName)){
                     if(StringUtils.isEmptyString(fieldVal)){
-                        fieldVal = "emptyERPID_"+i;
+                        fieldVal = Constants.ZOHO_FIELD_ZOHOID_EMPTY_PREFIX +i;
                         hasERPID = false;
                     }
                     erpID = fieldVal;
                     //如果出现重复的erpID，那么删除其中一条
                     if(erpZohoIDMap.containsKey(erpID)){
                         hasERPID = false;
-                        erpID = "dulERPID_"+erpID+"_"+i;
+                        erpID = Constants.ZOHO_FIELD_ZOHOID_DUL_PREFIX+erpID+"_"+i;
                     }
                 }
-                if("LatestEditTime".equals(fieldName)){
+                if(Constants.ZOHO_FIELD_LAST_TIME.equals(fieldName)){
                     lastEditTime = fieldVal;
                 }
             }
@@ -228,11 +315,37 @@ public abstract  class AbstractModule  implements IModule{
             erpIDTimeMap.put(erpID, lastEditTime);
             //如果ERPID为空，那么加入到删除列表中
             if(!hasERPID) delZohoIDList.add(zohoID);
+
+            // 2. 处理Product Detail  -- >  Quotes，SO,Invoices
+            if(!(ModuleNameKeys.Accounts.toString().equals(moduleName)
+                    || ModuleNameKeys.Products.toString().equals(moduleName))){
+                ProdDetails pd = rows.get(i).getPds();
+                List<String> productIDs = new ArrayList<String>();
+                if(pd != null){
+                    List<Product> products = pd.getProducts();
+                    for(Product p : products){
+                        List<FL> pdFls = p.getFls();
+                        for(FL pdFl : pdFls){
+                            String fieldName = pdFl.getFieldName();
+                            String fieldVal = pdFl.getFieldValue();
+                            if(Constants.ZOHO_FIELD_PRODUCT_ID.equals(fieldName)){
+                                productIDs.add(fieldVal);
+                            }
+                        }
+                    }
+                }
+                zohoIDProdIDsMap.put(zohoID, productIDs);
+            }
         }
 
-        CommonUtils.printMap(erpZohoIDMap,"ERPID 和 ZOHOID Map");
-        CommonUtils.printMap(erpIDTimeMap,"ERPID 和 LastEditTime Map");
-        CommonUtils.printList(delZohoIDList,"Remove ZOHO ID list");
+        //CommonUtils.printMap(erpZohoIDMap,"ERPID 和 ZOHOID Map");
+        //CommonUtils.printMap(erpIDTimeMap,"ERPID 和 LastEditTime Map");
+        //CommonUtils.printList(delZohoIDList, "Remove ZOHO ID list");
+        logger.debug("1.3 【buildZohoComponentList：" + moduleName + "】, ERPID 和 ZOHOID Map：\n##\t ====> " + erpZohoIDMap);
+        logger.debug("1.3 【buildZohoComponentList：" + moduleName + "】, ERPID 和 LastEditTime Map：\n##\t ====> " + erpIDTimeMap);
+        logger.debug("1.3 【buildZohoComponentList：" + moduleName + "】, Remove ZOHO ID list：\n##\t ====> " + delZohoIDList);
+        logger.debug("1.3 【buildZohoComponentList：" + moduleName + "】, ZOHO ID 与Product ID list：\n##\t ====> " + zohoIDProdIDsMap);
+        //CommonUtils.printList(erpIDProdIDsMap,"ZOHO ID 与Product ID list");
 
         //当Module是Product或者是Account的时候，需要把所有的ERPID 和ZOHOID分别写入不同文件中，为了以后在数据库读取Accounts和Product使用
         if(ModuleNameKeys.Accounts.toString().equals(moduleName)  || ModuleNameKeys.Products.toString().equals(moduleName)){
@@ -283,12 +396,16 @@ public abstract  class AbstractModule  implements IModule{
         }
 
         List sendToZohoAcctList = new ArrayList();
-        CommonUtils.printMap(addModuleObjMap, "addMap组装到ZOHO的对象的集合：：：\n");
+        logger.debug("3.3 【build2Zoho3PartObj】,addMap组装到ZOHO的对象的集合：\n##\t ====> " + erpZohoIDMap);
+        //CommonUtils.printMap(addModuleObjMap, "addMap组装到ZOHO的对象的集合：：：\n");
         sendToZohoAcctList.add(addModuleObjMap);
-        CommonUtils.printMap(updateModuleObjMap,"updateMap组装到ZOHO的对象的集合：：：\n");
+        logger.debug("3.3 【build2Zoho3PartObj】,updateMap组装到ZOHO的对象的集合：\n##\t ====> " + erpZohoIDMap);
+        //CommonUtils.printMap(updateModuleObjMap,"updateMap组装到ZOHO的对象的集合：：：\n");
         sendToZohoAcctList.add(updateModuleObjMap);
-        CommonUtils.printList(delZohoIDList, "delZOHOSOIDList组装到ZOHO的对象的集合：：：\n");
+        logger.debug("3.3 【build2Zoho3PartObj】,delZOHOSOIDList组装到ZOHO的对象的集合: \n##\t ====> " + erpZohoIDMap);
+        //CommonUtils.printList(delZohoIDList, "delZOHOSOIDList组装到ZOHO的对象的集合：：：\n");
         sendToZohoAcctList.add(delZohoIDList);
+
 
         return sendToZohoAcctList;
     }
@@ -305,7 +422,7 @@ public abstract  class AbstractModule  implements IModule{
         int i = 1;
         for(Map.Entry<String,Object> entry : accountMap.entrySet()){
             String key = entry.getKey();
-            logger.debug("getAddRowsMap...遍历第"+i+"条记录，DB ID为"+key);
+            logger.debug("4.2 getAddRowsMap...遍历第"+i+"条记录，DB ID为"+key);
             ProdRow row = new ProdRow();
 //            得到所有的FL集合，包括common和Product Detail
             List fls = getAllFLList(entry.getValue(),className,fieldMappingProps);
@@ -317,9 +434,9 @@ public abstract  class AbstractModule  implements IModule{
             if(null != prodDetails) row.setPds(prodDetails);
 
             rows.add(row);
-            //当row的size达到了100，那么需要放入
+            //由于ZOHO最大只支持100条数据，所以当row的size达到了100，那么需要放入
             if(i == Constants.MAX_ADD_SIZE){
-                logger.debug("Add Rows的size达到了100，需要放到Map中，然后重新计算rows的条数...");
+                logger.debug("4.2 Add Rows的size达到了100，需要放到Map中，然后重新计算rows的条数...");
                 rowsMap.put(rowsMap.size(),rows);
                 rows = new ArrayList<ProdRow>();
                 i = 1;
@@ -425,8 +542,8 @@ public abstract  class AbstractModule  implements IModule{
     //                }
                 }else if(field.getGenericType().toString().equals("class darlen.crm.model.result.User")){//处理User对象:拥有者
                     map.putAll(getDBFieldNameValueMap("darlen.crm.model.result.User",field.get(dbFields)));
-                }else if("pds".equals(field.getName())){//handle the product detail
-                    map.put("pds", getDBProdDetlFieldMap(field,dbFields));
+                }else if(Constants.ZOHO_FIELD_PDS.equals(field.getName())){//handle the product detail
+                    map.put(Constants.ZOHO_FIELD_PDS, getDBProdDetlFieldMap(field,dbFields));
                 }
             }
         }
@@ -449,7 +566,7 @@ public abstract  class AbstractModule  implements IModule{
 
         //默认添加是否是API导入的字段
         FL isAPIFL = new FL();
-        isAPIFL.setFieldName("API Import");
+        isAPIFL.setFieldName(Constants.ZOHO_FIELD_API_IMPORT);
         isAPIFL.setFieldValue("true");
         commonFls.add(isAPIFL);
 
@@ -457,7 +574,7 @@ public abstract  class AbstractModule  implements IModule{
             if(dbFieldNameValueMap.containsKey(entry.getKey())){
                 String dbFieldName = (String)entry.getKey();
                 // for product detail case
-                if("pds".equalsIgnoreCase(dbFieldName)){
+                if(Constants.ZOHO_FIELD_PDS.equalsIgnoreCase(dbFieldName)){
                     /**
                      1.获取记录no、新创建一个Product对象、新建一个List<FL> fls对象
                      2.pdMap:这个是每个no的product中的fieldname和field value组装成的map
@@ -465,7 +582,7 @@ public abstract  class AbstractModule  implements IModule{
                      4.组装product， 首先组装no，然后组装FL的集合fls
                      */
                     //1.
-                    Map<String,Map> pdsMap = (Map)dbFieldNameValueMap.get("pds");
+                    Map<String,Map> pdsMap = (Map)dbFieldNameValueMap.get(Constants.ZOHO_FIELD_PDS);
                     for (Map.Entry<String,Map> pdsEntry : pdsMap.entrySet()) {//多少条prduct detail;记录
                         //1. 获取记录no和新创建一个Product对象
                         Product pd = new Product();
@@ -507,7 +624,8 @@ public abstract  class AbstractModule  implements IModule{
         }
         allFls.add(commonFls);
         allFls.add(products);
-        CommonUtils.printList(allFls, "ZOHO Field List:");
+        logger.debug("【getZOHOFLsByProps】,经过DB和properties的过滤后，所有有效的ZOHO Field List："+Constants.COMMENT_PREFIX +allFls);
+        //CommonUtils.printList(allFls, "ZOHO Field List:");
         return allFls;
 
     }
@@ -564,7 +682,8 @@ public abstract  class AbstractModule  implements IModule{
             }
             map.put((i+1)+"",tmpMap);
         }
-        CommonUtils.printMap(map, "打印 DB Product Detail Field Map:");
+        logger.debug("【getDBProdDetlFieldMap】,取出所有的db中的product details，取出fieldName和FieldValue放入Map中"+Constants.COMMENT_PREFIX +map);
+        //CommonUtils.printMap(map, "打印 DB Product Detail Field Map:");
         return map;
     }
 
@@ -622,53 +741,56 @@ public abstract  class AbstractModule  implements IModule{
         return moduleUrl;
     }
 
-    public int addRecords(String moduleName,int curdKey,List zohoXMLList){
+    public int addRecords(String moduleName,int curdKey, List<String> addZohoXMLList){
         int failNum  = 0;
         String moduleUrl  = getModuleUrl(moduleName,curdKey);
 
         logger.debug("#[addRecords], 从ZOHO获取回来的所有记录的XML:::moduleName = "+moduleName+", Operatiton ="+curdKey+", url ="+moduleUrl);
-        List<String> addZohoXMLList = (List<String> ) zohoXMLList.get(0);
+        //List<String> addZohoXMLList = (List<String> ) zohoXMLList.get(0);
         for(int i = 0; i < addZohoXMLList.size(); i ++){
             logger.debug("添加【"+moduleName+"】第"+(i+1)+"条数据");
-            Map<String,String> postParams = new HashMap<String, String>();
-            postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,moduleUrl);
-            postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,addZohoXMLList.get(i));
-            postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
-            postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
-            postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
-            try {
-                 CommonUtils.executePostMethod(postParams);
-            } catch(Exception e) {
-                logger.error("添加第"+(i+1)+"条数据失败"+"，执行addRecords【"+moduleName+"】操作出现错误," +
-                        "HTTP_POST_PARAM_XMLDATA = "+ addZohoXMLList.get(i), e);
-                failNum ++;
-            }
+            String addData = addZohoXMLList.get(i);
+            //Map<String,String> postParams = new HashMap<String, String>();
+            //postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,moduleUrl);
+            //postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,addZohoXMLList.get(i));
+            //postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
+            //postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
+            //postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
+            //try {
+            //     CommonUtils.executePostMethod(postParams);
+            //} catch(Exception e) {
+            //    logger.error("添加第"+(i+1)+"条数据失败"+"，执行addRecords【"+moduleName+"】操作出现错误," +
+            //            "HTTP_POST_PARAM_XMLDATA = "+ addZohoXMLList.get(i), e);
+            //    failNum ++;
+            //}
+            failNum = commonPostMethod(moduleUrl,"",addData,failNum,moduleName,curdKey);
         }
         return failNum;
 
     }
-    public int updateRecords(String moduleName, int curdKey,List zohoXMLList){
+    public int updateRecords(String moduleName, int curdKey,Map<String,String> updZohoXMLMap){
         int failNum = 0;
         String moduleUrl  = getModuleUrl(moduleName, curdKey);;
-        Map<String,String> updZohoXMLMap = (Map<String,String>) zohoXMLList.get(1);
+        //Map<String,String> updZohoXMLMap = (Map<String,String>) zohoXMLList.get(1);
         int i = 1 ;
         for(Map.Entry<String,String> zohoIDUpdXmlEntry : updZohoXMLMap.entrySet()){
             logger.debug("更新【"+moduleName+"】第" + (i) + "条数据，ZOHO ID为" + zohoIDUpdXmlEntry.getKey());//xml为："+zohoIDUpdXmlEntry.getValue()
-            Map<String,String> postParams = new HashMap<String, String>();
-            postParams.put(Constants.HTTP_POST_PARAM_ID,zohoIDUpdXmlEntry.getKey());
-            postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,moduleUrl);
-            postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,zohoIDUpdXmlEntry.getValue());
-            postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
-            postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
-            postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
-            try {
-                CommonUtils.executePostMethod(postParams);
-            } catch(Exception e) {
-                failNum ++;
-                logger.error("更新第"+(i+1)+"条数据失败"+"，执行updateRecords【"+moduleName+"】操作出现错误," +
-                        "HTTP_POST_PARAM_ID = "+zohoIDUpdXmlEntry.getKey()+" ," +
-                        " HTTP_POST_PARAM_XMLDATA = "+zohoIDUpdXmlEntry.getValue(),e);
-            }
+            //Map<String,String> postParams = new HashMap<String, String>();
+            //postParams.put(Constants.HTTP_POST_PARAM_ID,zohoIDUpdXmlEntry.getKey());
+            //postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,moduleUrl);
+            //postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,zohoIDUpdXmlEntry.getValue());
+            //postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
+            //postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
+            //postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
+            //try {
+            //    CommonUtils.executePostMethod(postParams);
+            //} catch(Exception e) {
+            //    logger.error("更新第"+(i+1)+"条数据失败"+"，执行updateRecords【"+moduleName+"】操作出现错误," +
+            //            "HTTP_POST_PARAM_ID = "+zohoIDUpdXmlEntry.getKey()+" ," +
+            //            " HTTP_POST_PARAM_XMLDATA = "+zohoIDUpdXmlEntry.getValue(),e);
+            //    failNum ++;
+            //}
+            failNum = commonPostMethod(moduleUrl,zohoIDUpdXmlEntry.getKey(),zohoIDUpdXmlEntry.getValue(),failNum,moduleName,curdKey);
             i++;
         }
         return failNum;
@@ -678,35 +800,82 @@ public abstract  class AbstractModule  implements IModule{
     /**
      * 返回第一个是失败的次数，第二个是需要删除的ZOHO IDlist
      * 因为删除的顺序必需是倒序：Invoices/SO/Quotes/Products/Accounts
+     * curdKey : ZOHO_CRUD_ADD = 1;ZOHO_CRUD_UPDATE = 2;ZOHO_CRUD_DELETE = 3;
      * @return
      * @throws Exception
      */
-    public int delRecords(String moduleName, int curdKey,List zohoXMLList){
+    public int delRecords(String moduleName, int curdKey,List<String> deleteZOHOIDsList ){
         //List result = new ArrayList();
         int failNum = 0;
         String moduleUrl  = getModuleUrl(moduleName, curdKey);
-        List deleteZOHOIDsList = (List)zohoXMLList.get(2);
+        //List deleteZOHOIDsList = (List)zohoXMLList.get(2);
         for(int i = 0; i < deleteZOHOIDsList.size(); i++){
             String id = StringUtils.nullToString(deleteZOHOIDsList.get(i));
-            logger.debug("删除【"+moduleName+"】第"+(i+1)+"条数据");
-            Map<String,String> postParams = new HashMap<String, String>();
-            postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,moduleUrl);
-            postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
-            postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
-            postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
-            postParams.put(Constants.HTTP_POST_PARAM_ID,id );
-            try {
-                 CommonUtils.executePostMethod(postParams);
-            } catch(Exception e) {
-                logger.error("删除第"+(i+1)+"条数据失败"+"，执行delRecords【"+moduleName+"】操作出现错误," +
-                        "HTTP_POST_PARAM_ID = "+id,e);
-                failNum ++;
-            }
+            logger.debug("删除【"+moduleName+"】第"+(i+1)+"条数据,id ="+id);
+            //Map<String,String> postParams = new HashMap<String, String>();
+            //postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,moduleUrl);
+            //postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
+            //postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
+            //postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
+            //postParams.put(Constants.HTTP_POST_PARAM_ID,id );
+            //try {
+            //     CommonUtils.executePostMethod(postParams);
+            //} catch(Exception e) {
+            //    logger.error("删除第"+(i+1)+"条数据失败"+"，执行delRecords【"+moduleName+"】操作出现错误," +
+            //            "HTTP_POST_PARAM_ID = "+id,e);
+            //    failNum ++;
+            //}
+            failNum = commonPostMethod(moduleUrl,id,"",failNum,moduleName,curdKey);
         }
         //result.add(0,failNum);
         //result.add(1,deleteZOHOIDsList);
         //return result;
         return failNum;
+    }
+
+    /**
+     * Common 的post 方法
+     * @param url
+     * @param id  当执行Add的时候不需要
+     * @param xmlData  当执行delete的时候不需要
+     * @param execFailNum
+     * @param moduleName
+     * @param crudKey  curdKey : ZOHO_CRUD_ADD = 1;ZOHO_CRUD_UPDATE = 2;ZOHO_CRUD_DELETE = 3;
+     * @return execFailNum  因为是会循环迭代这个方法，所以execFailNum同样也要作为参数传入
+     */
+    private static int commonPostMethod(String url, String id,String xmlData,int execFailNum,String moduleName,int crudKey){
+        Map<String,String> postParams = new HashMap<String, String>();
+        if(!StringUtils.isEmptyString(id)){
+            postParams.put(Constants.HTTP_POST_PARAM_ID,id);
+        }
+        if(!StringUtils.isEmptyString(url)){
+            postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,url);
+        }
+        if(!StringUtils.isEmptyString(xmlData)){
+            postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,xmlData);
+        }
+        postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
+        postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
+        postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
+        try {
+            CommonUtils.executePostMethod(postParams);
+        } catch(Exception e) {
+            execFailNum++;
+            String operation = "";
+            if(Constants.ZOHO_CRUD_ADD == crudKey){
+                operation = "addRecords";
+            }else if(Constants.ZOHO_CRUD_UPDATE == crudKey){
+                operation = "updateRecords";
+            }else if(Constants.ZOHO_CRUD_DELETE == crudKey){
+                operation = "delRecords";
+            }
+            logger.error("【"+moduleName+"】, 执行【"+operation+"】操作时第"+(execFailNum)+"条数据失败， " +
+                    "HTTP_POST_PARAM_ID = "+id+" ," +
+                    "HTTP_POST_PARAM_TARGETURL = "+url+" ," +
+                    " HTTP_POST_PARAM_XMLDATA = "+xmlData,e);
+        }
+
+        return execFailNum;
     }
 
 

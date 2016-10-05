@@ -39,7 +39,7 @@ public class JaxbUtil {
 	 * @return 
 	 */
 	public static String convertToXml(Object obj, String encoding) {
-        logger.debug("entering the [JaxbUtil] convertToXml...");
+        //logger.debug("entering the [JaxbUtil] convertToXml...");
 		String result = null;
 		try {
 			JAXBContext context = JAXBContext.newInstance(obj.getClass());
@@ -70,7 +70,7 @@ public class JaxbUtil {
         try {
             //如果是开发模式，需要打印这个log
             if( ConfigManager.isDevMod()){
-                 logger.debug("end the [JaxbUtil] convertToXml..."+result);
+                 logger.debug("end the [JaxbUtil] convertToXml...\n"+result);
             }
         } catch (Exception e) {
             logger.error("打印由Java Bean转换成的XML的log时出错...",e);
