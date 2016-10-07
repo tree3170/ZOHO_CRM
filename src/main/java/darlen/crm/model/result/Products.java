@@ -45,6 +45,8 @@ public class Products {
     private String unit;
     /**SubCategory 产品子分类*/
     private String subCategory;
+    private String packing;
+    private String prodSize;
     /**Barcode*/
     private String barcode;
     /**LatestEditTime*/
@@ -100,6 +102,22 @@ public class Products {
 
     public void setCatagory(String catagory) {
         this.catagory = catagory;
+    }
+
+    public String getPacking() {
+        return packing;
+    }
+
+    public void setPacking(String packing) {
+        this.packing = packing;
+    }
+
+    public String getProdSize() {
+        return prodSize;
+    }
+
+    public void setProdSize(String prodSize) {
+        this.prodSize = prodSize;
     }
 
     public String getItemDesc() {
@@ -170,6 +188,8 @@ public class Products {
                 ", itemDesc='" + itemDesc + '\'' +
                 ", unit='" + unit + '\'' +
                 ", subCategory='" + subCategory + '\'' +
+                ", packing='" + packing + '\'' +
+                ", prodSize='" + prodSize + '\'' +
                 ", barcode='" + barcode + '\'' +
                 ", latestEditTime='" + latestEditTime + '\'' +
                 ", latestEditBy='" + latestEditBy + '\'' +

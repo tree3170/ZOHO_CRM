@@ -218,6 +218,8 @@ public class DBUtils {
                 product.setCatagory(StringUtils.nullToString(rs.getString("Catagory")));
                 //产品子分类
                 product.setSubCategory(StringUtils.nullToString(rs.getString("SubCategory")));
+                product.setPacking(StringUtils.nullToString(rs.getString("Packing")));
+                product.setProdSize(StringUtils.nullToString(rs.getString("ProductSize")));
                 //ItemDesc产品描述
                 product.setItemDesc(StringUtils.nullToString(rs.getString("Description")));
                 //Unit单位
