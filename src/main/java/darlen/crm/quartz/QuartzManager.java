@@ -12,6 +12,9 @@ import darlen.crm.manager.ConfigManager;
 import darlen.crm.manager.ModuleManager;
 import darlen.crm.util.Constants;
 import darlen.crm.util.ThreadLocalDateUtil;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
 import java.text.ParseException;
 import java.util.Date;
@@ -28,12 +31,26 @@ import java.util.Date;
  * @author Darlen liu
  */
 public class QuartzManager {
+    private static Logger logger = Logger.getLogger(QuartzManager.class);
+
+    private SchedulerFactoryBean startQuertz;
+
+    //public SchedulerFactoryBean getStartQuertz() {
+    //    return startQuertz;
+    //}
+    //@Autowired
+    //public void setStartQuertz(SchedulerFactoryBean startQuertz) {
+    //    this.startQuertz = startQuertz;
+    //}
+
     public void exe() throws Exception {
+        logger.debug("entering QuartzManager。。。");
+        System.err.println("test 。。。");
 //        ModuleManager.exeAllModuleSend();
 //        System.out.println(ConfigManager.get("secure/db.properties", "DB_USERNAME"));
 //        System.out.println("======"+ConfigManager.getProdfromProps("marketing"));
 //        System.out.println(ConfigManager.get(Constants.PROPS_DB_FILE,"DB_USERNAME"));
 //        System.out.println("打印时间：date:" + ThreadLocalDateUtil.formatDate(new Date()) + "; marketing =" + ConfigManager.getProdfromProps("marketing"));
-        ConfigManager.envAutoChecking();
+//        ConfigManager.envAutoChecking();
     }
 }

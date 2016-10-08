@@ -53,6 +53,8 @@
 * 3. 明天完成对LastestEditTime的判断build2Zoho3PartObj  [TODO]
 * 4. 优化log【doing，优先级Ⅳ】--》优化了一部分，需要跑所有数据时再优化
 * 5. Quartz可以随时触发问题，当遇到不可遇因素，能否主动停止Quartz【TODO】
+* 6. 邮件
+* 7. report不对，需要重新修改
 
 # 20161005
 * 1. 跑所有数据【doing，优先级Ⅲ】-->前提是写出删除程序能删除所有数据【删除数据DONE】--》明天跑所有数据
