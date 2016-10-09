@@ -205,6 +205,12 @@ public class ModuleManager {
         //执行更新Report操作
         String sql = "INSERT INTO ZOHO_EXCE_REPORT (START_TIME, END_TIME,INS_FAILED,UPD_FAILED,DEL_FAILED) VALUES(?,?,?,?,?)";
         DBUtils.exeUpdReport(sql, updERPList);
+
+
+        //如果都执行成功，那么更新lastExecSuccessTime.properties
+        Map<String,String> map = new HashMap<String, String>();
+        map.put(Constants.LAST_EXEC_SUCCESS_TIME,ThreadLocalDateUtil.formatDate(new Date()));
+        ConfigManager.writeVal2Props(map,Constants.PROPS_TIME_FILE);
     }
 
 
@@ -255,6 +261,9 @@ public class ModuleManager {
         //6. 最后删除Product
         logger.debug("删除模块 【Products】的ZOHO ID集合为"+Constants.COMMENT_PREFIX+"【House Keep】"+delZohoIDList);
         prodModule.delRecords(ModuleNameKeys.Products.toString(),Constants.ZOHO_CRUD_DELETE,delProdIDList);
+
+
+    //    TODO 删除报表的table中以前的数据，暂定是1个月的
 
 
     }

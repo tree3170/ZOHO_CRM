@@ -4,11 +4,11 @@
 * [3.知识点](暂缺)
   * [1.XML与Object相互转换利用JAXB](jaxb.md)
   * [2.velocity模板的使用](暂缺)
-  * [3.Spring Quatz 使用方法](暂缺)
+  * [3.Spring Quartz 使用方法](quartz.md)
   * [4.Druid 使用方法](暂缺每天的执行情况)
   * [5.log4j  使用方法](暂缺)
   * [6.Spring MVC重写教程](暂缺)
-  * [6.Spring MAIL教程](暂缺)
+  * [7.Spring Mail教程](mail.md)
 * [4.每日问答](Q&A Daily.md)
 * [5.项目问题](Q&A Project.md)
 

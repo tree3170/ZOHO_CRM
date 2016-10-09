@@ -120,8 +120,12 @@ public class DBUtils {
      * @throws SQLException
      * @throws ParseException
      */
-    public synchronized static Map<String,Object> getAccountMap() throws Exception {
+    public synchronized static List getAccountMap() throws Exception {
+        List dbAcctList = new ArrayList();
+        Map<String,String> dbIDEditTimeMap = new HashMap<String, String>();
         Map<String,Object> dbIDModuleObjMap = new HashMap<String, Object>();
+        dbAcctList.add(0,dbIDModuleObjMap);
+        dbAcctList.add(1,dbIDEditTimeMap);
 //        List<Accounts> accountList = new ArrayList<Accounts>();
         String sql = "select * from dbo.Customer " +
                 "where CustomerID in (1,8,14,20)"; //暂时只用三条数据
@@ -183,13 +187,18 @@ public class DBUtils {
                 account.setLatestEditBy(lastEditBy);
 //                accountList.add(account);
                 dbIDModuleObjMap.put(erpID,account);
+                dbIDEditTimeMap.put(erpID,lastEditTime);
             }
         }
-        return dbIDModuleObjMap;
+        return dbAcctList;
     }
 
-    public synchronized static Map<String,Object> getProductMap() throws Exception {
+    public synchronized static List getProductMap() throws Exception {
+        List dbModuleList = new ArrayList();
+        Map<String,String> dbIDEditTimeMap = new HashMap<String, String>();
         Map<String,Object> dbIDModuleObjMap = new HashMap<String, Object>();
+        dbModuleList.add(0,dbIDModuleObjMap);
+        dbModuleList.add(1,dbIDEditTimeMap);
 //        List<Products> productsList = new ArrayList<Products>();
         String sql = "select * from dbo.item " +
                 "where itemid in (6,9,10,130)"; //暂时只用三条数据
@@ -234,10 +243,11 @@ public class DBUtils {
                 product.setLatestEditTime(latestEditTime);
 //                productsList.add(product);
                 dbIDModuleObjMap.put(erpID,product);
+                dbIDEditTimeMap.put(erpID,latestEditTime);
             }
         }
         logger.debug("Product size:::" + dbIDModuleObjMap.size());
-        return dbIDModuleObjMap;
+        return dbModuleList;
     }
 
     /**
@@ -253,8 +263,12 @@ public class DBUtils {
      * @throws SQLException
      * @throws ParseException
      */
-    public synchronized static Map<String,Object> getQuotesMap() throws Exception{
+    public synchronized static List getQuotesMap() throws Exception{
+        List dbModuleList = new ArrayList();
+        Map<String,String> dbIDEditTimeMap = new HashMap<String, String>();
         Map<String,Object> dbIDModuleObjMap = new HashMap<String, Object>();
+        dbModuleList.add(0,dbIDModuleObjMap);
+        dbModuleList.add(1,dbIDEditTimeMap);
 //        List<Quotes> moduleList = new ArrayList<Quotes>();
         String sql = "select s1.soid , s1.cusName,s2.soid ,s2.Item_SOID,s2.ItemID,s2.ItemName from  item_SO s2  left join  SO s1 on s1.soid = s2.SOID";
         sql = "select s1.soid , s1.cusName,s2.Item_SOID,s2.ItemID,s2.ItemName, item.Name as itemName\n" +
@@ -380,10 +394,11 @@ public class DBUtils {
                     pds.add(assembleProduct(rs));
                     quotes.setPds(pds);
                     dbIDModuleObjMap.put(curErpID,quotes);
+                    dbIDEditTimeMap.put(curErpID,latestEditTime);
                 }
             }
         }
-        return dbIDModuleObjMap;
+        return dbModuleList;
 //        return moduleList;
     }
 
@@ -400,8 +415,12 @@ public class DBUtils {
      * @throws SQLException
      * @throws ParseException
      */
-    public synchronized static Map<String,Object> getSOMap() throws Exception{
+    public synchronized static List getSOMap() throws Exception{
+        List dbModuleList = new ArrayList();
+        Map<String,String> dbIDEditTimeMap = new HashMap<String, String>();
         Map<String,Object> dbIDModuleObjMap = new HashMap<String, Object>();
+        dbModuleList.add(0,dbIDModuleObjMap);
+        dbModuleList.add(1,dbIDEditTimeMap);
         List<SO> moduleList = new ArrayList<SO>();
         String sql = "select s1.soid , s1.cusName,s2.soid ,s2.Item_SOID,s2.ItemID,s2.ItemName from  item_SO s2  left join  SO s1 on s1.soid = s2.SOID";
         sql = "select s1.soid , s1.cusName,s2.Item_SOID,s2.ItemID,s2.ItemName, item.Name as itemName\n" +
@@ -523,10 +542,11 @@ public class DBUtils {
                     pds.add(assembleProduct(rs));
                     so.setPds(pds);
                     dbIDModuleObjMap.put(curErpID,so);
+                    dbIDEditTimeMap.put(curErpID,latestEditTime);
                 }
             }
         }
-        return dbIDModuleObjMap;
+        return dbModuleList;
 //        return moduleList;
     }
 
@@ -544,8 +564,12 @@ public class DBUtils {
      * @throws SQLException
      * @throws ParseException
      */
-    public synchronized static Map<String,Object> getInvoiceMap() throws Exception{
+    public synchronized static List getInvoiceMap() throws Exception{
+        List dbModuleList = new ArrayList();
+        Map<String,String> dbIDEditTimeMap = new HashMap<String, String>();
         Map<String,Object> dbIDModuleObjMap = new HashMap<String, Object>();
+        dbModuleList.add(0,dbIDModuleObjMap);
+        dbModuleList.add(1,dbIDEditTimeMap);
 //        List<Invoices> moduleList = new ArrayList<Invoices>();
         String sql = "SELECT inv.InvoiceID AS ERPID, inv.CUSNAME AS CUSTOMERNAME, inv.EXCHANGERATE AS EXGRATE ,\n" +
                 "item_inv.Item_InvoiceID,item.ITEMID AS PROD_ID, item.NAME AS PROD_NAME, item_inv.InvoicePrice AS PROD_UNITPRICE,  item_inv.QUANTITY AS PROD_QUANTITY, item_inv.ITEMDISCOUNT AS PROD_DISCOUNT, item_inv.DESCRIPTION AS PROD_DESC , \n" +
@@ -691,11 +715,12 @@ public class DBUtils {
                     invoices.setPds(pds);
 //                    moduleList.add(invoices);
                     dbIDModuleObjMap.put(curErpID,invoices);
+                    dbIDEditTimeMap.put(curErpID,latestEditTime);
                 }
             }
 
         }
-        return dbIDModuleObjMap;
+        return dbModuleList;
     }
 
     /**

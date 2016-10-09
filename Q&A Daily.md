@@ -47,13 +47,21 @@
    * 确定UI
    * 确定账户13个账户人
 
+# 20161010
+* 1. 解析返回的response是成功还是失败【】-->明天完成commonPostMethod 【TODO，1010完成】
+* 2. 优化log【doing，优先级Ⅳ】--》优化了一部分，需要跑所有数据时再优化【TODO，1010完成】
+* 3. report不对，需要重新修改【TODO，1010完成】
+* 4. 导入所有数据【TODO，1010-1015完成】
+* 5. 报Quartz和Mail正式运用进项目，并且写详细MarkDown
+* 6. 写一个程序，专门负责更新DB数据
+
 # 20161008
-* 1. 每次到ZOHO做完操作后，记录时间到file文件中【doing ，优先级Ⅱ】
+* 1. 每次到ZOHO做完操作后，记录时间到file文件中【doing ，优先级Ⅱ】[doing]--【20161009 DONE】
 * 2. 解析返回的response是成功还是失败【】-->明天完成commonPostMethod
-* 3. 明天完成对LastestEditTime的判断build2Zoho3PartObj  [TODO]
+* 3. 明天完成对LastestEditTime的判断build2Zoho3PartObj  [TODO]【20161009 DONE】
 * 4. 优化log【doing，优先级Ⅳ】--》优化了一部分，需要跑所有数据时再优化
-* 5. Quartz可以随时触发问题，当遇到不可遇因素，能否主动停止Quartz【TODO】
-* 6. 邮件
+* 5. Quartz可以随时触发问题，当遇到不可遇因素，能否主动停止Quartz【20161009 DONE】
+* 6. 邮件【20161009 DONE】
 * 7. report不对，需要重新修改
 
 # 20161005

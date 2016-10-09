@@ -65,6 +65,8 @@ public class ConfigManager {
       //    * 4 --> Accounts.properties;
       private static Map<String,String> acctsPropsMap = new HashMap<String, String>();
     private static final  int ACCT_FILE_INDEX = 4;
+    private static Map<String,String> timePropsMap = new HashMap<String, String>();
+    private static final  int TIME_FILE_INDEX = 5;
 
 
     private ConfigManager(){}
@@ -113,7 +115,7 @@ public class ConfigManager {
     }
 
     /**
-     * Product.properties
+     * Account.properties
      * @param property
      * @return
      */
@@ -123,6 +125,18 @@ public class ConfigManager {
 //            configManager.initConfig(Constants.PROPS_DB_FILE, true);
         }
         return StringUtils.nullToString(acctsPropsMap.get(property));
+    }
+
+    public static long getTimefromProps( String property) throws Exception {
+        if(timePropsMap.size() == 0){
+            configManager.initConfig(Constants.PROPS_TIME_FILE, TIME_FILE_INDEX);
+//            configManager.initConfig(Constants.PROPS_DB_FILE, true);
+        }
+        long retVal = 0;
+        if(!"0".equals(StringUtils.nullToString(timePropsMap.get(property)))){
+            retVal = ThreadLocalDateUtil.parse(StringUtils.nullToString(timePropsMap.get(property))).getTime();
+        }
+        return retVal;
     }
 
 
@@ -159,6 +173,8 @@ public class ConfigManager {
                         prodsPropsMap.put(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
                     }else if(ACCT_FILE_INDEX == fileNameKey){
                         acctsPropsMap.put(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
+                    }else if(TIME_FILE_INDEX == fileNameKey){
+                        timePropsMap.put(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
                     }
                 }
                 if(ZOHOUSER_FILE_INDEX == fileNameKey){
@@ -169,6 +185,9 @@ public class ConfigManager {
                 }
                 if(ACCT_FILE_INDEX == fileNameKey){
                      CommonUtils.printMap(acctsPropsMap," Accounts.properties的具体内容");
+                }
+                if(TIME_FILE_INDEX == fileNameKey){
+                    CommonUtils.printMap(timePropsMap," lastExecSuccessTime.properties的具体内容");
                 }
                 // 调用 Hashtable 的方法 put。使用 getProperty 方法提供并行性。
                 // 强制要求为属性的键和值使用字符串。返回值是 Hashtable 调用 put 的结果。
@@ -197,18 +216,21 @@ public class ConfigManager {
      * @param configName
      */
     public static void writeVal2Props( Map<String,String> map,String configName)  {
-        logger.debug("# 写入Product.properties,Accounts.properties文件：erpID<-->zohoID, configName="+configName);
+        logger.debug("# 写入Product.properties,Accounts.properties,lastExecSuccessTime.properties文件：erpID<-->zohoID, configName="+configName);
         PrintWriter writer = null;
         try{
 //            URL url = ClassLoader.getSystemResource(configName);
 //            File file = new File(url.toURI());
             // 用相对路径，不需要前面的"/"
+            //TODO 如果文件不存在就创建
             File file = new File(CommonUtils.getFileNamePath("",configName));
             writer = new PrintWriter(file, "UTF-8");
             if( Constants.PROPS_ACCT_FILE.equals(configName)){
                 writer.println("#这个是一个有关DB中的Customer表和ZOHO中的Accounts模块映射文件Accounts.properties，左边是DB中的ID，即ERP ID ，右边是ZOHO客户中的ZOHO ID ");
-            }else{
+            }else if(Constants.PROPS_PROD_FILE.equals(configName)){
                 writer.println("#这个是一个有关DB中的Item表和ZOHO中的Products模块映射文件Products.properties，左边是关于产品的ID， 即ERP ID ，右边是ZOHO产品中的ZOHO ID ");
+            }else if(Constants.PROPS_TIME_FILE.equals(configName)){
+                writer.println("##上次执行成功的时间，第一次默认是0 ， 格式为YYYY-MM-DD HH:MM:SS");
             }
             for(Map.Entry<String,String> entry : map.entrySet()){
                 writer.println(cvtPropsSpace(StringUtils.nullToString(entry.getKey()))+"="+ cvtPropsSpace(StringUtils.nullToString(entry.getValue())));
@@ -297,7 +319,7 @@ public class ConfigManager {
             logger.error("环境测试： 读取配置文件出现问题,程序终止...",e);
         }
     }
-    public static void main(String [] arges)  {
+    public static void main(String [] arges) throws Exception {
 //        System.out.println(ConfigManager.get("secure/db.properties", "DB_USERNAME"));
 //        System.out.println("======"+ConfigManager.getProdfromProps("marketing"));
         //
@@ -308,7 +330,14 @@ public class ConfigManager {
 //        System.out.println(url.toURI());
 //        System.out.println();
 //        OutputStream fos = new FileOutputStream("./secure/Product.properties");
-        envAutoChecking();
+//        envAutoChecking();
+        System.err.println("6. lastExecSuccessTime.properties======LAST_EXEC_SUCCESS_TIME="+ConfigManager.getTimefromProps(Constants.LAST_EXEC_SUCCESS_TIME));
+        Map<String,String> map = new HashMap<String, String>();
+        map.put("LAST_EXEC_SUCCESS_TIME","2016-10-10 00:43:54");
+        writeVal2Props(map, Constants.PROPS_TIME_FILE);
+        System.err.println("6. lastExecSuccessTime.properties======LAST_EXEC_SUCCESS_TIME="+ConfigManager.getTimefromProps(Constants.LAST_EXEC_SUCCESS_TIME));
+
+
     }
 
 
@@ -321,8 +350,9 @@ public class ConfigManager {
         System.err.println("3. Products.properties======0="+ConfigManager.getProdfromProps("0"));
         System.err.println("4. Accounts.properties======0="+ConfigManager.getAcctsfromProps("0"));
         System.err.println("5. zohoUser.properties======Gary Tang="+ConfigManager.getZohoUserfromProps("Gary Tang"));
+        System.err.println("6. lastExecSuccessTime.properties======LAST_EXEC_SUCCESS_TIME=="+ConfigManager.getTimefromProps("LAST_EXEC_SUCCESS_TIME"));
         //"/secure/db.properties"
-        System.err.println("6. 读取/mapping/*.properties======marketing="+ConfigManager.readProperties(Constants.PROPS_DB_FILE));
+        System.err.println("7. 读取/mapping/*.properties======marketing="+ConfigManager.readProperties(Constants.PROPS_DB_FILE));
     }
     private static void testWriteVal2Props(){
         System.out.println("测试写入文件Accounts");

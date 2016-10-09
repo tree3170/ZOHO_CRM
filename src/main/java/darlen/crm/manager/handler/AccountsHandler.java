@@ -163,19 +163,19 @@ public class AccountsHandler  extends AbstractModule {
 
     /**
      * Ⅱ：这里组装db中的AcctObjList
-     * //1.Accounts --> dbAcctList.get(0)
-     * 2.idAccountsMap<ERPID,Accounts> --> dbAcctList.get(1)
+     * 1. Map<String,Account> dbIDModuleObjMap
+     * 2.  Map<String,String> dbIDEditTimeMap
      */
     public List buildDBObjList() throws Exception {
         logger.debug("# Ⅱ： AccountHandler 【buildDBObjList】...");
-        List dbAcctList = new ArrayList();
-        Map<String,Object> erpIDProductsMap = DBUtils.getAccountMap();;
+        List dbAcctList = DBUtils.getAccountMap();
+        //Map<String,Object> erpIDProductsMap = DBUtils.getAccountMap();;
 //        for(int i = 6; i< 300;i++){
 //            getDBObj(erpIDProductsMap,1);
 //        }
 //        getAcctDBObj2(erpIDProductsMap);
 
-        dbAcctList.add(erpIDProductsMap);
+        //dbAcctList.add(erpIDProductsMap);
         logger.debug("【buildDBObjList】,打印DB对象："+Constants.COMMENT_PREFIX +dbAcctList);
         //CommonUtils.printList(dbAcctList, "Build DB Object :::");
         return dbAcctList;
@@ -209,9 +209,10 @@ public class AccountsHandler  extends AbstractModule {
 //        2.组装DB 对象List
         List dbAcctList = buildDBObjList();
         Map<String,Object> dbIDModuleObjMap = (Map<String,Object>)dbAcctList.get(0);
+        Map<String,String> dbIDEditTimeMap = (Map<String,String>)dbAcctList.get(1);
 
 //        3. 组装发送到ZOHO的三大对象并放入到List中:addMap、updateMap、delZohoIDList
-        return build2Zoho3PartObj(erpZohoIDMap,erpIDTimeMap,delZohoIDList,dbIDModuleObjMap);
+        return build2Zoho3PartObj(erpZohoIDMap,erpIDTimeMap,delZohoIDList,dbAcctList);
     }
 
 

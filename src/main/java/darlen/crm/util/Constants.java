@@ -98,6 +98,9 @@ public interface Constants {
     public static final String MODULE_QUOTES_ID="QUOTEID";
     public static final String ERPID="ERP ID";
 
+    /**lastExecSuccessTime.properties常量*/
+    public static final String LAST_EXEC_SUCCESS_TIME="LAST_EXEC_SUCCESS_TIME";
+
 
 
 
@@ -113,6 +116,7 @@ public interface Constants {
     public static final String PROPS_USER_FILE = "secure/zohoUser.properties";//-->/secure/zohoUser.properties
     public static final String PROPS_PROD_FILE = "secure/Products.properties";//-->/secure/Product.properties
     public static final String PROPS_ACCT_FILE ="secure/Accounts.properties";//-->/secure/Account.properties
+    public static final String PROPS_TIME_FILE ="secure/lastExecSuccessTime.properties";//-->/secure/Account.properties
 
     //for mapping folder
     public static final String PROPS_ACCT_DB_MAPPING ="mapping/dbRdAccountsFieldMapping.properties";

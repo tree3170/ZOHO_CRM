@@ -42,7 +42,7 @@ public interface IModuleHandler {
 //    3.2 组装DB 对象List
 //    3.3 经过过滤，组装发送到ZOHO的三大对象并放入到List中:addMap、updateMap、delZohoIDList
     public List build2Zoho3PartObj(Map<String,String> erpZohoIDMap,Map<String,String> erpIDTimeMap,
-                                List<String> delZohoIDList,Map<String,Object> idModuleObjMap);
+                                List<String> delZohoIDList,List dbModuleList) throws Exception;
 //    4.组装addZOHOXml，updateZOHOXml，deleteZOHOIDsList,放进zohoXMLList集合对象中
     public List build2ZohoXmlSkeleton() throws Exception;
 //    4.1. 获取发送到ZOHO的三大对象集合骨架<String, Object>

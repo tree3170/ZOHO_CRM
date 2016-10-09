@@ -13,10 +13,7 @@ import darlen.crm.jaxb.common.ProdDetails;
 import darlen.crm.jaxb.common.ProdRow;
 import darlen.crm.jaxb.common.Product;
 import darlen.crm.model.result.ProductDetails;
-import darlen.crm.util.CommonUtils;
-import darlen.crm.util.Constants;
-import darlen.crm.util.ModuleNameKeys;
-import darlen.crm.util.StringUtils;
+import darlen.crm.util.*;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
@@ -372,7 +369,7 @@ public abstract  class AbstractModule  implements IModuleHandler {
     /**
      * 3.3 组装发送到ZOHO的三大对象
      * 由获得的ZOHO所有对象集合和从DB获取的对象集合(dbIDModuleObjMap)，经过过滤，获取的组装需要***发送到ZOHO的对象集合骨架***
-     * 1.updateModuleObjMap<>：如果Zoho ID存在于DB对象集合中，则判断 lastEditTime是否被修改，如果修改了，则直接组装到updateAccountMap中
+     * 1.updateModuleObjMap<>：如果Zoho ID存在于DB对象集合中，则判断 *****lastEditTime****是否被修改，如果修改了，则直接组装到updateAccountMap中
      * 2.delZohoIDList：如果ZOHO ID不存在于dbIDModuleObjMap中，则直接把DB ID添加到delZohoIDList
      * 3.addModuleObjMap：如果dbIDModuleObjMap中的id不存在于erpIDTimeMap中，则添加ZOHOID和Module对象到addModuleObjMap
      * @param erpZohoIDMap： ERP ID 和 ZOHO ID的集合
@@ -381,20 +378,28 @@ public abstract  class AbstractModule  implements IModuleHandler {
      * @param dbIDModuleObjMap： DB ID 和Module对象的集合
      * @return
      */
-    public List build2Zoho3PartObj(Map<String,String> erpZohoIDMap,Map<String,String> erpIDTimeMap,
-                                    List<String> delZohoIDList,Map<String,Object> dbIDModuleObjMap){
+    public List build2Zoho3PartObj(Map<String,String> erpZohoIDMap,Map<String,String> erpIDTimeMap,List<String> delZohoIDList,
+                                   List dbModuleList) throws Exception {
+        Map<String,Object> dbIDModuleObjMap = (Map<String,Object>)dbModuleList.get(0);
+        Map<String,String> dbIDEditTimeMap = (Map<String,String>)dbModuleList.get(1);
+
         Map<String,Object> addModuleObjMap = new HashMap<String, Object>();
         Map<String,Object> updateModuleObjMap = new HashMap<String, Object>();
-
+        long  lastExecSuccessTime = ConfigManager.getTimefromProps("LAST_EXEC_SUCCESS_TIME");
         for(Map.Entry<String,String> entry : erpIDTimeMap.entrySet()){
             String erpID = entry.getKey();
             String zohoID = erpZohoIDMap.get(erpID);
             if(dbIDModuleObjMap.containsKey(erpID)){//update
                 //TODO 添加lastestEditTime是否被修改
+                //**************拿出DB中的lastEditTime，如果上次修改的时间<=DB中的修改时间，那么加入修改列表
+                long  dbLatestEditTime = ThreadLocalDateUtil.parse(StringUtils.nullToString(dbIDEditTimeMap.get(erpID))).getTime();
                 if(ConfigManager.isDevMod()){
-                     updateModuleObjMap.put(zohoID, dbIDModuleObjMap.get(erpID));
+                    updateModuleObjMap.put(zohoID, dbIDModuleObjMap.get(erpID));
                 }else{
-
+                    //如果上次执行成功的时间《=db中这条记录修改的时间
+                    if(lastExecSuccessTime <= dbLatestEditTime){
+                        updateModuleObjMap.put(zohoID, dbIDModuleObjMap.get(erpID));
+                    }
                 }
             }else{ //delete
                 if(!delZohoIDList.contains(zohoID)){

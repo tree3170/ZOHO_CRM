@@ -169,12 +169,12 @@ public class ProductHandler extends AbstractModule{
 //    }
     public List buildDBObjList() throws Exception {
         logger.debug("# Ⅱ：ProductHandler 【buildDBObjList】...");
-        List dbAcctList = new ArrayList();
-        Map<String,Object> erpIDProductsMap = DBUtils.getProductMap();
+        List dbAcctList = DBUtils.getProductMap();
+        //Map<String,Object> erpIDProductsMap = DBUtils.getProductMap();
 //        getDBObj(erpIDProductsMap);
 //        getDBObj2(erpIDProductsMap);
 
-        dbAcctList.add(erpIDProductsMap);
+        //dbAcctList.add(erpIDProductsMap);
         logger.debug("【buildDBObjList】,打印DB对象："+Constants.COMMENT_PREFIX +dbAcctList);
         //CommonUtils.printList(dbAcctList, "Build DB Object :::");
         return dbAcctList;
@@ -211,11 +211,11 @@ public class ProductHandler extends AbstractModule{
 
 
         //2.组装DB 对象List
-        List dbAcctList = buildDBObjList();
-        Map<String,Object> idProductsMap = (Map<String,Object>)dbAcctList.get(0);
+        List dbModuleList = buildDBObjList();
+        //Map<String,Object> idProductsMap = (Map<String,Object>)dbModuleList.get(0);
 
         //        3. 组装发送到ZOHO的三大对象并放入到List中:addMap、updateMap、delZohoIDList
-        return build2Zoho3PartObj(erpZohoIDMap,erpIDTimeMap,delZohoIDList,idProductsMap);
+        return build2Zoho3PartObj(erpZohoIDMap,erpIDTimeMap,delZohoIDList,dbModuleList);
 //        Map<String,Products> addMap = new HashMap<String, Products>();
 //        Map<String,Products> updateMap = new HashMap<String, Products>();
 //

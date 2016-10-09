@@ -157,12 +157,12 @@ public class QuotesHandler extends AbstractModule {
      */
     public List buildDBObjList() throws Exception {
         logger.debug("# Ⅱ：QuotesHandler 【buildDBObjList】...");
-        List dbAcctList = new ArrayList();
-        Map<String,Object> idInvoicesMap = DBUtils.getInvoiceMap();
+        List dbAcctList =  DBUtils.getInvoiceMap();
+        //Map<String,Object> idInvoicesMap = DBUtils.getInvoiceMap();
 //        getDBObj(idInvoicesMap);
 //        Invoices accouts2 = getDBObj2(idInvoicesMap);
 
-        dbAcctList.add(idInvoicesMap);
+        //dbAcctList.add(idInvoicesMap);
         logger.debug("【buildDBObjList】,打印DB对象："+Constants.COMMENT_PREFIX +dbAcctList);
         //CommonUtils.printList(dbAcctList, "打印DB对象：：：");
         return dbAcctList;
@@ -195,11 +195,11 @@ public class QuotesHandler extends AbstractModule {
         }
 
         //2.组装DB 对象List
-        List dbAcctList = buildDBObjList();
-        Map<String,Object> idInvoicesMap = (Map<String,Object>)dbAcctList.get(0);
+        List dbModuleList = buildDBObjList();
+        //Map<String,Object> idInvoicesMap = (Map<String,Object>)dbModuleList.get(0);
 
         //3. 解析并组装addMap、updateMap、delZohoIDList
-        return build2Zoho3PartObj(erpZohoIDMap,erpIDTimeMap,delZohoIDList,idInvoicesMap);
+        return build2Zoho3PartObj(erpZohoIDMap,erpIDTimeMap,delZohoIDList,dbModuleList);
     }
 
     /**

@@ -175,14 +175,14 @@ public class SOHandler extends AbstractModule{
      */
     public List buildDBObjList() throws Exception {
         logger.debug("# Ⅱ：SOHandler 【buildDBObjList】...");
-        List dbAcctList = new ArrayList();
-        Map<String,Object> idSOMap = DBUtils.getSOMap();
+        List dbAcctList = DBUtils.getSOMap();
+        //Map<String,Object> idSOMap = DBUtils.getSOMap();
 //        SO accounts = getDBObj(idSOMap);
 //        SO accouts2 = getDBObj2(idSOMap);
 //        accouts2.setSubject("tree31701");
 //        dbAcctList.add(accounts);
 //        DBUtils.getSOMap(idSOMap);
-        dbAcctList.add(idSOMap);
+//        dbAcctList.add(idSOMap);
         logger.debug("【buildDBObjList】,打印DB对象："+Constants.COMMENT_PREFIX +dbAcctList);
         //CommonUtils.printList(dbAcctList, "DB Account obj");
         return dbAcctList;
@@ -219,11 +219,11 @@ public class SOHandler extends AbstractModule{
         }
 
         //2.组装DB 对象List
-        List dbAcctList = buildDBObjList();
-        Map<String,Object> idAccountsMap = (Map<String,Object>)dbAcctList.get(0);
+        List dbModuleList = buildDBObjList();
+        Map<String,Object> idAccountsMap = (Map<String,Object>)dbModuleList.get(0);
 
         //        3. 组装发送到ZOHO的三大对象并放入到List中:addMap、updateMap、delZohoIDList
-        return build2Zoho3PartObj(erpZohoIDMap,erpIDTimeMap,delZohoIDList,idAccountsMap);
+        return build2Zoho3PartObj(erpZohoIDMap,erpIDTimeMap,delZohoIDList, dbModuleList);
 //        Map<String,SO> addMap = new HashMap<String, SO>();
 //        Map<String,SO> updateMap = new HashMap<String, SO>();
 //
