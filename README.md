@@ -8,6 +8,7 @@
   * [4.Druid 使用方法](暂缺每天的执行情况)
   * [5.log4j  使用方法](暂缺)
   * [6.Spring MVC重写教程](暂缺)
+  * [6.Spring MAIL教程](暂缺)
 * [4.每日问答](Q&A Daily.md)
 * [5.项目问题](Q&A Project.md)
 

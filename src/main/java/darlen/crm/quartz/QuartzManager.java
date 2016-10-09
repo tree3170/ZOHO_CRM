@@ -10,6 +10,7 @@ package darlen.crm.quartz;
 
 import darlen.crm.manager.ConfigManager;
 import darlen.crm.manager.ModuleManager;
+import darlen.crm.model.mail.MailMail;
 import darlen.crm.util.Constants;
 import darlen.crm.util.ThreadLocalDateUtil;
 import org.apache.log4j.Logger;
@@ -33,15 +34,18 @@ import java.util.Date;
 public class QuartzManager {
     private static Logger logger = Logger.getLogger(QuartzManager.class);
 
+
     private SchedulerFactoryBean startQuertz;
 
-    //public SchedulerFactoryBean getStartQuertz() {
-    //    return startQuertz;
-    //}
+
+    public SchedulerFactoryBean getStartQuertz() {
+        return startQuertz;
+    }
     //@Autowired
-    //public void setStartQuertz(SchedulerFactoryBean startQuertz) {
-    //    this.startQuertz = startQuertz;
-    //}
+    public void setStartQuertz(SchedulerFactoryBean startQuertz) {
+        this.startQuertz = startQuertz;
+    }
+
 
     public void exe() throws Exception {
         logger.debug("entering QuartzManager。。。");

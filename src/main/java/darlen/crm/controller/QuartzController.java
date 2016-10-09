@@ -8,13 +8,17 @@
  * */
 package darlen.crm.controller;
 
+import darlen.crm.model.mail.MailMail;
 import org.apache.log4j.Logger;
+import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.impl.StdScheduler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.ContextLoader;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -37,21 +41,55 @@ public class QuartzController {
 
     //@Autowired
     //private SchedulerFactoryBean startQuertz;
+    @Autowired
+    Scheduler scheduler;
 
+    @Autowired
+    private MailMail mail;
+    //public SchedulerFactoryBean getStartQuertz() {
+    //    return startQuertz;
+    //}
+    ////@Autowired
+    //public void setStartQuertz(SchedulerFactoryBean startQuertz) {
+    //    this.startQuertz = startQuertz;
+    //}
+    @ResponseBody
     @RequestMapping("/start")
-    public String showUser(String id, HttpServletRequest request){
-        logger.debug("entering QuartzController...");
+    public String start(String id, HttpServletRequest request){
+        logger.debug("start QuartzController...");
         WebApplicationContext applicationContext = ContextLoader.getCurrentWebApplicationContext();
         //SchedulerFactoryBean startQuertz = (SchedulerFactoryBean) applicationContext.getBean("startQuertz");
         //startQuertz.start();
-        StdScheduler scheduler =  (StdScheduler)applicationContext.getBean("startQuertz");
+        //StdScheduler scheduler =  (StdScheduler)applicationContext.getBean("startQuertz");
         try {
             scheduler.start();
         } catch (SchedulerException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            logger.error("Start Quartz 出现错误",e);
+            return "1";
         }
         //request.setAttribute("user",user);
-        return "";
+        return "0";
+    }
+    @ResponseBody
+    @RequestMapping("/stop")
+    public String stop(String id, HttpServletRequest request){
+        logger.debug("stop QuartzController...");
+        WebApplicationContext applicationContext = ContextLoader.getCurrentWebApplicationContext();
+        //SchedulerFactoryBean startQuertz = (SchedulerFactoryBean) applicationContext.getBean("startQuertz");
+        //startQuertz.start();
+        //StdScheduler scheduler =  (StdScheduler)applicationContext.getBean("startQuertz");
+        //try {
+        try {
+            scheduler.standby();
+        } catch (SchedulerException e) {
+            logger.error("Stop Quartz 出现错误", e);
+            return "1";
+        }
+        //} catch (SchedulerException e) {
+        //    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        //}
+        //request.setAttribute("user",user);
+        return "0";
     }
 
     //public SchedulerFactoryBean getStartQuertz() {

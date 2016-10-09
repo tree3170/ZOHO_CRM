@@ -1,0 +1,49 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:secure/mail.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <!--for Gmail settings-->
+    <bean id="gmailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <property name="host" value="${gmail.host}" />
+        <property name="port" value="${gmail.port}" />
+        <property name="username" value="${gmail.username}" />
+        <property name="password" value="${gmail.password}" />
+
+        <property name="javaMailProperties">
+            <props>
+                <prop key="mail.smtp.auth">${gmail.smtp.auth}</prop>
+                <prop key="mail.smtp.timeout">${gmail.smtp.timeout}</prop>
+                <prop key="mail.smtp.starttls.enable">${gmail.smtp.starttls.enable}</prop>
+            </props>
+        </property>
+    </bean>
+    <!--for 163 mail Settings-->
+    <bean id="mail163Sender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <property name="host" value="${mail.host}" />
+        <property name="port" value="${mail.port}" />
+        <property name="username" value="${mail.username}" />
+        <property name="password" value="${mail.password}" />
+
+        <property name="javaMailProperties">
+            <props>
+                <prop key="mail.smtp.auth">${mail.smtp.auth}</prop>
+                <prop key="mail.smtp.timeout">${mail.smtp.timeout}</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="mailMail" class="darlen.crm.model.mail.MailMail">
+        <property name="mailSender" ref="mail163Sender" />
+        <!--<property name="mailSender" ref="gmailSender" />-->
+    </bean>
+
+</beans>
