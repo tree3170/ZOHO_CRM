@@ -140,6 +140,10 @@ public class ProductHandler extends AbstractModule{
 //     1. 从ZOHO获取有效的xml
         String zohoStr =  handleProduct.retrieveZohoRecords(ModuleNameKeys.Products.toString(),fromIndex,toIndex);
 
+        if(StringUtils.isEmptyString(zohoStr) || zohoStr.indexOf("<error>") != -1){ //如果获取不到
+            throw  new Exception("【ProductHandler】,retrieveAllRowsFromZoho出现错误, retrieveZohoRecords返回Error");
+        }
+
 //      2. xml 转 java bean
         Response response = JaxbUtil.converyToJavaBean(zohoStr, Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
         logger.debug("1.2 【retrieveAllRowsFromZoho】，转化ZOHO获取XML回来的Java对象\n#" + response);

@@ -842,6 +842,8 @@ public class DBUtils {
                 ps.setString(i + 1, StringUtils.nullToString(o));
             }else  if("java.util.Date".equals(objectType)){
                 ps.setTimestamp(i + 1, new Timestamp(((Date)o).getTime()));
+            }else{//默认设为string
+                ps.setString(i + 1, StringUtils.nullToString(o));
             }
 
             //TODO BigDecemal,

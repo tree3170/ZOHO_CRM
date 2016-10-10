@@ -279,7 +279,7 @@ public class CommonUtils {
 
             //-----------------------Get response as a string ----------------
             postResp = post.getResponseBodyAsString();
-            logger.error("postResp=======>"+postResp);
+            logger.debug("postResp=======>"+postResp);
 
             //TODO 解析返回的response是成功还是失败
             /**
@@ -366,5 +366,12 @@ public class CommonUtils {
             logger.error("getLastEditTime 出错",e);
         }
         return time;
+    }
+
+    public static boolean isEmptyList(List list ){
+        if(null == list || list.size() ==0){
+            return true;
+        }
+        return false;
     }
 }

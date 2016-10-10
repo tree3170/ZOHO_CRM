@@ -14,10 +14,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 import java.io.*;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * darlen.crm.manager
@@ -212,6 +209,7 @@ public class ConfigManager {
 
     /**
      * 根据Map的值写入某个配置文件
+     * 如果某个模块修改了，需要更新Cache
      * @param map
      * @param configName
      */
@@ -226,11 +224,17 @@ public class ConfigManager {
             File file = new File(CommonUtils.getFileNamePath("",configName));
             writer = new PrintWriter(file, "UTF-8");
             if( Constants.PROPS_ACCT_FILE.equals(configName)){
+                //如果修改了Acct的profile，那么删除Acct中的cache
+                acctsPropsMap = new HashMap<String, String>();//Collections.emptyMap();
                 writer.println("#这个是一个有关DB中的Customer表和ZOHO中的Accounts模块映射文件Accounts.properties，左边是DB中的ID，即ERP ID ，右边是ZOHO客户中的ZOHO ID ");
             }else if(Constants.PROPS_PROD_FILE.equals(configName)){
+                //如果修改了Acct的profile，那么删除Acct中的cache
+                prodsPropsMap = new HashMap<String, String>();//Collections.emptyMap();
                 writer.println("#这个是一个有关DB中的Item表和ZOHO中的Products模块映射文件Products.properties，左边是关于产品的ID， 即ERP ID ，右边是ZOHO产品中的ZOHO ID ");
             }else if(Constants.PROPS_TIME_FILE.equals(configName)){
-                writer.println("##上次执行成功的时间，第一次默认是0 ， 格式为YYYY-MM-DD HH:MM:SS");
+                //如果修改了Acct的profile，那么删除Acct中的cache
+                timePropsMap = new HashMap<String, String>();// Collections.emptyMap();
+                writer.println("#上次执行成功的时间，第一次默认是0 ， 格式为YYYY-MM-DD HH:MM:SS");
             }
             for(Map.Entry<String,String> entry : map.entrySet()){
                 writer.println(cvtPropsSpace(StringUtils.nullToString(entry.getKey()))+"="+ cvtPropsSpace(StringUtils.nullToString(entry.getValue())));
@@ -333,7 +337,7 @@ public class ConfigManager {
 //        envAutoChecking();
         System.err.println("6. lastExecSuccessTime.properties======LAST_EXEC_SUCCESS_TIME="+ConfigManager.getTimefromProps(Constants.LAST_EXEC_SUCCESS_TIME));
         Map<String,String> map = new HashMap<String, String>();
-        map.put("LAST_EXEC_SUCCESS_TIME","2016-10-10 00:43:54");
+        map.put("LAST_EXEC_SUCCESS_TIME","2018-10-10 00:43:54");
         writeVal2Props(map, Constants.PROPS_TIME_FILE);
         System.err.println("6. lastExecSuccessTime.properties======LAST_EXEC_SUCCESS_TIME="+ConfigManager.getTimefromProps(Constants.LAST_EXEC_SUCCESS_TIME));
 

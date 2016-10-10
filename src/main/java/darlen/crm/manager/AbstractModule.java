@@ -882,7 +882,10 @@ public abstract  class AbstractModule  implements IModuleHandler {
         postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
         postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
         try {
-            CommonUtils.executePostMethod(postParams);
+           String zohoReturnStr =  CommonUtils.executePostMethod(postParams);
+            if(zohoReturnStr.indexOf("<error>") != -1){ //如果执行不成功,失败次数+1
+                execFailNum++;
+            }
         } catch(Exception e) {
             //<response uri="/crm/private/xml/Accounts/deleteRecords"><error><code>4600</code><message>Unable to process your request. Please verify if the name and value is appropriate for the "id" parameter.</message></error></response>
             execFailNum++;
