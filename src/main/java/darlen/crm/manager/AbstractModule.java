@@ -375,7 +375,7 @@ public abstract  class AbstractModule  implements IModuleHandler {
      * @param erpZohoIDMap： ERP ID 和 ZOHO ID的集合
      * @param erpIDTimeMap： ERP ID 和LastEditTime的集合
      * @param delZohoIDList： ZOHO ID的集合
-     * @param dbIDModuleObjMap： DB ID 和Module对象的集合
+     * @param dbModuleList： 所有的DB组合：包括dbIDModuleObjMap和dbIDEditTimeMap
      * @return
      */
     public List build2Zoho3PartObj(Map<String,String> erpZohoIDMap,Map<String,String> erpIDTimeMap,List<String> delZohoIDList,
@@ -392,12 +392,15 @@ public abstract  class AbstractModule  implements IModuleHandler {
             if(dbIDModuleObjMap.containsKey(erpID)){//update
                 //TODO 添加lastestEditTime是否被修改
                 //**************拿出DB中的lastEditTime，如果上次修改的时间<=DB中的修改时间，那么加入修改列表
-                long  dbLatestEditTime = ThreadLocalDateUtil.parse(StringUtils.nullToString(dbIDEditTimeMap.get(erpID))).getTime();
+                String dbLatestEditTimeStr = dbIDEditTimeMap.get(erpID);
+                long  dbLatestEditTime = StringUtils.isEmptyString(dbLatestEditTimeStr)?0:ThreadLocalDateUtil.parse(StringUtils.nullToString(dbLatestEditTimeStr)).getTime();
                 if(ConfigManager.isDevMod()){
                     updateModuleObjMap.put(zohoID, dbIDModuleObjMap.get(erpID));
                 }else{
                     //如果上次执行成功的时间《=db中这条记录修改的时间
-                    if(lastExecSuccessTime <= dbLatestEditTime){
+                    if(0 == dbLatestEditTime){  //如果是等于0， 因为这是做update，那么已经不用添加到修改列表，但是有可能是会添加到增加列表
+                        logger.debug("Lastest Edit Time is empty,  ignore set into update Map,erpID ="+erpID+"; zohoID="+zohoID);
+                    }else   if(lastExecSuccessTime <= dbLatestEditTime){
                         updateModuleObjMap.put(zohoID, dbIDModuleObjMap.get(erpID));
                     }
                 }
@@ -417,13 +420,13 @@ public abstract  class AbstractModule  implements IModuleHandler {
         }
 
         List sendToZohoAcctList = new ArrayList();
-        logger.debug("3.3 【build2Zoho3PartObj】,addMap组装到ZOHO的对象的集合：\n##\t ====> " + addModuleObjMap);
+        logger.debug("3.3 【build2Zoho3PartObj】,addMap组装到ZOHO的对象的集合：size = "+addModuleObjMap.size()+"\n##\t ====> " + addModuleObjMap);
         //CommonUtils.printMap(addModuleObjMap, "addMap组装到ZOHO的对象的集合：：：\n");
         sendToZohoAcctList.add(addModuleObjMap);
-        logger.debug("3.3 【build2Zoho3PartObj】,updateMap组装到ZOHO的对象的集合：\n##\t ====> " + updateModuleObjMap);
+        logger.debug("3.3 【build2Zoho3PartObj】,updateMap组装到ZOHO的对象的集合：size = "+updateModuleObjMap.size()+"\n##\t ====> " + updateModuleObjMap);
         //CommonUtils.printMap(updateModuleObjMap,"updateMap组装到ZOHO的对象的集合：：：\n");
         sendToZohoAcctList.add(updateModuleObjMap);
-        logger.debug("3.3 【build2Zoho3PartObj】,delZohoIDList组装到ZOHO的对象的集合: \n##\t ====> " + delZohoIDList);
+        logger.debug("3.3 【build2Zoho3PartObj】,delZohoIDList组装到ZOHO的对象的集合: size = "+delZohoIDList.size()+"\n##\t ====> " + delZohoIDList);
         //CommonUtils.printList(delZohoIDList, "delZOHOSOIDList组装到ZOHO的对象的集合：：：\n");
         sendToZohoAcctList.add(delZohoIDList);
 
@@ -766,7 +769,7 @@ public abstract  class AbstractModule  implements IModuleHandler {
         int failNum  = 0;
         String moduleUrl  = getModuleUrl(moduleName,curdKey);
 
-        logger.debug("#[addRecords], 从ZOHO获取回来的所有记录的XML:::moduleName = "+moduleName+", Operatiton ="+curdKey+", url ="+moduleUrl);
+        logger.debug("#[addRecords], 从ZOHO获取回来的所有记录的XML:::moduleName = "+moduleName+", Operatiton ="+curdKey+", url ="+moduleUrl+", Size = "+addZohoXMLList.size());
         //List<String> addZohoXMLList = (List<String> ) zohoXMLList.get(0);
         for(int i = 0; i < addZohoXMLList.size(); i ++){
             logger.debug("添加【"+moduleName+"】第"+(i+1)+"条数据");
