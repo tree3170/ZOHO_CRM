@@ -161,7 +161,7 @@ public class QuotesHandler extends AbstractModule {
      */
     public List buildDBObjList() throws Exception {
         logger.debug("# Ⅱ：QuotesHandler 【buildDBObjList】...");
-        List dbAcctList =  DBUtils.getInvoiceMap();
+        List dbAcctList =  DBUtils.getQuotesMap();
         //Map<String,Object> idInvoicesMap = DBUtils.getInvoiceMap();
 //        getDBObj(idInvoicesMap);
 //        Invoices accouts2 = getDBObj2(idInvoicesMap);
@@ -230,7 +230,7 @@ public class QuotesHandler extends AbstractModule {
         Map<String,Invoices> updateAccountMap =(Map<String,Invoices> )zohoComponentList.get(1);
         List deleteZOHOIDsList  = (List)zohoComponentList.get(2);
 
-        String className = "darlen.crm.model.result.Invoices";
+        String className = "darlen.crm.model.result.Quotes";
         //"/mapping/dbRdQuotesFieldMapping.properties"
         Properties fieldMappingProps = ConfigManager.readProperties(Constants.PROPS_QUOTE_DB_MAPPING);
         //2. 添加

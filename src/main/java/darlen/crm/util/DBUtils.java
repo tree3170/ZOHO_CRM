@@ -44,36 +44,11 @@ import java.util.Date;
  */
 public class DBUtils {
     private static Logger logger = Logger.getLogger(DBUtils.class);
-//    public static Map<String,String> zohoDBPropsMap = new HashMap<String, String>();
-//    public static Map<String,String> accountPropsMap = new HashMap<String, String>();
-
-    /**
-     * 初始化ZOHO配置文件中的一些字段值
-     */
-//    private synchronized static void initZohoProps() {
-//        try {
-//            Properties prop = new Properties();
-//            prop.load(DBUtils.class.getResourceAsStream("/secure/db.properties"));
-            //for url TODO  将来需要把properties中的字段全部放入到Cache或者静态变量中
-//            for(Map.Entry entry : prop.entrySet()){
-//                zohoDBPropsMap.put(String.valueOf(entry.getKey()),String.valueOf(entry.getValue()));
-//            }
-//            prop = new Properties();
-//            prop.load(DBUtils.class.getResourceAsStream("/mapping/Accounts.properties"));
-//            for(Map.Entry entry : prop.entrySet()){
-//                accountPropsMap.put(String.valueOf(entry.getKey()),String.valueOf(entry.getValue()));
-//            }
-//        } catch(IOException e) {
-//            logger.error("读取zoho properties出现错误", e);
-//        }
-//        CommonUtils.printMap(zohoDBPropsMap,"db.properties的value：：：");
-//        CommonUtils.printMap(accountPropsMap,"db.properties的value：：：");
-//    }
 
     /**
      * 获取DB连接
      */
-    public static Connection getConnection () throws IOException, ConfigurationException {
+    public static Connection getConnection () throws SQLException, ClassNotFoundException, IOException, ConfigurationException {
         String driverName = ConfigManager.get(Constants.PROPS_DB_FILE,"DB_DRIVER_NAME");//zohoDBPropsMap.get("DB_DRIVER_NAME");//"com.microsoft.sqlserver.jdbc.SQLServerDriver";  //加载JDBC驱动
         String dbURL =ConfigManager.get(Constants.PROPS_DB_FILE,"DB_URL");//zohoDBPropsMap.get("DB_URL"); //"jdbc:sqlserver://localhost:1433; DatabaseName=test";  //连接服务器和数据库test
         String userName = ConfigManager.get(Constants.PROPS_DB_FILE,"DB_USERNAME");//zohoDBPropsMap.get("DB_USERNAME");;//"sa";  //默认用户名
@@ -84,8 +59,12 @@ public class DBUtils {
             Class.forName(driverName);
             dbConn = DriverManager.getConnection(dbURL, userName, userPwd);
             logger.debug("Connection Successful!");  //如果连接成功 控制台输出Connection Successful!
-        } catch (Exception e) {
-            logger.error("连接SQL SERVER失败",e);
+        } catch (SQLException e) {
+            logger.error("SQLException , 连接DB失败",e);
+            throw  e;
+        }catch (ClassNotFoundException e){
+            logger.error("ClassNotFoundException ...",e);
+            throw  e;
         }
         return dbConn;
     }
@@ -200,8 +179,8 @@ public class DBUtils {
         dbModuleList.add(0,dbIDModuleObjMap);
         dbModuleList.add(1,dbIDEditTimeMap);
 //        List<Products> productsList = new ArrayList<Products>();
-        String sql = "select * from dbo.item " +
-                "where itemid in (6,9,10,130)"; //暂时只用三条数据
+        String sql = "select * from dbo.item ";
+                //+ "where itemid in (6,9,10,130)"; //暂时只用三条数据
         ResultSet rs = exeQuery(sql);
         while (rs != null && rs.next()){
             String lastEditBy = StringUtils.nullToString(rs.getString("LatestEditBy"));
@@ -282,7 +261,9 @@ public class DBUtils {
                 " FROM Quote q\n" +
                 "LEFT JOIN  Item_Quote iq  ON q.QuoteID = iq.QuoteID\n" +
                 "LEFT JOIN  ITEM item  ON iq.ItemID = item.ITEMID\n" +
-                "where q.QuoteID in (13,16,27)\n" +
+                "where 1 =1\n" +
+                //"and q.QuoteID in (13,16,27)\n" +
+                "and item.ITEMID is not null" +
                 " ORDER BY q.QuoteID";
         ResultSet rs = exeQuery(sql);
         String preErpID = "";
@@ -292,16 +273,28 @@ public class DBUtils {
             String lastEditBy = StringUtils.nullToString(rs.getString("LatestEditBy"));
             if(containERPAcct(lastEditBy)){
                 /**DB中的SO id*/
-                String curErpID = StringUtils.nullToString(rs.getString("SOID"));
+                String curErpID = StringUtils.nullToString(rs.getString("QuoteID"));
                 //相同SO，代表这个SO有多个Product，不需要新创建SO，只需要把product添加到已有的List<ProductDetails> pds中
                 if(preErpID.equals(curErpID) && quotes != null){
                     /**
                      * 处理list<ProductDetail>, 根据db中的SOID关联Item_SO表，拿出所有的product Detail,注意为空情况
                      Double.valueOf(so.getErpExchangeRate())
                      */
-                    pds.add(assembleProduct(rs));
-                    quotes.setPds(pds);
+                    ProductDetails productDetails = assembleProduct(rs);
+                    //如果 因为Prod ID造成ProductDetails为空的情况，忽略这条product
+                    if( null != productDetails){
+                        pds.add(assembleProduct(rs));
+                        quotes.setPds(pds);
+                    }
                 } else{//代表不同SO,需要重新创建SO对象
+
+                    //在新一条数据之前，判断如果上一条数据product detail是空的话 , 那么需要移除上一条记录
+                    if(quotes == null || quotes.getPds() == null || quotes.getPds().size() > 0){
+                        //TODO 因为不存在Product Detail，所以忽略整条数据
+                        dbIDModuleObjMap.remove(curErpID);
+                        dbIDEditTimeMap.remove(curErpID);
+                    }
+
                     //erpid 不相同之前，先把上一个SO添加到list中（排除第一条数据对第一次遍历SO）
 //                    if(null != quotes )moduleList.add(quotes);
                     //因为是不同的SO对象了，所以把SO添加到list之后，需要重新创建SO和Product对象, 并且把preErpID指向当前的ERP ID
@@ -331,9 +324,14 @@ public class DBUtils {
                     String erpAcctID = StringUtils.nullToString(rs.getString("CustomerID"));
                     String zohoAcctID = ConfigManager.getAcctsfromProps(erpAcctID);
                     logger.debug("【getQuotesMap】 ,ERP ID = "+curErpID+", CustomerID ="+erpAcctID+", ZOHO Account ID="+zohoAcctID);
-                    quotes.setCustID(zohoAcctID);//"80487000000096005"
-                    quotes.setACCOUNTID(zohoAcctID);
-                    quotes.setCustNO(StringUtils.nullToString(rs.getString("CusRef")));
+                    //TODO：CONFIRM， 如果找不到AccoutnID
+                    if(!StringUtils.isEmptyString(zohoAcctID)){
+                        quotes.setCustID(zohoAcctID);//"80487000000096005"
+                        quotes.setACCOUNTID(zohoAcctID);
+                        quotes.setCustNO(StringUtils.nullToString(rs.getString("CusRef")));
+                    }else{
+                        //TODO：CONFIRM  如果找不到Accounts ID， 那么用为空，默认就是Admin账号
+                    }
 
 
                     quotes.setCustName(StringUtils.nullToString(rs.getString("CusName")));
@@ -391,10 +389,15 @@ public class DBUtils {
                     //TODO : 累计-->估计应该是total-折扣
                     //so.setGrandTotal(String.valueOf(total.multiply(exgRate).subtract(cusDiscount)));
                     //处理第一条Product
-                    pds.add(assembleProduct(rs));
-                    quotes.setPds(pds);
-                    dbIDModuleObjMap.put(curErpID,quotes);
-                    dbIDEditTimeMap.put(curErpID,latestEditTime);
+                    ProductDetails productDetails = assembleProduct(rs);
+                    //如果 因为Prod ID造成ProductDetails为空的情况，忽略这条product
+                    if( null != productDetails){
+                        pds.add(productDetails);
+                        quotes.setPds(pds);
+                        dbIDModuleObjMap.put(curErpID,quotes);
+                        dbIDEditTimeMap.put(curErpID,latestEditTime);
+                    }
+
                 }
             }
         }
@@ -434,7 +437,9 @@ public class DBUtils {
                 " FROM SO so\n" +
                 "LEFT JOIN  ITEM_SO itemso  ON so.SOID = itemso.SOID\n" +
                 "LEFT JOIN  ITEM item  ON itemso.itemid = item.ITEMID\n" +
-                "where so.SOID in (13,16,27)\n" + //暂时只用三条数据
+                "where 1 = 1 \n" +
+                //"and so.SOID in (13,16,27)\n" +//暂时只用三条数据
+                "and item.ITEMID is not null \n" +
                 " ORDER BY SO.SOID";
         ResultSet rs = exeQuery(sql);
         String preErpID = "";
@@ -451,10 +456,20 @@ public class DBUtils {
                      * 处理list<ProductDetail>, 根据db中的SOID关联Item_SO表，拿出所有的product Detail,注意为空情况
                      Double.valueOf(so.getErpExchangeRate())
                      */
-                    pds.add(assembleProduct(rs));
-                    so.setPds(pds);
+                    ProductDetails productDetails = assembleProduct(rs);
+                    //如果 因为Prod ID造成ProductDetails为空的情况，忽略这条product
+                    if( null != productDetails){
+                        pds.add(assembleProduct(rs));
+                        so.setPds(pds);
+                    }
                 } else{//代表不同SO,需要重新创建SO对象
-                    //erpid 不相同之前，先把上一个SO添加到list中（排除第一条数据对第一次遍历SO）
+                    //在新一条数据之前，判断如果上一条数据product detail是空的话 , 那么需要移除上一条记录
+                    if(so == null || so.getPds() == null || so.getPds().size() > 0){
+                        //TODO
+                        dbIDModuleObjMap.remove(curErpID);
+                        dbIDEditTimeMap.remove(curErpID);
+                    }
+                    //因为erpid 不相同之前，先把上一个SO添加到list中（排除第一条数据对第一次遍历SO）
                     if(null != so )moduleList.add(so);
                     //因为是不同的SO对象了，所以把SO添加到list之后，需要重新创建SO和Product对象, 并且把preErpID指向当前的ERP ID
                     so = new SO();
@@ -539,10 +554,14 @@ public class DBUtils {
                     //TODO : 累计-->估计应该是total-折扣
                     //so.setGrandTotal(String.valueOf(total.multiply(exgRate).subtract(cusDiscount)));
                     //处理第一条Product
-                    pds.add(assembleProduct(rs));
-                    so.setPds(pds);
-                    dbIDModuleObjMap.put(curErpID,so);
-                    dbIDEditTimeMap.put(curErpID,latestEditTime);
+                    ProductDetails productDetails = assembleProduct(rs);
+                    //如果 因为Prod ID造成ProductDetails为空的情况，忽略这条product
+                    if( null != productDetails){
+                        pds.add(productDetails);
+                        so.setPds(pds);
+                        dbIDModuleObjMap.put(curErpID,so);
+                        dbIDEditTimeMap.put(curErpID,latestEditTime);
+                    }
                 }
             }
         }
@@ -577,7 +596,9 @@ public class DBUtils {
                 " FROM Invoice inv\n" +
                 "LEFT JOIN  ITEM_INVOICE item_inv  ON inv.InvoiceID = item_inv.InvoiceID\n" +
                 "LEFT JOIN  ITEM item  ON item_inv.itemid = item.ITEMID\n" +
-                "where inv.InvoiceID in (8,12,145)\n" + //暂时只用三条数据
+                "where 1=1 and " +
+                //" inv.InvoiceID in (8,12,145)\n" +
+                "  item.ITEMID is not null \n" + //暂时只用三条数据
                 " ORDER BY inv.InvoiceID";
         ResultSet rs = exeQuery(sql);
         String preErpID = "";
@@ -593,11 +614,21 @@ public class DBUtils {
                      * 处理list<ProductDetail>, 根据db中的SOID关联Item_SO表，拿出所有的product Detail,注意为空情况
                      Double.valueOf(so.getErpExchangeRate())
                      */
-                    pds.add(assembleProduct(rs));
-                    invoices.setPds(pds);
+                    ProductDetails productDetails = assembleProduct(rs);
+                    //如果 因为Prod ID造成ProductDetails为空的情况，忽略这条product
+                    if( null != productDetails){
+                        pds.add(productDetails);
+                        invoices.setPds(pds);
+                    }
                 } else{//代表不同SO,需要重新创建SO对象
+                    // 上一条数据
+                    //如果没有product detail , 那么需要移除整条记录
+                    if(invoices == null || invoices.getPds() == null || invoices.getPds().size() > 0){
+                        //TODO
+                        dbIDModuleObjMap.remove(curErpID);
+                        dbIDEditTimeMap.remove(curErpID);
+                    }
                     //erpid 不相同之前，先把上一个Module添加到list中（排除第一条数据对第一次遍历Module）
-//                    if(null != invoices )moduleList.add(invoices);
                     //因为是不同的SO对象了，所以把SO添加到list之后，需要重新创建Module和pds对象, 并且把preErpID指向当前的ERP ID
                     invoices = new Invoices();
                     pds = new ArrayList<ProductDetails>();
@@ -711,11 +742,16 @@ public class DBUtils {
                     /**Grand Total来自销售订单中的“累计”*/
                     //TODO : 累计-->估计应该是total-折扣
                     invoices.setGrandTotal(StringUtils.nullToString(total.multiply(exgRate).subtract(cusDiscount)));
-                    pds.add(assembleProduct(rs));
-                    invoices.setPds(pds);
-//                    moduleList.add(invoices);
-                    dbIDModuleObjMap.put(curErpID,invoices);
-                    dbIDEditTimeMap.put(curErpID,latestEditTime);
+
+                    //处理第一条Product
+                    ProductDetails productDetails = assembleProduct(rs);
+                    //如果 因为Prod ID造成ProductDetails为空的情况，忽略这条product
+                    if( null != productDetails){
+                        pds.add(productDetails);
+                        invoices.setPds(pds);
+                        dbIDModuleObjMap.put(curErpID,invoices);
+                        dbIDEditTimeMap.put(curErpID,latestEditTime);
+                    }
                 }
             }
 
@@ -736,12 +772,15 @@ public class DBUtils {
         //PROD_ID-->某条数据中产品的ID
         String prodID = ConfigManager.getProdfromProps(StringUtils.nullToString(rs.getString("PROD_ID")));
         //TODO 当Prod ID或者AccountsID或者userID为空时， throw exception，因为就算发到ZOHO也是会出错
-//        if(StringUtils.isEmptyString(prodID)){
-//            throw Exception("");
-//        }
+        if(StringUtils.isEmptyString(prodID)){
+            //TODO 如果真的存在Prod ID为空， 需要remove这个product，如果这个模块中product仅仅只有1个，那么remove整条模块数据
+            logger.debug("####【assembleProduct：ignore】, 因为Prod ID在Product中不存在，所以忽略这条Product，"
+                    +Constants.COMMENT_PREFIX+"原ProdID = "+rs.getString("PROD_ID")+", ERP ID = "+erpID);
+            return null;
+        }
         String prodName = StringUtils.nullToString(rs.getString("PROD_NAME"));
-        BigDecimal unitPrice = rs.getBigDecimal("PROD_UNITPRICE");
-        BigDecimal exchangeRate = rs.getBigDecimal("EXGRATE");
+        BigDecimal unitPrice = rs.getBigDecimal("PROD_UNITPRICE") == null ? new BigDecimal(0): rs.getBigDecimal("PROD_UNITPRICE") ;
+        BigDecimal exchangeRate = rs.getBigDecimal("PROD_UNITPRICE") == null ? new BigDecimal(0): rs.getBigDecimal("EXGRATE");
         //通过exchangerate转化后的单价（定价）
         BigDecimal realUnitPrice_dec = unitPrice.multiply(exchangeRate);
         String realUnitPrice = StringUtils.nullToString(realUnitPrice_dec);
@@ -753,7 +792,7 @@ public class DBUtils {
         BigDecimal total = quantity.multiply(realUnitPrice_dec);
         //总计 = 金额 - 金额 * 折扣（因为折扣是百分比）
         BigDecimal netTotal = total.subtract(total.multiply(itemDiscount));
-        logger.debug("打印Product：ERPID="+erpID+", prodID = "+prodID+", prodName = "+prodName +", unitPrice=" +
+        logger.debug("打印Product Detail：ERPID="+erpID+", prodID = "+prodID+", prodName = "+prodName +", unitPrice=" +
                 ""+unitPrice+", exchangeRate="+exchangeRate+", realUnitPrice="+realUnitPrice+
                 ", listPrice= "+listPrice+", quantity="+quantity+", itemDiscount="+itemDiscount+
                 ", prodDesc = "+prodDesc+", total="+total+", netTotal="+netTotal);
@@ -783,7 +822,7 @@ public class DBUtils {
 
 
 
-    private static ResultSet exeQuery(String sql) throws SQLException, IOException, ConfigurationException {
+    private static ResultSet exeQuery(String sql) throws SQLException, IOException, ConfigurationException, ClassNotFoundException {
         ResultSet rs = null;
         Connection conn = getConnection();
         try {
@@ -804,7 +843,7 @@ public class DBUtils {
      * @throws IOException
      * @throws ConfigurationException
      */
-    public static void exeUpdReport(String sql,List list) throws SQLException, IOException, ConfigurationException {
+    public static void exeUpdReport(String sql,List list) throws SQLException, IOException, ConfigurationException, ClassNotFoundException {
         ResultSet rs = null;
         Connection conn = getConnection();
         try {
