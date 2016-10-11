@@ -174,7 +174,7 @@ public class ModuleManager {
         logger.debug("####################################################################################################");
         List prodList = new ArrayList();
         try{
-            prodList = exeProducts();
+            //prodList = exeProducts();
             logger.debug(prodList+"\n\n\n\n\n");
         }catch (Exception e){
             logger.error("【ModuleManager】，执行 exeProducts 出错",e);
@@ -184,7 +184,7 @@ public class ModuleManager {
 
         logger.debug("##################################################写入文件Account.properties,Product.properties##################################################");
         try{
-            testWriteFiles();
+            //testWriteFiles();
             logger.debug("\n\n\n\n\n");
         }catch (Exception e){
             logger.error("【ModuleManager】，执行 testWriteFiles 出错", e);
@@ -193,20 +193,20 @@ public class ModuleManager {
         logger.debug("##################################################开始执行Quotes Module##################################################==");
         logger.debug("####################################################################################################");
         List quoteList = new ArrayList();
-        //try{
-        //    quoteList = exeQuotes();
-        //    logger.debug(quoteList+"\n\n\n\n\n");
-        //}catch (Exception e){
-        //    logger.error("【ModuleManager】，执行 exeQuotes 出错",e);
-        //    wholeModuleFail += "|"+ "QUOTES";
-        //}
+        try{
+            //quoteList = exeQuotes();
+            logger.debug(quoteList+"\n\n\n\n\n");
+        }catch (Exception e){
+            logger.error("【ModuleManager】，执行 exeQuotes 出错",e);
+            wholeModuleFail += "|"+ "QUOTES";
+        }
 
 
         logger.debug("##################################################开始执行SO Module##################################################==");
         logger.debug("####################################################################################################");
         List soList = new ArrayList();
         try{
-            soList = exeSO();
+            //soList = exeSO();
             logger.debug(soList+"\n\n\n\n\n");
         }catch (Exception e){
             logger.error("【ModuleManager】，执行 exeSO 出错",e);
@@ -218,7 +218,7 @@ public class ModuleManager {
 
         List invList = new ArrayList();
         try{
-            invList = exeInvoice();
+            //invList = exeInvoice();
             logger.debug(invList+"\n\n\n\n\n");
         }catch (Exception e){
             logger.error("【ModuleManager】，执行 invList 出错",e);

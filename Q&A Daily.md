@@ -47,8 +47,14 @@
    * 确定UI
    * 确定账户13个账户人
 
+# 20161011
+* 1. 今天必需跑完所有的数据,查看下下13个人的checking是否正确
+* 2. 今天必需调整好所有的Report
+* 3. 优化log
+* 4. 更新db
+
 # 20161010
-* 1. 解析返回的response是成功还是失败【】-->明天完成commonPostMethod 【TODO，1010完成】
+* 1. 解析返回的response是成功还是失败【】-->明天完成commonPostMethod 【done，1010完成,done,方案：判断有没有<error>标签】
 * 2. 优化log【doing，优先级Ⅳ】--》优化了一部分，需要跑所有数据时再优化【TODO，1010完成】
 * 3. report不对，需要重新修改【TODO，1010完成】
 * 4. 导入所有数据【TODO，1010-1015完成】
@@ -56,7 +62,7 @@
 * 6. 写一个程序，专门负责更新DB数据
 
 # 20161008
-* 1. 每次到ZOHO做完操作后，记录时间到file文件中【doing ，优先级Ⅱ】[doing]--【20161009 DONE】
+* 1. 每次到ZOHO做完操作后，记录最后成功的时间到file文件中【doing ，优先级Ⅱ】[doing]--【20161009 DONE】
 * 2. 解析返回的response是成功还是失败【】-->明天完成commonPostMethod
 * 3. 明天完成对LastestEditTime的判断build2Zoho3PartObj  [TODO]【20161009 DONE】
 * 4. 优化log【doing，优先级Ⅳ】--》优化了一部分，需要跑所有数据时再优化

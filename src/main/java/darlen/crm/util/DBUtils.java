@@ -127,8 +127,8 @@ public class DBUtils {
         dbAcctList.add(0,dbIDModuleObjMap);
         dbAcctList.add(1,dbIDEditTimeMap);
 //        List<Accounts> accountList = new ArrayList<Accounts>();
-        String sql = "select * from dbo.Customer " +
-                "where CustomerID in (1,8,14,20)"; //暂时只用三条数据
+        String sql = "select * from dbo.Customer ";
+                //+  "where CustomerID in (1,8,14,20)"; //暂时只用三条数据
         ResultSet rs = exeQuery(sql);
         while (rs != null && rs.next()){
             String lastEditBy = StringUtils.nullToString(rs.getString("LatestEditBy"));
