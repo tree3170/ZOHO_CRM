@@ -42,13 +42,16 @@
 
    # 20161011 三大问题
    * 1. 关于在Quotes、SO、Invoice中的产品ID为空的情况，在ZOHO是不允许的会导致导入失败，该如何处理
-   		考虑做法1：【暂时采用的做法】
-        a. 仅仅只有1条Product-->忽略整条记录
-        b. 如果有多条product-->仅仅remove为空的那条product
-        考虑做法2：
-        设置一个默认的Product，也就是当product ID为空的时候使用默认的Product ID【需要confirm的做法】
+        暂时的做法：sql中添加条件ItemID IS not null
+
    * 2. 产品模块的拥有人是必需在13个人的账号中的某个人，但是在Quotes，SO，Invoice中，如果他们的拥有人也都在13个账号中，但是他们包含的产品的拥有人不在13个人中该如何处理
        做法： 当做product id为空，忽略这条product，然后接下来按照第一点来执行
+       如果是这三个模块中的关于产品ID不存在于模块Products中，那么该如何处理
+		考虑做法1：【暂时采用的做法】
+	   a. 仅仅只有1条Product-->忽略整条记录
+	   b. 如果有多条product-->仅仅remove为空的那条product
+	   考虑做法2：
+	   设置一个默认的Product，也就是当product ID为空的时候使用默认的Product ID【需要confirm的做法】
    * 3. 仅仅只在Quotes模块中存在CustomerID为-1的情况，这种情况是你给我的数据有点问题还是本来就存在，如果本来就存在该如何处理
        暂时做法：不设置customer，这样就会默认
 
@@ -64,6 +67,10 @@
 * 1. 必需保证所有的数据是正确导入的，根据账户查询sql得出来的结果，与UI的结果对比
 * 2. log的优化
 * 3 .跟ken确定上面的三大问题，跟客户确定13个账户问题
+* 4. 在公司需要做2个东西，
+    第一个是REPORT的WEB版：所有的字段，分时间段查询，类似于DBS的查log功能
+    第二个是SQL查询的WEB 版：只列出必要字段，
+* 5. 完成尝试下把ERP ID改成Number类型，把LastestEditTime改成Date类型
 
 
 # 20161011
