@@ -135,7 +135,7 @@ public class ProductHandler extends AbstractModule{
      * @return
      * @throws Exception
      */
-    private List<ProdRow> retrieveAllRowsFromZoho(int fromIndex, int toIndex, List<ProdRow> allRows) throws Exception {
+    public static List<ProdRow> retrieveAllRowsFromZoho(int fromIndex, int toIndex, List<ProdRow> allRows) throws Exception {
         logger.debug("# 1.1 ProductHandler 【retrieveAllRowsFromZoho】...fromIndex="+fromIndex+", toIndex="+toIndex+", row size="+allRows.size());
 //     1. 从ZOHO获取有效的xml
         String zohoStr =  handleProduct.retrieveZohoRecords(ModuleNameKeys.Products.toString(),fromIndex,toIndex);

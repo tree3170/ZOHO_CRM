@@ -37,15 +37,17 @@
    * 明天对SO、Invoices数据的正确性需要找用户和Ken确认正确性【待确认】
    * 关于Quotes，SO，Invoices中的Product是否能删掉在ERP中？？【待确认】
 
-   #20160930
+   # 20160930
    * 关于LatestEditTime和CreationTime为空的情况【待确认】
 
    # 20161011 三大问题
    * 1. 关于在Quotes、SO、Invoice中的产品ID为空的情况，在ZOHO是不允许的会导致导入失败，该如何处理
+   From ken: 【三大模块一定会有Product，同时Itemid一定不为空】
         暂时的做法：sql中添加条件ItemID IS not null
 
    * 2. 产品模块的拥有人是必需在13个人的账号中的某个人，但是在Quotes，SO，Invoice中，如果他们的拥有人也都在13个账号中，但是他们包含的产品的拥有人不在13个人中该如何处理
        做法： 当做product id为空，忽略这条product，然后接下来按照第一点来执行
+   From Ken：【Product不存在拥有者，所以所有的Product都会导入，故不存在三大模块中的product id不存在与产品模块中】
        如果是这三个模块中的关于产品ID不存在于模块Products中，那么该如何处理
 		考虑做法1：【暂时采用的做法】
 	   a. 仅仅只有1条Product-->忽略整条记录
@@ -53,6 +55,9 @@
 	   考虑做法2：
 	   设置一个默认的Product，也就是当product ID为空的时候使用默认的Product ID【需要confirm的做法】
    * 3. 仅仅只在Quotes模块中存在CustomerID为-1的情况，这种情况是你给我的数据有点问题还是本来就存在，如果本来就存在该如何处理
+   From Ken【在Quotes模块中，CustomerID为-1是存在的，所以Customer中设一个Blank的客户用来维护ID 为-1的情况】，
+   【似乎如果不设置的话也可行，只是CustomerName为空，如果是这样的话，那我们就不需要在Customer模块中手动设置一个Blank的客户了】
+
        暂时做法：不设置customer，这样就会默认
 
 
@@ -64,13 +69,18 @@
    * 确定账户13个账户人
 
 # 20161012
-* 1. 必需保证所有的数据是正确导入的，根据账户查询sql得出来的结果，与UI的结果对比
+* 1. 必需保证所有的数据是正确导入的，根据账户查询sql得出来的结果，与UI的结果对比【done】
 * 2. log的优化
-* 3 .跟ken确定上面的三大问题，跟客户确定13个账户问题
-* 4. 在公司需要做2个东西，
+* 3 .跟ken确定上面的三大问题，跟客户确定13个账户问题【done】
+* 4. 关于UI：【doing，可能需要到周末才能完成】
     第一个是REPORT的WEB版：所有的字段，分时间段查询，类似于DBS的查log功能
     第二个是SQL查询的WEB 版：只列出必要字段，
-* 5. 完成尝试下把ERP ID改成Number类型，把LastestEditTime改成Date类型
+    第三个是UI也要实现能删除数据问题
+* 5. 完成尝试下把ERP ID改成Number类型【done，可以排序】，把LastestEditTime改成Date类型
+* 6. HouseKeep： 1个月前的log日志需要删除，一天大概有3-400M的日志生成，一个月大概有10多G的日志生成，所以必需保证硬盘>10G
+* 7. PayTerm好像还没有修改，需要找个时间去修改
+* 8. 检查lastestSuccess配置文件能不能生效
+* 9.
 
 
 # 20161011

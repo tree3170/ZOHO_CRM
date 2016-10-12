@@ -9,6 +9,7 @@
 package darlen.crm.manager;
 
 import darlen.crm.jaxb.Accounts.Response;
+import darlen.crm.jaxb.common.FL;
 import darlen.crm.jaxb.common.ProdRow;
 import darlen.crm.manager.handler.*;
 import darlen.crm.util.*;
@@ -146,132 +147,136 @@ public class ModuleManager {
     /**
      * 执行对所有Module的操作
      * 关于report的格式：：：AccountFailNum|ProductFailNum|QuoteFailNum|SOFailNum|InvoiceFailNum
+     * 1、 执行5个Module的操作
+     * 2、 如果都成功，更新lastExecSuccessTime.properties
+     * 3. 更新DB中的report
      *
      * TODO ： 如果执行某个模块出错，那么该怎么处理，是继续下去还是可以执行其他的模块
      * @throws Exception
      */
     public static void exeAllModuleSend()throws Exception{
-         //writeFiles();
         //启动时间
         Date startDate = new Date();
         String insertFailStr = "";
         String updateFailStr = "";
         String deleteFailStr = "";
         String wholeModuleFail = "";
-        logger.debug("##################################################开始执行Account Module##################################################");
-        logger.debug("####################################################################################################");
-        List acctsList = new ArrayList();
-        try{
-             acctsList = exeAccounts();
-             logger.debug(acctsList+"\n\n\n\n\n");
-        }catch (Exception e){
-            logger.error("【ModuleManager】，执行 exeAccounts 出错",e);
-            wholeModuleFail = "ACCT";
-        }
 
-
-        logger.debug("##################################################开始执行Product Module##################################################");
-        logger.debug("####################################################################################################");
+        List acctList = new ArrayList();
         List prodList = new ArrayList();
-        try{
-            prodList = exeProducts();
-            logger.debug(prodList+"\n\n\n\n\n");
-        }catch (Exception e){
-            logger.error("【ModuleManager】，执行 exeProducts 出错",e);
-            wholeModuleFail += "|"+ "PROD";
-        }
-
-
-        logger.debug("##################################################写入文件Account.properties,Product.properties##################################################");
-        try{
-            testWriteFiles();
-            logger.debug("\n\n\n\n\n");
-        }catch (Exception e){
-            logger.error("【ModuleManager】，执行 testWriteFiles 出错", e);
-        }
-
-        logger.debug("##################################################开始执行Quotes Module##################################################==");
-        logger.debug("####################################################################################################");
         List quoteList = new ArrayList();
-        try{
-            quoteList = exeQuotes();
-            logger.debug(quoteList+"\n\n\n\n\n");
-        }catch (Exception e){
-            logger.error("【ModuleManager】，执行 exeQuotes 出错",e);
-            wholeModuleFail += "|"+ "QUOTES";
-        }
-
-
-        logger.debug("##################################################开始执行SO Module##################################################==");
-        logger.debug("####################################################################################################");
         List soList = new ArrayList();
-        try{
-            soList = exeSO();
-            logger.debug(soList+"\n\n\n\n\n");
-        }catch (Exception e){
-            logger.error("【ModuleManager】，执行 exeSO 出错",e);
-            wholeModuleFail += "|"+ "SO";
-        }
-        logger.debug("##################################################开始执行Invoices Module##################################################");
-        logger.debug("####################################################################################################");
-
-
         List invList = new ArrayList();
         try{
-            invList = exeInvoice();
-            logger.debug(invList+"\n\n\n\n\n");
-        }catch (Exception e){
-            logger.error("【ModuleManager】，执行 invList 出错",e);
-            wholeModuleFail += "|"+ "Invoice";
+            try{
+                 logger.debug("##################################################开始执行Account Module##################################################");
+                 logger.debug("####################################################################################################");
+                 acctList = exeAccounts();
+                 logger.debug(acctList+"\n\n\n\n\n");
+            }catch (Exception e){
+                logger.error("【ModuleManager】，执行 exeAccounts 出错",e);
+                wholeModuleFail = "ACCT";
+            }
+
+            logger.debug("##################################################开始执行Product Module##################################################");
+            logger.debug("####################################################################################################");
+            try{
+                prodList = exeProducts();
+                logger.debug(prodList);
+            }catch (Exception e){
+                logger.error("【ModuleManager】，执行 exeProducts 出错",e);
+                wholeModuleFail += "|"+ "PROD";
+            }
+
+            //if(ConfigManager.isDevMod()){
+                logger.debug("##################################################Begin写入文件Account.properties,Product.properties...##################################################\n\n\n\n\n");
+                try{
+
+                    rewriteAcctProdProps();
+                    logger.debug("\n\n\n\n\n");
+                }catch (Exception e){
+                    logger.error("【ModuleManager】，执行 testWriteFiles 出错", e);
+                }
+            logger.debug("##################################################End写入文件Account.properties,Product.properties##################################################");
+            //}
+
+            logger.debug("##################################################开始执行Quotes Module##################################################==");
+            logger.debug("####################################################################################################");
+            try{
+                quoteList = exeQuotes();
+                logger.debug(quoteList+"\n\n\n\n\n");
+            }catch (Exception e){
+                logger.error("【ModuleManager】，执行 exeQuotes 出错",e);
+                wholeModuleFail += "|"+ "QUOTES";
+            }
+
+            logger.debug("##################################################开始执行SO Module##################################################==");
+            logger.debug("####################################################################################################");
+            try{
+                soList = exeSO();
+                logger.debug(soList+"\n\n\n\n\n");
+            }catch (Exception e){
+                logger.error("【ModuleManager】，执行 exeSO 出错",e);
+                wholeModuleFail += "|"+ "SO";
+            }
+
+            logger.debug("##################################################开始执行Invoices Module##################################################");
+            logger.debug("####################################################################################################");
+            try{
+                invList = exeInvoice();
+                logger.debug(invList+"\n\n\n\n\n");
+            }catch (Exception e){
+                logger.error("【ModuleManager】，执行 invList 出错",e);
+                wholeModuleFail += "|"+ "Invoice";
+            }
+            //格式：AccountFailNum|ProductFailNum|QuoteFailNum|SOFailNum|InvoiceFailNum
+            boolean isAcctListEmpty = CommonUtils.isEmptyList(acctList);
+            boolean isProdListEmpty = CommonUtils.isEmptyList(prodList);
+            boolean isQuotesListEmpty = CommonUtils.isEmptyList(quoteList);
+            boolean isSoListEmpty = CommonUtils.isEmptyList(soList);
+            boolean isInvListEmpty = CommonUtils.isEmptyList(invList);
+            insertFailStr = ( isAcctListEmpty? "": StringUtils.nullToString(acctList.get(0))+"|")//AccountFailNum
+                    + ( isProdListEmpty? "": StringUtils.nullToString(prodList.get(0))+"|")//ProductFailNum
+                    + ( isQuotesListEmpty ? "": StringUtils.nullToString(quoteList.get(0))+"|")//QuoteFailNum
+                    + ( isSoListEmpty? "": StringUtils.nullToString(soList.get(0))+"|")//SOFailNum
+                    + ( isInvListEmpty ? "": StringUtils.nullToString(invList.get(0)));//InvoiceFailNum
+
+            updateFailStr = ( isAcctListEmpty? "":StringUtils.nullToString(acctList.get(1))+"|")
+                    +( isProdListEmpty? "":StringUtils.nullToString(prodList.get(1))+"|")
+                    +( isQuotesListEmpty ? "": StringUtils.nullToString(quoteList.get(1))+"|")
+                    +( isSoListEmpty? "":StringUtils.nullToString(soList.get(1))+"|")
+                    +( isInvListEmpty? "":StringUtils.nullToString(invList.get(1)));
+
+            deleteFailStr = ( isAcctListEmpty? "":StringUtils.nullToString(acctList.get(2))+"|")
+                    +( isProdListEmpty? "":StringUtils.nullToString(prodList.get(2))+"|")
+                    +( isQuotesListEmpty ? "": StringUtils.nullToString(quoteList.get(2))+"|")
+                    +( isSoListEmpty? "":StringUtils.nullToString(soList.get(2))+"|")
+                    +( isInvListEmpty? "":StringUtils.nullToString(invList.get(2)));
+
+
+            //如果都执行成功，那么更新lastExecSuccessTime.properties
+            Map<String,String> map = new HashMap<String, String>();
+            map.put(Constants.LAST_EXEC_SUCCESS_TIME,ThreadLocalDateUtil.formatDate(new Date()));
+            //ConfigManager.writeVal2Props(map,Constants.PROPS_TIME_FILE);
+
+        }catch (Exception e) {
+            logger.error("【exeAllModuleSend】, 出现错误",e);
+            throw e;
+        }finally {
+            //结束时间new Date()
+            Date endDate = new Date();
+            List updERPList = new ArrayList();
+            updERPList.add(startDate);
+            updERPList.add(endDate);
+            updERPList.add(insertFailStr);
+            updERPList.add(updateFailStr);
+            updERPList.add(deleteFailStr);
+            updERPList.add(wholeModuleFail);
+            CommonUtils.printList(updERPList,"#####最后更新Report");
+            ////执行更新Report操作
+            String sql = "INSERT INTO ZOHO_EXCE_REPORT (START_TIME, END_TIME,INS_FAILED,UPD_FAILED,DEL_FAILED,WHOLEFAIL) VALUES(?,?,?,?,?,?)";
+            DBUtils.exeUpdReport(sql, updERPList);
         }
-
-
-
-        //格式：AccountFailNum|ProductFailNum|QuoteFailNum|SOFailNum|InvoiceFailNum
-        boolean isAcctListEmpty = CommonUtils.isEmptyList(acctsList);
-        boolean isProdListEmpty = CommonUtils.isEmptyList(prodList);
-        boolean isQuotesListEmpty = CommonUtils.isEmptyList(quoteList);
-        boolean isSoListEmpty = CommonUtils.isEmptyList(soList);
-        boolean isInvListEmpty = CommonUtils.isEmptyList(invList);
-        insertFailStr = ( isAcctListEmpty? "": StringUtils.nullToString(acctsList.get(0))+"|")//AccountFailNum
-                + ( isProdListEmpty? "": StringUtils.nullToString(prodList.get(0))+"|")//ProductFailNum
-                + ( isQuotesListEmpty ? "": StringUtils.nullToString(quoteList.get(0))+"|")//QuoteFailNum
-                + ( isSoListEmpty? "": StringUtils.nullToString(soList.get(0))+"|")//SOFailNum
-                + ( isInvListEmpty ? "": StringUtils.nullToString(invList.get(0)));//InvoiceFailNum
-
-        updateFailStr = ( isAcctListEmpty? "":StringUtils.nullToString(acctsList.get(1))+"|")
-                +( isProdListEmpty? "":StringUtils.nullToString(prodList.get(1))+"|")
-                +( isQuotesListEmpty ? "": StringUtils.nullToString(quoteList.get(1))+"|")
-                +( isSoListEmpty? "":StringUtils.nullToString(soList.get(1))+"|")
-                +( isInvListEmpty? "":StringUtils.nullToString(invList.get(1)));
-
-        deleteFailStr = ( isAcctListEmpty? "":StringUtils.nullToString(acctsList.get(2))+"|")
-                +( isProdListEmpty? "":StringUtils.nullToString(prodList.get(2))+"|")
-                +( isQuotesListEmpty ? "": StringUtils.nullToString(quoteList.get(2))+"|")
-                +( isSoListEmpty? "":StringUtils.nullToString(soList.get(2))+"|")
-                +( isInvListEmpty? "":StringUtils.nullToString(invList.get(2)));
-
-
-        //如果都执行成功，那么更新lastExecSuccessTime.properties
-        Map<String,String> map = new HashMap<String, String>();
-        map.put(Constants.LAST_EXEC_SUCCESS_TIME,ThreadLocalDateUtil.formatDate(new Date()));
-        //ConfigManager.writeVal2Props(map,Constants.PROPS_TIME_FILE);
-
-        //结束时间new Date()
-        Date endDate = new Date();
-        List updERPList = new ArrayList();
-        updERPList.add(startDate);
-        updERPList.add(endDate);
-        updERPList.add(insertFailStr);
-        updERPList.add(updateFailStr);
-        updERPList.add(deleteFailStr);
-        updERPList.add(wholeModuleFail);
-        CommonUtils.printList(updERPList,"#####最后更新Report");
-        ////执行更新Report操作
-        String sql = "INSERT INTO ZOHO_EXCE_REPORT (START_TIME, END_TIME,INS_FAILED,UPD_FAILED,DEL_FAILED,WHOLEFAIL) VALUES(?,?,?,?,?,?)";
-        DBUtils.exeUpdReport(sql, updERPList);
-
-
     }
 
 
@@ -357,8 +362,10 @@ public class ModuleManager {
         Map<String,String> allProdErpZohoIDMap = (Map<String,String>)zohoProdCompList.get(0);
         delZohoIDList = new ArrayList<String>();
         for(Map.Entry<String,String> entry : allProdErpZohoIDMap.entrySet()){
-            String zohoID = entry.getValue();
-            delZohoIDList.add(zohoID);;
+            if(!"-1".equals(entry.getKey())){//忽略ERP ID 为-1的Account模块
+                String zohoID = entry.getValue();
+                delZohoIDList.add(zohoID);;
+            }
         }
 
         return delZohoIDList;
@@ -435,7 +442,7 @@ public class ModuleManager {
         //logger.debug("删除模块【Accounts】的ZOHO ID集合为"+Constants.COMMENT_PREFIX+"【House Keep】"+delZohoIDList);
         //acctModule.delRecords(ModuleNameKeys.Accounts.toString(),Constants.ZOHO_CRUD_DELETE,delZohoIDList);
 
-
+        rewriteAcctProdProps();
         exe();
     }
     /**
@@ -453,11 +460,58 @@ public class ModuleManager {
      * 写入Accounts.properties和Product.properties
      * @throws Exception
      */
-    public static void testWriteFiles() throws Exception {
+    public static void rewriteAcctProdProps() throws Exception {
         module = AccountsHandler.getInstance();
-        module.buildSkeletonFromZohoList();
+        //module.buildSkeletonFromZohoList();
+        List<ProdRow> zohoAcctRows = new ArrayList<ProdRow>();
+        AccountsHandler.retrieveAllRowsFromZoho(1, Constants.MAX_FETCH_SIZE, zohoAcctRows);
+        getAndWriteProps(zohoAcctRows,Constants.MODULE_ACCOUNTS_ID, Constants.ERPID,ModuleNameKeys.Accounts.toString());
+
         module = ProductHandler.getInstance();
-        module.buildSkeletonFromZohoList();
+        //module.buildSkeletonFromZohoList();
+        List<ProdRow> zohoProdRows = new ArrayList<ProdRow>();
+        ProductHandler.retrieveAllRowsFromZoho(1, Constants.MAX_FETCH_SIZE, zohoProdRows);
+        getAndWriteProps(zohoProdRows,Constants.MODULE_PRODUCTS_ID, Constants.ERPID,ModuleNameKeys.Products.toString());
+
+
+    }
+
+
+    /**
+     * 根据从ZOHO获取的Rows，提取ERP ID 和ZOHO ID， 并且将相应的值写入Product和Account的配置文件中
+     * @param rows
+     * @param zohoIDName
+     * @param erpIDName
+     * @param moduleName
+     * @throws Exception
+     */
+    private static void getAndWriteProps(List<ProdRow> rows, String zohoIDName, String erpIDName,String moduleName) throws Exception {
+        //List<ProdRow> rows = new ArrayList<ProdRow>();
+        //AccountsHandler.retrieveAllRowsFromZoho(1, Constants.MAX_FETCH_SIZE, rows);
+        Map<String,String> erpZohoIDMap = new HashMap<String, String>();
+        //Constants.MODULE_ACCOUNTS_ID, Constants.ERPID
+        for (int i = 0; i < rows.size() ; i++){
+            String zohoID = "";
+            String erpID = "";
+            List<FL> fls = rows.get(i).getFls();
+            for(FL fl : fls){
+                String fieldName = fl.getFieldName();
+                String fieldVal = fl.getFieldValue();
+                if(zohoIDName.equals(fieldName) && !StringUtils.isEmptyString(fieldVal)){
+                    zohoID = fieldVal;
+                }
+                if(erpIDName.equals(fieldName)){
+                    erpID = fieldVal;
+                }
+
+            }
+            erpZohoIDMap.put(erpID, zohoID);
+         }
+        //当Module是Product或者是Account的时候，需要把所有的ERPID 和ZOHOID分别写入不同文件中，为了以后在数据库读取Accounts和Product使用
+        if(ModuleNameKeys.Accounts.toString().equals(moduleName)  || ModuleNameKeys.Products.toString().equals(moduleName)){
+            ConfigManager.writeVal2Props(erpZohoIDMap,ModuleNameKeys.Accounts.toString().
+                    equals(moduleName) ? Constants.PROPS_ACCT_FILE : Constants.PROPS_PROD_FILE);
+        }
     }
 
     /**

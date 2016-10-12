@@ -135,7 +135,7 @@ public class AccountsHandler  extends AbstractModule {
      * @return
      * @throws Exception
      */
-    private List<ProdRow> retrieveAllRowsFromZoho(int fromIndex, int toIndex, List<ProdRow> allRows) throws Exception {
+    public static List<ProdRow> retrieveAllRowsFromZoho(int fromIndex, int toIndex, List<ProdRow> allRows) throws Exception {
         logger.debug("# 1.1 AccountHandler 【retrieveAllRowsFromZoho】...fromIndex="+fromIndex+", toIndex="+toIndex+", row size="+allRows.size());
 //     1. 从ZOHO获取有效的xml
         String zohoStr =  handleAccounts.retrieveZohoRecords(ModuleNameKeys.Accounts.toString(),fromIndex,toIndex);
@@ -386,7 +386,7 @@ public class AccountsHandler  extends AbstractModule {
      * @throws Exception
      */
     private Map<String,String> buildUpd2ZohoXml(Map accountMap,String className,Properties fieldMappingProps) throws Exception {
-        logger.debug("# 4.3 AccountHandler 【buildAdd2ZohoXml】...");
+        logger.debug("# 4.3 AccountHandler 【buildUpd2ZohoXml】...");
         Map<String,String> updateZphoXmlMap = new HashMap<String, String>();
         String str = "";
         Response response = new Response();

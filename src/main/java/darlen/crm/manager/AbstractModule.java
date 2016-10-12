@@ -405,7 +405,10 @@ public abstract  class AbstractModule  implements IModuleHandler {
                     }
                 }
             }else{ //delete
-                if(!delZohoIDList.contains(zohoID)){
+                if("-1" .equals(erpID)){
+                     // 如果ZOHO中关于Account模块erpID为-1，ignore，这个是默认的账号,忽略
+                    logger.debug("忽略ZOHO上 ERPID 为-1的记录。");
+                }else if(!delZohoIDList.contains(zohoID)){
                     delZohoIDList.add(zohoID);
                 }
             }

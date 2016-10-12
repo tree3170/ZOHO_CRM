@@ -98,6 +98,17 @@ public class ConfigManager {
         }
         return StringUtils.nullToString(zohoUserPropsMap.get(property));
     }
+    public static List getAllZohoUserName() throws ConfigurationException, IOException {
+        if(zohoUserPropsMap.size() == 0){
+            configManager.initConfig(Constants.PROPS_USER_FILE, ZOHOUSER_FILE_INDEX);
+        }
+        List<String> allUsers = new ArrayList<String>();
+        for(Map.Entry<String,String> entry : zohoUserPropsMap.entrySet()){
+            allUsers.add(entry.getKey());
+        }
+        return allUsers;
+    }
+
     /**
      * Product.properties
      * @param property
@@ -213,7 +224,7 @@ public class ConfigManager {
      * @param map
      * @param configName
      */
-    public static void writeVal2Props( Map<String,String> map,String configName)  {
+    public synchronized  static void writeVal2Props( Map<String,String> map,String configName)  {
         logger.debug("# 写入Product.properties,Accounts.properties,lastExecSuccessTime.properties文件：erpID<-->zohoID, configName="+configName);
         PrintWriter writer = null;
         try{

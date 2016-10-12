@@ -44,6 +44,39 @@ import java.util.Date;
  */
 public class DBUtils {
     private static Logger logger = Logger.getLogger(DBUtils.class);
+    private static final String ACCT_SQL = "select  zoho.* from dbo.Customer as zoho  where 1 =1 ";
+    private static final String PROD_SQL = "select * from dbo.item  as zoho where 1 =1 ";
+    private static final String QUOTES_SQL = "SELECT zoho.QuoteID AS ERPID, zoho.CustomerID, zoho.QuoteRef, zoho.CUSNAME AS CUSTOMERNAME, zoho.EXCHANGERATE AS EXGRATE ,zoho.LatestEditBy, \n" +
+            "iq.Item_QuoteID,item.ITEMID AS PROD_ID, item.NAME AS PROD_NAME, iq.QuotePrice AS PROD_UNITPRICE,  iq.QUANTITY AS PROD_QUANTITY, iq.ITEMDISCOUNT AS PROD_DISCOUNT, iq.DESCRIPTION AS PROD_DESC , \n" +
+            "zoho.*\n" +
+            " FROM Quote zoho\n" +
+            "LEFT JOIN  Item_Quote iq  ON zoho.QuoteID = iq.QuoteID\n" +
+            "LEFT JOIN  ITEM item  ON iq.ItemID = item.ITEMID\n" +
+            "where 1 =1\n" +
+            //"and zoho.QuoteID in (13,16,27)\n" +
+            "and item.ITEMID is not null\n" ;
+            //"and zoho.LatestEditBy in ('Pik Fai Chan','marketin','Gary Tang')" ;
+            //"and item.LatestEditBy in ('Pik Fai Chan','marketin','Gary Tang')\n" +
+    private static final String SO_SQL = "SELECT zoho.SOID AS ERPID, zoho.CustomerID, zoho.soREF, zoho.CUSNAME AS CUSTOMERNAME, zoho.EXCHANGERATE AS EXGRATE , zoho.LatestEditBy ,\n" +
+            "itemso.ITEM_SOID,item.ITEMID AS PROD_ID, item.NAME AS PROD_NAME, itemso.SOPRICE AS PROD_UNITPRICE,  itemso.QUANTITY AS PROD_QUANTITY, itemso.ITEMDISCOUNT AS PROD_DISCOUNT, itemso.DESCRIPTION AS PROD_DESC , \n" +
+            "zoho.*\n" +
+            " FROM SO zoho\n" +
+            "LEFT JOIN  ITEM_SO itemso  ON zoho.SOID = itemso.SOID\n" +
+            "LEFT JOIN  ITEM item  ON itemso.itemid = item.ITEMID\n" +
+            "where 1 = 1 \n" +
+            //"and zoho.SOID in (13,16,27)\n" +
+            "and item.ITEMID is not null\n" ;
+            //"and zoho.LatestEditBy in ('Pik Fai Chan','marketin','Gary Tang')\n" +
+            //"and item.LatestEditBy in ('Pik Fai Chan','marketin','Gary Tang')" ;
+    private static final String INVOICE_SQL = "SELECT zoho.InvoiceID AS ERPID, zoho.InvoiceRef,zoho.CustomerID,zoho.CUSNAME AS CUSTOMERNAME, zoho.EXCHANGERATE AS EXGRATE ,zoho.LatestEditBy,\n" +
+                    "item_inv.Item_InvoiceID,item.ITEMID AS PROD_ID, item.NAME AS PROD_NAME, item_inv.InvoicePrice AS PROD_UNITPRICE,  item_inv.QUANTITY AS PROD_QUANTITY, item_inv.ITEMDISCOUNT AS PROD_DISCOUNT, item_inv.DESCRIPTION AS PROD_DESC , \n" +
+                    "zoho.*\n" +
+                    " FROM Invoice zoho\n" +
+                    "LEFT JOIN  ITEM_INVOICE item_inv  ON zoho.InvoiceID = item_inv.InvoiceID\n" +
+                    "LEFT JOIN  ITEM item  ON item_inv.itemid = item.ITEMID\n" +
+                    "where 1= 1 \n" +
+                    //"and zoho.InvoiceID in(8,12,145)\n" +
+                    "and item.ITEMID is not null\n" ;
 
     /**
      * 获取DB连接
@@ -76,6 +109,32 @@ public class DBUtils {
 //        getSOMap();
 //        getInvoiceMap();
 //        CommonUtils.printList(getSOMap(), "打印所有的销售订单：：：");
+
+
+
+
+    }
+
+    /**
+     * 获取根据ZOHO User过滤得到相应的完整SQL
+     * @param sql
+     * @return
+     * @throws IOException
+     * @throws ConfigurationException
+     */
+    private static String getWholeSqlWithFilterUser(String sql, String moduleName,String orderBy) throws IOException, ConfigurationException {
+        List<String> allUsers = ConfigManager.getAllZohoUserName();
+        if(allUsers!= null && allUsers.size() > 0){
+            sql += "and zoho.LatestEditBy in (" ;
+            for(String name : allUsers){
+                sql += "'"+name+"'" + ",";
+            }
+            sql = sql.substring(0,sql.length()-1);
+            sql += ") \n";
+        }
+        sql += orderBy;
+        logger.debug("【getWholeSqlWithFilterUser】, module="+moduleName+ Constants.COMMENT_PREFIX+"\t sql = "+sql);
+        return sql;
     }
 
     /**
@@ -87,7 +146,8 @@ public class DBUtils {
         //accountPropsMap.containsKey(lastEditBy)
         if(!StringUtils.isEmptyString(lastEditBy) && !"".equals(ConfigManager.getZohoUserfromProps(lastEditBy))){
             return true;
-        }logger.debug("#不包含ERP ACCT【"+lastEditBy+"】， 忽略...");
+        }
+        logger.debug("#不包含ERP ACCT【"+lastEditBy+"】， 忽略...");
         return false;
     }
 
@@ -106,8 +166,10 @@ public class DBUtils {
         dbAcctList.add(0,dbIDModuleObjMap);
         dbAcctList.add(1,dbIDEditTimeMap);
 //        List<Accounts> accountList = new ArrayList<Accounts>();
-        String sql = "select * from dbo.Customer ";
-                //+  "where CustomerID in (1,8,14,20)"; //暂时只用三条数据
+
+                // and CustomerID in (1,8,14,20)"; //暂时只用三条数据
+        String sql = getWholeSqlWithFilterUser(ACCT_SQL,ModuleNameKeys.Accounts.toString()," order by zoho.customerID");
+
         ResultSet rs = exeQuery(sql);
         while (rs != null && rs.next()){
             String lastEditBy = StringUtils.nullToString(rs.getString("LatestEditBy"));
@@ -172,6 +234,11 @@ public class DBUtils {
         return dbAcctList;
     }
 
+    /**
+     * 关于Product模块，不需要过滤LastestEditBy，因为在ERP中不会有这个checking
+     * @return
+     * @throws Exception
+     */
     public synchronized static List getProductMap() throws Exception {
         List dbModuleList = new ArrayList();
         Map<String,String> dbIDEditTimeMap = new HashMap<String, String>();
@@ -179,12 +246,13 @@ public class DBUtils {
         dbModuleList.add(0,dbIDModuleObjMap);
         dbModuleList.add(1,dbIDEditTimeMap);
 //        List<Products> productsList = new ArrayList<Products>();
-        String sql = "select * from dbo.item ";
+        String sql = PROD_SQL;
                 //+ "where itemid in (6,9,10,130)"; //暂时只用三条数据
         ResultSet rs = exeQuery(sql);
         while (rs != null && rs.next()){
             String lastEditBy = StringUtils.nullToString(rs.getString("LatestEditBy"));
-            if(containERPAcct(lastEditBy)){
+
+            //if(containERPAcct(lastEditBy)){
                 Products product = new Products();
                 String erpID = StringUtils.nullToString(rs.getString("ItemID"));
                 //从Cache中拿出erpID对应的
@@ -223,7 +291,7 @@ public class DBUtils {
 //                productsList.add(product);
                 dbIDModuleObjMap.put(erpID,product);
                 dbIDEditTimeMap.put(erpID,latestEditTime);
-            }
+            //}
         }
         logger.debug("Product size:::" + dbIDModuleObjMap.size());
         return dbModuleList;
@@ -249,22 +317,23 @@ public class DBUtils {
         dbModuleList.add(0,dbIDModuleObjMap);
         dbModuleList.add(1,dbIDEditTimeMap);
 //        List<Quotes> moduleList = new ArrayList<Quotes>();
-        String sql = "select s1.soid , s1.cusName,s2.soid ,s2.Item_SOID,s2.ItemID,s2.ItemName from  item_SO s2  left join  SO s1 on s1.soid = s2.SOID";
-        sql = "select s1.soid , s1.cusName,s2.Item_SOID,s2.ItemID,s2.ItemName, item.Name as itemName\n" +
-                " from SO s1 \n" +
-                "left join  item_SO s2  on s1.soid = s2.SOID\n" +
-                "left join  item item  on s2.itemid = item.itemid\n" +
-                " order by s1.soid\n";
-        sql = "SELECT q.QuoteID AS ERPID, q.CustomerID, q.QuoteRef, q.CUSNAME AS CUSTOMERNAME, q.EXCHANGERATE AS EXGRATE ,\n" +
-                "iq.Item_QuoteID,item.ITEMID AS PROD_ID, item.NAME AS PROD_NAME, iq.QuotePrice AS PROD_UNITPRICE,  iq.QUANTITY AS PROD_QUANTITY, iq.ITEMDISCOUNT AS PROD_DISCOUNT, iq.DESCRIPTION AS PROD_DESC , \n" +
-                "q.*\n" +
-                " FROM Quote q\n" +
-                "LEFT JOIN  Item_Quote iq  ON q.QuoteID = iq.QuoteID\n" +
-                "LEFT JOIN  ITEM item  ON iq.ItemID = item.ITEMID\n" +
-                "where 1 =1\n" +
-                //"and q.QuoteID in (13,16,27)\n" +
-                "and item.ITEMID is not null" +
-                " ORDER BY q.QuoteID";
+//        String sql = "select s1.soid , s1.cusName,s2.soid ,s2.Item_SOID,s2.ItemID,s2.ItemName from  item_SO s2  left join  SO s1 on s1.soid = s2.SOID";
+//        sql = "select s1.soid , s1.cusName,s2.Item_SOID,s2.ItemID,s2.ItemName, item.Name as itemName\n" +
+//                " from SO s1 \n" +
+//                "left join  item_SO s2  on s1.soid = s2.SOID\n" +
+//                "left join  item item  on s2.itemid = item.itemid\n" +
+//                " order by s1.soid\n";
+//        sql = "SELECT q.QuoteID AS ERPID, q.CustomerID, q.QuoteRef, q.CUSNAME AS CUSTOMERNAME, q.EXCHANGERATE AS EXGRATE ,\n" +
+//                "iq.Item_QuoteID,item.ITEMID AS PROD_ID, item.NAME AS PROD_NAME, iq.QuotePrice AS PROD_UNITPRICE,  iq.QUANTITY AS PROD_QUANTITY, iq.ITEMDISCOUNT AS PROD_DISCOUNT, iq.DESCRIPTION AS PROD_DESC , \n" +
+//                "q.*\n" +
+//                " FROM Quote q\n" +
+//                "LEFT JOIN  Item_Quote iq  ON q.QuoteID = iq.QuoteID\n" +
+//                "LEFT JOIN  ITEM item  ON iq.ItemID = item.ITEMID\n" +
+//                "where 1 =1\n" +
+//                //"and q.QuoteID in (13,16,27)\n" +
+//                "and item.ITEMID is not null" +
+//                " ORDER BY q.QuoteID";
+        String sql = getWholeSqlWithFilterUser(QUOTES_SQL,ModuleNameKeys.Quotes.toString()," ORDER BY zoho.QuoteID");
         ResultSet rs = exeQuery(sql);
         String preErpID = "";
         List<ProductDetails> pds = new ArrayList<ProductDetails>();
@@ -425,22 +494,23 @@ public class DBUtils {
         dbModuleList.add(0,dbIDModuleObjMap);
         dbModuleList.add(1,dbIDEditTimeMap);
         List<SO> moduleList = new ArrayList<SO>();
-        String sql = "select s1.soid , s1.cusName,s2.soid ,s2.Item_SOID,s2.ItemID,s2.ItemName from  item_SO s2  left join  SO s1 on s1.soid = s2.SOID";
-        sql = "select s1.soid , s1.cusName,s2.Item_SOID,s2.ItemID,s2.ItemName, item.Name as itemName\n" +
-                " from SO s1 \n" +
-                "left join  item_SO s2  on s1.soid = s2.SOID\n" +
-                "left join  item item  on s2.itemid = item.itemid\n" +
-                " order by s1.soid\n";
-        sql = "SELECT so.SOID AS ERPID, so.CUSNAME AS CUSTOMERNAME, so.EXCHANGERATE AS EXGRATE ,\n" +
-                "itemso.ITEM_SOID,item.ITEMID AS PROD_ID, item.NAME AS PROD_NAME, itemso.SOPRICE AS PROD_UNITPRICE,  itemso.QUANTITY AS PROD_QUANTITY, itemso.ITEMDISCOUNT AS PROD_DISCOUNT, itemso.DESCRIPTION AS PROD_DESC , \n" +
-                "so.*\n" +
-                " FROM SO so\n" +
-                "LEFT JOIN  ITEM_SO itemso  ON so.SOID = itemso.SOID\n" +
-                "LEFT JOIN  ITEM item  ON itemso.itemid = item.ITEMID\n" +
-                "where 1 = 1 \n" +
-                //"and so.SOID in (13,16,27)\n" +//暂时只用三条数据
-                "and item.ITEMID is not null \n" +
-                " ORDER BY SO.SOID";
+        //String sql = "select s1.soid , s1.cusName,s2.soid ,s2.Item_SOID,s2.ItemID,s2.ItemName from  item_SO s2  left join  SO s1 on s1.soid = s2.SOID";
+        //sql = "select s1.soid , s1.cusName,s2.Item_SOID,s2.ItemID,s2.ItemName, item.Name as itemName\n" +
+        //        " from SO s1 \n" +
+        //        "left join  item_SO s2  on s1.soid = s2.SOID\n" +
+        //        "left join  item item  on s2.itemid = item.itemid\n" +
+        //        " order by s1.soid\n";
+        //sql = "SELECT so.SOID AS ERPID, so.CUSNAME AS CUSTOMERNAME, so.EXCHANGERATE AS EXGRATE ,\n" +
+        //        "itemso.ITEM_SOID,item.ITEMID AS PROD_ID, item.NAME AS PROD_NAME, itemso.SOPRICE AS PROD_UNITPRICE,  itemso.QUANTITY AS PROD_QUANTITY, itemso.ITEMDISCOUNT AS PROD_DISCOUNT, itemso.DESCRIPTION AS PROD_DESC , \n" +
+        //        "so.*\n" +
+        //        " FROM SO so\n" +
+        //        "LEFT JOIN  ITEM_SO itemso  ON so.SOID = itemso.SOID\n" +
+        //        "LEFT JOIN  ITEM item  ON itemso.itemid = item.ITEMID\n" +
+        //        "where 1 = 1 \n" +
+        //        //"and so.SOID in (13,16,27)\n" +//暂时只用三条数据
+        //        "and item.ITEMID is not null \n" +
+        //        " ORDER BY SO.SOID";
+        String sql = getWholeSqlWithFilterUser(SO_SQL,ModuleNameKeys.SalesOrders.toString()," ORDER BY zoho.SOID");
         ResultSet rs = exeQuery(sql);
         String preErpID = "";
         List<ProductDetails> pds = new ArrayList<ProductDetails>();
@@ -590,16 +660,17 @@ public class DBUtils {
         dbModuleList.add(0,dbIDModuleObjMap);
         dbModuleList.add(1,dbIDEditTimeMap);
 //        List<Invoices> moduleList = new ArrayList<Invoices>();
-        String sql = "SELECT inv.InvoiceID AS ERPID, inv.CUSNAME AS CUSTOMERNAME, inv.EXCHANGERATE AS EXGRATE ,\n" +
-                "item_inv.Item_InvoiceID,item.ITEMID AS PROD_ID, item.NAME AS PROD_NAME, item_inv.InvoicePrice AS PROD_UNITPRICE,  item_inv.QUANTITY AS PROD_QUANTITY, item_inv.ITEMDISCOUNT AS PROD_DISCOUNT, item_inv.DESCRIPTION AS PROD_DESC , \n" +
-                "inv.*\n" +
-                " FROM Invoice inv\n" +
-                "LEFT JOIN  ITEM_INVOICE item_inv  ON inv.InvoiceID = item_inv.InvoiceID\n" +
-                "LEFT JOIN  ITEM item  ON item_inv.itemid = item.ITEMID\n" +
-                "where 1=1 and " +
-                //" inv.InvoiceID in (8,12,145)\n" +
-                "  item.ITEMID is not null \n" + //暂时只用三条数据
-                " ORDER BY inv.InvoiceID";
+//        String sql = "SELECT inv.InvoiceID AS ERPID, inv.CUSNAME AS CUSTOMERNAME, inv.EXCHANGERATE AS EXGRATE ,\n" +
+//                "item_inv.Item_InvoiceID,item.ITEMID AS PROD_ID, item.NAME AS PROD_NAME, item_inv.InvoicePrice AS PROD_UNITPRICE,  item_inv.QUANTITY AS PROD_QUANTITY, item_inv.ITEMDISCOUNT AS PROD_DISCOUNT, item_inv.DESCRIPTION AS PROD_DESC , \n" +
+//                "inv.*\n" +
+//                " FROM Invoice inv\n" +
+//                "LEFT JOIN  ITEM_INVOICE item_inv  ON inv.InvoiceID = item_inv.InvoiceID\n" +
+//                "LEFT JOIN  ITEM item  ON item_inv.itemid = item.ITEMID\n" +
+//                "where 1=1 and " +
+//                //" inv.InvoiceID in (8,12,145)\n" +
+//                "  item.ITEMID is not null \n" + //暂时只用三条数据
+//                " ORDER BY inv.InvoiceID";
+        String sql = getWholeSqlWithFilterUser(INVOICE_SQL,ModuleNameKeys.Invoices.toString(), " ORDER BY zoho.InvoiceID");
         ResultSet rs = exeQuery(sql);
         String preErpID = "";
         Invoices invoices = null;
