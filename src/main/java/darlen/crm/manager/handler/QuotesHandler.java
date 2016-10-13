@@ -161,7 +161,7 @@ public class QuotesHandler extends AbstractModule {
      */
     public List buildDBObjList() throws Exception {
         logger.debug("# Ⅱ：QuotesHandler 【buildDBObjList】...");
-        List dbAcctList =  DBUtils.getQuotesMap();
+        List dbAcctList =  DBUtils.getQuotesList();
         //Map<String,Object> idInvoicesMap = DBUtils.getInvoiceMap();
 //        getDBObj(idInvoicesMap);
 //        Invoices accouts2 = getDBObj2(idInvoicesMap);

@@ -48,10 +48,12 @@ public class DBUtils {
     private static final String PROD_SQL = "select * from dbo.item  as zoho where 1 =1 ";
     private static final String QUOTES_SQL = "SELECT zoho.QuoteID AS ERPID, zoho.CustomerID, zoho.QuoteRef, zoho.CUSNAME AS CUSTOMERNAME, zoho.EXCHANGERATE AS EXGRATE ,zoho.LatestEditBy, \n" +
             "iq.Item_QuoteID,item.ITEMID AS PROD_ID, item.NAME AS PROD_NAME, iq.QuotePrice AS PROD_UNITPRICE,  iq.QUANTITY AS PROD_QUANTITY, iq.ITEMDISCOUNT AS PROD_DISCOUNT, iq.DESCRIPTION AS PROD_DESC , \n" +
+            "pt.Name as PayTerm,\n" +
             "zoho.*\n" +
             " FROM Quote zoho\n" +
             "LEFT JOIN  Item_Quote iq  ON zoho.QuoteID = iq.QuoteID\n" +
             "LEFT JOIN  ITEM item  ON iq.ItemID = item.ITEMID\n" +
+            "LEFT JOIN  PaymentTerm pt  ON pt.PaymentTermID = zoho.PaymentTermID\n" +
             "where 1 =1\n" +
             //"and zoho.QuoteID in (13,16,27)\n" +
             "and item.ITEMID is not null\n" ;
@@ -59,10 +61,12 @@ public class DBUtils {
             //"and item.LatestEditBy in ('Pik Fai Chan','marketin','Gary Tang')\n" +
     private static final String SO_SQL = "SELECT zoho.SOID AS ERPID, zoho.CustomerID, zoho.soREF, zoho.CUSNAME AS CUSTOMERNAME, zoho.EXCHANGERATE AS EXGRATE , zoho.LatestEditBy ,\n" +
             "itemso.ITEM_SOID,item.ITEMID AS PROD_ID, item.NAME AS PROD_NAME, itemso.SOPRICE AS PROD_UNITPRICE,  itemso.QUANTITY AS PROD_QUANTITY, itemso.ITEMDISCOUNT AS PROD_DISCOUNT, itemso.DESCRIPTION AS PROD_DESC , \n" +
+            "pt.Name as PayTerm,\n" +
             "zoho.*\n" +
             " FROM SO zoho\n" +
             "LEFT JOIN  ITEM_SO itemso  ON zoho.SOID = itemso.SOID\n" +
             "LEFT JOIN  ITEM item  ON itemso.itemid = item.ITEMID\n" +
+            "LEFT JOIN  PaymentTerm pt  ON pt.PaymentTermID = zoho.PaymentTermID\n" +
             "where 1 = 1 \n" +
             //"and zoho.SOID in (13,16,27)\n" +
             "and item.ITEMID is not null\n" ;
@@ -70,10 +74,12 @@ public class DBUtils {
             //"and item.LatestEditBy in ('Pik Fai Chan','marketin','Gary Tang')" ;
     private static final String INVOICE_SQL = "SELECT zoho.InvoiceID AS ERPID, zoho.InvoiceRef,zoho.CustomerID,zoho.CUSNAME AS CUSTOMERNAME, zoho.EXCHANGERATE AS EXGRATE ,zoho.LatestEditBy,\n" +
                     "item_inv.Item_InvoiceID,item.ITEMID AS PROD_ID, item.NAME AS PROD_NAME, item_inv.InvoicePrice AS PROD_UNITPRICE,  item_inv.QUANTITY AS PROD_QUANTITY, item_inv.ITEMDISCOUNT AS PROD_DISCOUNT, item_inv.DESCRIPTION AS PROD_DESC , \n" +
+                    "pt.Name as PayTerm,\n" +
                     "zoho.*\n" +
                     " FROM Invoice zoho\n" +
                     "LEFT JOIN  ITEM_INVOICE item_inv  ON zoho.InvoiceID = item_inv.InvoiceID\n" +
                     "LEFT JOIN  ITEM item  ON item_inv.itemid = item.ITEMID\n" +
+                    "LEFT JOIN  PaymentTerm pt  ON pt.PaymentTermID = zoho.PaymentTermID\n" +
                     "where 1= 1 \n" +
                     //"and zoho.InvoiceID in(8,12,145)\n" +
                     "and item.ITEMID is not null\n" ;
@@ -310,7 +316,7 @@ public class DBUtils {
      * @throws SQLException
      * @throws ParseException
      */
-    public synchronized static List getQuotesMap() throws Exception{
+    public synchronized static List getQuotesList() throws Exception{
         List dbModuleList = new ArrayList();
         Map<String,String> dbIDEditTimeMap = new HashMap<String, String>();
         Map<String,Object> dbIDModuleObjMap = new HashMap<String, Object>();
@@ -340,7 +346,7 @@ public class DBUtils {
         Quotes quotes = null;
         while (rs != null && rs.next()){
             String lastEditBy = StringUtils.nullToString(rs.getString("LatestEditBy"));
-            if(containERPAcct(lastEditBy)){
+            //if(containERPAcct(lastEditBy)){
                 /**DB中的SO id*/
                 String curErpID = StringUtils.nullToString(rs.getString("QuoteID"));
                 //相同SO，代表这个SO有多个Product，不需要新创建SO，只需要把product添加到已有的List<ProductDetails> pds中
@@ -392,7 +398,7 @@ public class DBUtils {
                      */
                     String erpAcctID = StringUtils.nullToString(rs.getString("CustomerID"));
                     String zohoAcctID = ConfigManager.getAcctsfromProps(erpAcctID);
-                    logger.debug("【getQuotesMap】 ,ERP ID = "+curErpID+", CustomerID ="+erpAcctID+", ZOHO Account ID="+zohoAcctID);
+                    logger.debug("【getQuotesList】 ,ERP ID = "+curErpID+", CustomerID ="+erpAcctID+", ZOHO Account ID="+zohoAcctID);
                     //TODO：CONFIRM， 如果找不到AccoutnID
                     if(!StringUtils.isEmptyString(zohoAcctID)){
                         quotes.setCustID(zohoAcctID);//"80487000000096005"
@@ -425,7 +431,7 @@ public class DBUtils {
                     BigDecimal exchangeRate = rs.getBigDecimal("ExchangeRate");
                     quotes.setErpExchangeRate(exchangeRate.toString());
                     /**TODO:不是直接顯示ID，要顯示PaymentTerm表中的Name字段         */
-                    quotes.setPaymentTerm(StringUtils.nullToString(rs.getString("PaymentTermID")));
+                    quotes.setPaymentTerm(StringUtils.nullToString(rs.getString("PayTerm")));
                     quotes.setPayMethod(StringUtils.nullToString(rs.getString("PayMethod")));
 //                    quotes.setDeliveryMethod(StringUtils.nullToString(rs.getString("DeliveryMethod")));
 //                    quotes.setPaymentPeriod(StringUtils.nullToString(rs.getString("PaymentPeriod")));
@@ -467,7 +473,7 @@ public class DBUtils {
                         dbIDEditTimeMap.put(curErpID,latestEditTime);
                     }
 
-                }
+                //}
             }
         }
         return dbModuleList;
@@ -517,7 +523,7 @@ public class DBUtils {
         SO so = null;
         while (rs != null && rs.next()){
             String lastEditBy = StringUtils.nullToString(rs.getString("LatestEditBy"));
-            if(containERPAcct(lastEditBy)){
+            //if(containERPAcct(lastEditBy)){
                 /**DB中的SO id*/
                 String curErpID = StringUtils.nullToString(rs.getString("SOID"));
                 //相同SO，代表这个SO有多个Product，不需要新创建SO，只需要把product添加到已有的List<ProductDetails> pds中
@@ -590,8 +596,8 @@ public class DBUtils {
                     so.setFax(StringUtils.nullToString(rs.getString("CusFax")));
                     BigDecimal exchangeRate = rs.getBigDecimal("ExchangeRate");
                     so.setErpExchangeRate(exchangeRate.toString());
-                    /**TODO:不是直接顯示ID，要顯示PaymentTerm表中的Name字段         */
-                    so.setPaymentTerm(StringUtils.nullToString(rs.getString("PaymentTermID")));
+                    /**TODO:不是直接顯示ID，要顯示PaymentTerm表中的Name字段  PaymentTermID       */
+                    so.setPaymentTerm(StringUtils.nullToString(rs.getString("PayTerm")));
                     so.setPayMethod(StringUtils.nullToString(rs.getString("PayMethod")));
                     so.setDeliveryMethod(StringUtils.nullToString(rs.getString("DeliveryMethod")));
                     so.setPaymentPeriod(StringUtils.nullToString(rs.getString("PaymentPeriod")));
@@ -632,7 +638,7 @@ public class DBUtils {
                         dbIDModuleObjMap.put(curErpID,so);
                         dbIDEditTimeMap.put(curErpID,latestEditTime);
                     }
-                }
+                //}
             }
         }
         return dbModuleList;
@@ -677,7 +683,7 @@ public class DBUtils {
         List<ProductDetails> pds = new ArrayList<ProductDetails>();
         while (rs != null && rs.next()){
             String lastEditBy = StringUtils.nullToString(rs.getString("LatestEditBy"));
-            if(containERPAcct(lastEditBy)){
+            //if(containERPAcct(lastEditBy)){
                 String curErpID = StringUtils.nullToString(rs.getString("InvoiceID"));
                 //相同ERPID，代表这个Module有多个Product，不需要新创建Module，只需要把product添加到已有的List<ProductDetails> pds中
                 if(preErpID.equals(curErpID) && invoices != null){
@@ -728,8 +734,8 @@ public class DBUtils {
                     //汇率
                     BigDecimal exgRate = rs.getBigDecimal("ExchangeRate");
                     invoices.setErp_ExchangeRate(StringUtils.nullToString(exgRate));
-                    /**TODO 不是直接顯示ID，要顯示PaymentTerm表中的Name字段         */
-                    invoices.setPaymentTerm(StringUtils.nullToString(rs.getString("PaymentTermID")));
+                    /**TODO 不是直接顯示ID，要顯示PaymentTerm表中的Name字段   PaymentTermID      */
+                    invoices.setPaymentTerm(StringUtils.nullToString(rs.getString("PayTerm")));
                     invoices.setCustomerNo(rs.getString("CusRef"));
                     //TODO 似乎没用到Due Date到期日期
                     String dueDate = ThreadLocalDateUtil.formatDate(rs.getTimestamp("invoiceDate"));
@@ -823,7 +829,7 @@ public class DBUtils {
                         dbIDModuleObjMap.put(curErpID,invoices);
                         dbIDEditTimeMap.put(curErpID,latestEditTime);
                     }
-                }
+                //}
             }
 
         }

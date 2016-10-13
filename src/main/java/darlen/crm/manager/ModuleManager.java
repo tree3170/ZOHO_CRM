@@ -181,7 +181,7 @@ public class ModuleManager {
             logger.debug("##################################################开始执行Product Module##################################################");
             logger.debug("####################################################################################################");
             try{
-                prodList = exeProducts();
+                //prodList = exeProducts();
                 logger.debug(prodList);
             }catch (Exception e){
                 logger.error("【ModuleManager】，执行 exeProducts 出错",e);
@@ -192,7 +192,7 @@ public class ModuleManager {
                 logger.debug("##################################################Begin写入文件Account.properties,Product.properties...##################################################\n\n\n\n\n");
                 try{
 
-                    rewriteAcctProdProps();
+                    //rewriteAcctProdProps();
                     logger.debug("\n\n\n\n\n");
                 }catch (Exception e){
                     logger.error("【ModuleManager】，执行 testWriteFiles 出错", e);
@@ -203,7 +203,7 @@ public class ModuleManager {
             logger.debug("##################################################开始执行Quotes Module##################################################==");
             logger.debug("####################################################################################################");
             try{
-                quoteList = exeQuotes();
+                //quoteList = exeQuotes();
                 logger.debug(quoteList+"\n\n\n\n\n");
             }catch (Exception e){
                 logger.error("【ModuleManager】，执行 exeQuotes 出错",e);
@@ -213,7 +213,7 @@ public class ModuleManager {
             logger.debug("##################################################开始执行SO Module##################################################==");
             logger.debug("####################################################################################################");
             try{
-                soList = exeSO();
+                //soList = exeSO();
                 logger.debug(soList+"\n\n\n\n\n");
             }catch (Exception e){
                 logger.error("【ModuleManager】，执行 exeSO 出错",e);
@@ -223,7 +223,7 @@ public class ModuleManager {
             logger.debug("##################################################开始执行Invoices Module##################################################");
             logger.debug("####################################################################################################");
             try{
-                invList = exeInvoice();
+                //invList = exeInvoice();
                 logger.debug(invList+"\n\n\n\n\n");
             }catch (Exception e){
                 logger.error("【ModuleManager】，执行 invList 出错",e);

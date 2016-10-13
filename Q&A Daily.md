@@ -76,9 +76,9 @@
     第一个是REPORT的WEB版：所有的字段，分时间段查询，类似于DBS的查log功能
     第二个是SQL查询的WEB 版：只列出必要字段，
     第三个是UI也要实现能删除数据问题
-* 5. 完成尝试下把ERP ID改成Number类型【done，可以排序】，把LastestEditTime改成Date类型
+* 5. 完成尝试下把ERP ID改成Number类型【done，可以排序】，把LastestEditTime改成Datetime类型【done，可以排序】
 * 6. HouseKeep： 1个月前的log日志需要删除，一天大概有3-400M的日志生成，一个月大概有10多G的日志生成，所以必需保证硬盘>10G
-* 7. PayTerm好像还没有修改，需要找个时间去修改
+* 7. PayTerm好像还没有修改，需要找个时间去修改【done,sql中添加了条件】
 * 8. 检查lastestSuccess配置文件能不能生效
 * 9.
 
