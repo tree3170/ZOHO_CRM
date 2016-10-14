@@ -319,7 +319,7 @@ public abstract  class AbstractModule  implements IModuleHandler {
             }
             erpZohoIDMap.put(erpID, zohoID);
             erpIDTimeMap.put(erpID, lastEditTime);
-            //如果ERPID为空，那么加入到删除列表中
+            //如果ERPID为空或者重复，那么加入到删除列表中
             if(!hasERPID) delZohoIDList.add(zohoID);
 
             // 2. 处理Product Detail  -- >  Quotes，SO,Invoices
@@ -756,7 +756,7 @@ public abstract  class AbstractModule  implements IModuleHandler {
                 moduleUrl = zohoPropsMap.get(Constants.DELETE_PRODUCTS_URL);
             }
             if(ModuleNameKeys.Quotes.toString().equalsIgnoreCase(moduleName)){
-                moduleUrl = zohoPropsMap.get(Constants.UPDATE_QUOTES_URL);
+                moduleUrl = zohoPropsMap.get(Constants.DELETE_QUOTES_URL);
             }
             if(ModuleNameKeys.SalesOrders.toString().equalsIgnoreCase(moduleName)){
                 moduleUrl = zohoPropsMap.get(Constants.DELETE_SO_URL);

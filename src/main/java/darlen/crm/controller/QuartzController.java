@@ -53,6 +53,7 @@ public class QuartzController {
     //public void setStartQuertz(SchedulerFactoryBean startQuertz) {
     //    this.startQuertz = startQuertz;
     //}
+    //localhost:8080/zoho/start
     @ResponseBody
     @RequestMapping("/start")
     public String start(String id, HttpServletRequest request){

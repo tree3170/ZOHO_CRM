@@ -112,9 +112,7 @@ public class ModuleManager {
     }
     public static List exeQuotes() throws Exception {
         //for invoice
-        module = QuotesHandler.getInstance();
-
-        //module.build2ZohoXmlSkeleton();
+        module = QuotesHandler.getInstance();      //module.build2ZohoXmlSkeleton();
         //module.build2ZohoXmlSkeleton();
         return module.execSend();
     }
@@ -181,29 +179,27 @@ public class ModuleManager {
             logger.debug("##################################################开始执行Product Module##################################################");
             logger.debug("####################################################################################################");
             try{
-                //prodList = exeProducts();
+                prodList = exeProducts();
                 logger.debug(prodList);
             }catch (Exception e){
                 logger.error("【ModuleManager】，执行 exeProducts 出错",e);
                 wholeModuleFail += "|"+ "PROD";
             }
 
-            //if(ConfigManager.isDevMod()){
-                logger.debug("##################################################Begin写入文件Account.properties,Product.properties...##################################################\n\n\n\n\n");
-                try{
+            logger.debug("##################################################Begin写入文件Account.properties,Product.properties...##################################################\n\n\n\n\n");
+            try{
 
-                    //rewriteAcctProdProps();
-                    logger.debug("\n\n\n\n\n");
-                }catch (Exception e){
-                    logger.error("【ModuleManager】，执行 testWriteFiles 出错", e);
-                }
+                rewriteAcctProdProps();
+                logger.debug("\n\n\n\n\n");
+            }catch (Exception e){
+                logger.error("【ModuleManager】，执行 testWriteFiles 出错", e);
+            }
             logger.debug("##################################################End写入文件Account.properties,Product.properties##################################################");
-            //}
 
             logger.debug("##################################################开始执行Quotes Module##################################################==");
             logger.debug("####################################################################################################");
             try{
-                //quoteList = exeQuotes();
+                quoteList = exeQuotes();
                 logger.debug(quoteList+"\n\n\n\n\n");
             }catch (Exception e){
                 logger.error("【ModuleManager】，执行 exeQuotes 出错",e);
@@ -213,7 +209,7 @@ public class ModuleManager {
             logger.debug("##################################################开始执行SO Module##################################################==");
             logger.debug("####################################################################################################");
             try{
-                //soList = exeSO();
+                soList = exeSO();
                 logger.debug(soList+"\n\n\n\n\n");
             }catch (Exception e){
                 logger.error("【ModuleManager】，执行 exeSO 出错",e);
@@ -223,7 +219,7 @@ public class ModuleManager {
             logger.debug("##################################################开始执行Invoices Module##################################################");
             logger.debug("####################################################################################################");
             try{
-                //invList = exeInvoice();
+                invList = exeInvoice();
                 logger.debug(invList+"\n\n\n\n\n");
             }catch (Exception e){
                 logger.error("【ModuleManager】，执行 invList 出错",e);
@@ -276,6 +272,8 @@ public class ModuleManager {
             ////执行更新Report操作
             String sql = "INSERT INTO ZOHO_EXCE_REPORT (START_TIME, END_TIME,INS_FAILED,UPD_FAILED,DEL_FAILED,WHOLEFAIL) VALUES(?,?,?,?,?,?)";
             DBUtils.exeUpdReport(sql, updERPList);
+            logger.debug("################################################"
+                    +Constants.COMMENT_PREFIX+"最终执行时间:"+(endDate.getTime()-startDate.getTime())/1000+"秒");
         }
     }
 
@@ -296,7 +294,8 @@ public class ModuleManager {
      */
     public static void execAllModuleHouseKeep() throws Exception {
         //1, for Account
-        logger.debug("##############开始Accounts的HouseKeep#################\n\n\n\n\n");
+        long startDate = new Date().getTime();
+        logger.debug("##############1. 开始Accounts的HouseKeep#################\n\n\n\n\n");
         IModuleHandler acctModule = AccountsHandler.getInstance();
        // List  zohoAcctCompList =  acctModule.buildSkeletonFromZohoList();
         //拿出ZOHO中ERP为空或者Dulplicate的record，直接删除
@@ -304,7 +303,7 @@ public class ModuleManager {
         logger.debug("删除模块【Accounts】的ZOHO ID集合为"+Constants.COMMENT_PREFIX+"【House Keep】"+delZohoIDList);
         acctModule.delRecords(ModuleNameKeys.Accounts.toString(),Constants.ZOHO_CRUD_DELETE,delZohoIDList);
 
-        logger.debug("##############开始Accounts的HouseKeep#################\n\n\n\n\n");
+        logger.debug("##############开始Product的HouseKeep#################\n\n\n\n\n");
         //2. for Product,获取需要删除的所有Product的ID集合
         IModuleHandler prodModule = ProductHandler.getInstance();
         List delProdIDList = getDelZohoIDs(prodModule);
@@ -317,22 +316,25 @@ public class ModuleManager {
         // 删除Quotes，SO，Invoices
        if(delProdIDList.size() > 0){
             //3. for Quotes
-           logger.debug("##############开始【QUOTES】的HouseKeep#################\n\n\n\n\n");
+           logger.debug("##############3. 开始【QUOTES】的HouseKeep#################\n\n\n\n\n");
             module = QuotesHandler.getInstance();
             execModuleHouseKeep(delProdIDList,ModuleNameKeys.Quotes.toString());
             //4. for SO
-           logger.debug("##############开始【SO】的HouseKeep#################\n\n\n\n\n");
+           logger.debug("##############4. 开始【SO】的HouseKeep#################\n\n\n\n\n");
             module = SOHandler.getInstance();
             execModuleHouseKeep(delProdIDList,ModuleNameKeys.SalesOrders.toString());
             //5. for Invoice
-           logger.debug("##############开始【INVOICES】的HouseKeep#################\n\n\n\n\n");
+           logger.debug("##############5. 开始【INVOICES】的HouseKeep#################\n\n\n\n\n");
             module = InvoicesHandler.getInstance();
             execModuleHouseKeep(delProdIDList,ModuleNameKeys.Invoices.toString());
         }
         //6. 最后删除Product
-        logger.debug("##############最后开始【Products】的HouseKeep#################\n\n\n\n\n");
+        logger.debug("##############6. 最后开始【Products】的HouseKeep#################\n\n\n\n\n");
         logger.debug("删除模块 【Products】的ZOHO ID集合为"+Constants.COMMENT_PREFIX+"【House Keep】"+delZohoIDList);
         prodModule.delRecords(ModuleNameKeys.Products.toString(),Constants.ZOHO_CRUD_DELETE,delProdIDList);
+
+        logger.debug("################################################"
+                +Constants.COMMENT_PREFIX+"最终执行时间:"+(new Date().getTime()-startDate)/1000+"秒");
 
 
     //    TODO 删除报表的table中以前的数据，暂定是1个月的
@@ -387,6 +389,7 @@ public class ModuleManager {
      * @throws Exception
      */
     public static void execModuleHouseKeep(List delProdIDList,String moduleName) throws Exception {
+        //删除Quotes和Products
         if(ModuleNameKeys.Quotes.equals(moduleName)){
             module = QuotesHandler.getInstance();
         }else if (ModuleNameKeys.SalesOrders.equals(moduleName)){
@@ -400,24 +403,46 @@ public class ModuleManager {
         //1. 拿到ZOHO中Customer的ERP ID为空或者Duplicate记录的集合（delSOZohoIDList），
         // 并且拿出ZOHO ID和相应的所有的product ID的集合（zohoIDProdIDsMap）
         List<String> delZohoIDList = (List<String>)zohoCompList.get(2);
-        Map<String,List> zohoIDProdIDsMap = (Map<String,List>)zohoCompList.get(3);
+        Map<String,List> acctZohoIDProdIDsMap = (Map<String,List>)zohoCompList.get(3);
+        Map<String,String> erpZohoIDMap = (Map<String,String>)zohoCompList.get(0);
 
-        //2. 遍历所有的zohoIDProdIDsMap， 取出某条SO中包含的所有Product的ZOHO ID集合，
+        boolean isCustomerIDEmpty = false;
+        //2. 遍历所有的acctZohoIDProdIDsMap， 取出某条SO中包含的所有Product的ZOHO ID集合，
         // 并查看集合中的ZOHO ID是否存在于需要删除的Product集合（delProdIDList）中
-        for(Map.Entry<String,List> entry : zohoIDProdIDsMap.entrySet()){
-            List prodsIDs = entry.getValue();
-            //3. 如果delProdIDList包含当前module的某个产品，则终止遍历，并把当前module的id加入删除list
-            for(Object o : prodsIDs){
-                if(delProdIDList.contains(o)){
-                    delZohoIDList.add(entry.getKey());
-                    break;
-                }
+        for(Map.Entry<String,List> entry : acctZohoIDProdIDsMap.entrySet()){
+            String customerID = entry.getKey();
+            //如果Customer ID 为空,那么需要直接删除Quotes的Zoho ID
+            if(StringUtils.isEmptyString(customerID)){
+                isCustomerIDEmpty = true;
+            }else{
+            ////否则，仅仅只需要删除Customer的zoho ID就可以删除关联的Quotes/SO/Invoices记录
+            //    List prodsIDs = entry.getValue();
+            //    //3. 如果delProdIDList包含当前module的某个产品，则终止遍历，并把当前module的id加入删除list
+            //    for(Object o : prodsIDs){
+            //        if(delProdIDList.contains(o)){
+            //            delZohoIDList.add(entry.getKey());
+            //            break;
+            //        }
+            //    }
             }
+
         }
-        logger.debug(" 删除模块 【"+moduleName+"】的Accounts ZOHO ID集合为"+Constants.COMMENT_PREFIX+"【House Keep】"+delZohoIDList);
+
+        if(isCustomerIDEmpty){
+            //如果Cusomer ID，需要主动先去删除Quotes/SO/Invoice的ZOHO ID
+            for(Map.Entry<String,String> entry : erpZohoIDMap.entrySet()){
+                delZohoIDList.add(entry.getValue());
+            }
+            logger.debug(" 删除模块 【"+moduleName+"】的Accounts ZOHO ID集合为"+Constants.COMMENT_PREFIX+"【House Keep】"+delZohoIDList);
+            module.delRecords(moduleName, Constants.ZOHO_CRUD_DELETE, delZohoIDList);
+        }else{
+        //    不需要做任何事，因为我们再第一步已经把跟Account删掉了，那么就代表已经把所有的Quotes/SO/Invoice删掉了，不需要再删除了
+        }
+
+        //logger.debug(" 删除模块 【"+moduleName+"】的Accounts ZOHO ID集合为"+Constants.COMMENT_PREFIX+"【House Keep】"+delZohoIDList);
         //NOTICE: 注意这里是删除Accounts模块，因为删除相应的Account ZOHO ID之后，相关联的Quotes，Invoice，SO模块也会相应删除
         //module.delRecords(ModuleNameKeys.SalesOrders.toString(), Constants.ZOHO_CRUD_DELETE, delZohoIDList);
-        module.delRecords(ModuleNameKeys.Accounts.toString(), Constants.ZOHO_CRUD_DELETE, delZohoIDList);
+        //module.delRecords(ModuleNameKeys.Accounts.toString(), Constants.ZOHO_CRUD_DELETE, delZohoIDList);
     }
 
 

@@ -68,6 +68,12 @@
    * 确定UI
    * 确定账户13个账户人
 
+# 20161014
+   * 1. 继续完成20161012的各个指标
+   * 2. check 为什么SO与Invoice条数不一样
+   * 3. check lastedittime是否有问题, 13个账户是否有问题(增加或者减少账户), check金额是否正确
+   * 4. 查看下面日期的记录保证所有的记录都是done的状态
+
 # 20161012
 * 1. 必需保证所有的数据是正确导入的，根据账户查询sql得出来的结果，与UI的结果对比【done】
 * 2. log的优化
@@ -76,11 +82,11 @@
     第一个是REPORT的WEB版：所有的字段，分时间段查询，类似于DBS的查log功能
     第二个是SQL查询的WEB 版：只列出必要字段，
     第三个是UI也要实现能删除数据问题
-* 5. 完成尝试下把ERP ID改成Number类型【done，可以排序】，把LastestEditTime改成Datetime类型【done，可以排序】
+* 5. 完成尝试下把ERP ID改成Number类型【done，可以排序】，把LastestEditTime改成Datetime类型【DONE，可以排序】
 * 6. HouseKeep： 1个月前的log日志需要删除，一天大概有3-400M的日志生成，一个月大概有10多G的日志生成，所以必需保证硬盘>10G
-* 7. PayTerm好像还没有修改，需要找个时间去修改【done,sql中添加了条件】
-* 8. 检查lastestSuccess配置文件能不能生效
-* 9.
+* 7. PayTerm好像还没有修改，需要找个时间去修改【DONE,sql中添加了条件】
+* 8. 检查lastestSuccess配置文件能不能生效【TODO】
+* 9. 真正环境下的housekeep测试： 1.erp设为空【TODO】
 
 
 # 20161011
