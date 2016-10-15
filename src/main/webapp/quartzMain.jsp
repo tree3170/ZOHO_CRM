@@ -9,47 +9,14 @@
 <head>
     <meta charset="utf-8">
     <title>Bootstrap 实例 - 基本的表格</title>
-    <link rel="stylesheet" href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">
-    <script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
-    <script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-
-    <script>
-        $(function(){
-            $("#start").click(function(){
-                $.ajax({
-                    url:"<%=request.getContextPath()%>/start",
-                    method:"GET",
-                    dataType:"json",
-                    success: function(result){
-                        var retVal =result;
-                        //alert("Success");
-                        if(result == "0"){
-                            $("success").show();
-                        }else{
-                            alert("");
-                        }
-                    }
-                })
-            })
-
-            $("#stop").click(function(){
-                $.ajax({
-                    url:"<%=request.getContextPath()%>/stop",
-                    method:"GET",
-                    dataType:"json",
-                    success: function(result){
-                        var retVal =result;
-                        alert("Success");
-                    }
-                })
-            })
-
-        })
+    <%--<link rel="stylesheet" href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">--%>
+    <%--<script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>--%>
+    <%--<script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>--%>
 
 
-    </script>
 </head>
 <body>
+<jsp:include page="menu.jsp"></jsp:include>
 <div id="success"style="width: 50%; margin: auto;display: none" class="alert alert-success">You Already Registrate the ZOHO Batch Job</div>
 <div id="fail"style="width: 50%; margin: auto;display: none" class="alert alert-info">You Already STOP the ZOHO Batch Job</div>
 <table class="table" style="width: 50%; margin: auto">
@@ -83,6 +50,91 @@
     </tr>
     </tbody>
 </table>
-
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    Result Display Title
+                </h4>
+            </div>
+            <div class="modal-body" id="content">
+                在这里添加一些文本
+            </div>
+            <%--<div class="modal-footer">--%>
+            <%--<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>--%>
+            <%--<button type="button" class="btn btn-primary">--%>
+            <%--提交更改--%>
+            <%--</button>--%>
+            <%--</div>--%>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
 </body>
 </html>
+<script>
+    $(function(){
+        $("#start").click(function(){
+            $.ajax({
+                url:"<%=request.getContextPath()%>/start",
+                method:"GET",
+                dataType:"json",
+                success: function(result){
+                    var retVal =result;
+                    //if(result == "0"){
+                    //    $("success").show();
+                    //}else{
+                    //    alert("");
+                    //}
+
+                    if(result == "0"){
+                        //alert("Success");
+                        //$('#myModal').modal(options);
+                        $("#content").text("Congratulations! Start Thread Successfully.  ");
+                        $('#myModal').modal({
+                            keyboard: true
+                        })
+                    }else {
+                        $("#content").text("So bad! There are some problems, pls find the root Reason and fixed ,  then you can do next step : \n "+result[1]);
+                        $('#myModal').modal({
+                            keyboard: true
+                        })
+                    }
+                }
+            })
+        })
+
+        $("#stop").click(function(){
+            $.ajax({
+                url:"<%=request.getContextPath()%>/stop",
+                method:"GET",
+                dataType:"json",
+                success: function(result){
+                    //var retVal =result;
+                    //alert("Success");
+
+                    if(result == "0"){
+                        //alert("Success");
+                        //$('#myModal').modal(options);
+                        $("#content").text("Congratulations! Stop Thread Successfully.  ");
+                        $('#myModal').modal({
+                            keyboard: true
+                        })
+                    }else {
+                        $("#content").text("So bad! There are some problems, pls find the root Reason and fixed ,  then you can do next step : \n "+result[1]);
+                        $('#myModal').modal({
+                            keyboard: true
+                        })
+                    }
+                }
+            })
+        })
+
+    })
+
+
+</script>

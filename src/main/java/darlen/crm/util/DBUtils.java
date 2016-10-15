@@ -940,6 +940,44 @@ public class DBUtils {
     }
 
     /**
+     * 更新ERP report 表
+     * @param sql
+     * @param list
+     * @throws SQLException
+     * @throws IOException
+     * @throws ConfigurationException
+     */
+    public static List<Report> fetchReportByTime(String sql,List list) throws Exception {
+        ResultSet rs = null;
+        //ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
+        Connection conn = getConnection();
+        List<Report> reports = new ArrayList<Report>();
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            setPSParams(ps,list);
+            rs = ps.executeQuery();
+
+            while (rs.next()){
+                Report report = new Report();
+                report.setREPORTID(rs.getString("REPORTID"));
+                String startTime  = ThreadLocalDateUtil.formatDate(rs.getTimestamp("START_TIME"));
+                String endTime  = ThreadLocalDateUtil.formatDate(rs.getTimestamp("END_TIME"));
+                report.setSTART_TIME(startTime);
+                report.setEND_TIME(endTime);
+                report.setINS_FAILED(rs.getString("INS_FAILED"));
+                report.setUPD_FAILED(rs.getString("UPD_FAILED"));
+                report.setDEL_FAILED(rs.getString("DEL_FAILED"));
+                report.setWHOLEFAIL(rs.getString("WHOLEFAIL"));
+                reports.add(report);
+            }
+
+        } catch (SQLException e) {
+            logger.error("exeUpd出现错误, sql="+sql,e);
+        }
+        return reports;
+    }
+
+    /**
      * 通用的设置PreparedStatement的功能
      * @param ps
      * @param list
@@ -957,7 +995,8 @@ public class DBUtils {
             }else if("java.lang.String".equals(objectType)){
                 ps.setString(i + 1, StringUtils.nullToString(o));
             }else  if("java.util.Date".equals(objectType)){
-                ps.setTimestamp(i + 1, new Timestamp(((Date)o).getTime()));
+                //ps.setTimestamp(i + 1, new Timestamp(((Date)o).getTime()));
+                ps.setTimestamp(i + 1, (Timestamp)o);
             }else{//默认设为string
                 ps.setString(i + 1, StringUtils.nullToString(o));
             }

@@ -1,5 +1,14 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<!DOCTYPE html>
 <html>
+<head>
+    <meta charset="utf-8">
+    <title>Bootstrap 实例 - 倒置的导航栏</title>
+    <%--<link rel="stylesheet" href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">--%>
+    <%--<script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>--%>
+    <%--<script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>--%>
+</head>
 <body>
-<h2>Hello World!</h2>
+<jsp:include page="/menu.jsp" />
 </body>
 </html>

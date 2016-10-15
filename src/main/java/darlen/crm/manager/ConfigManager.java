@@ -224,7 +224,7 @@ public class ConfigManager {
      * @param map
      * @param configName
      */
-    public synchronized  static void writeVal2Props( Map<String,String> map,String configName)  {
+    public synchronized  static void writeVal2Props( Map<String,String> map,String configName) throws Exception {
         logger.debug("# 写入Product.properties,Accounts.properties,lastExecSuccessTime.properties文件：erpID<-->zohoID, configName="+configName);
         PrintWriter writer = null;
         try{
@@ -253,6 +253,7 @@ public class ConfigManager {
             writer.println("# 写入结束时间： " + ThreadLocalDateUtil.formatDate(new Date()));
         }catch (Exception e){
             logger.error("# 写入"+configName +"出错",e);
+            throw  e;
         }finally {
             if(null != writer) {
                 writer.close();
@@ -320,19 +321,51 @@ public class ConfigManager {
     /**
      * 环境自检
      */
-    public static void envAutoChecking(){
+    public static List envAutoChecking(){
+        List retList = new ArrayList();
+        String message = "";
+        int result = 0;
         try{
             //测试写入文件是否能写入成功
-            testWriteVal2Props();
+            try {
+                testWriteVal2Props();
+            }catch (Exception e){
+                result = 1;
+                message = e.getMessage();
+                logger.error("【envAutoChecking】, testWriteVal2Props occurs error",e);
+            }
+
 
             //测试secure/*.properties的5个properties是否能读写成功
-            testGetProps();
+            try {
+                testGetProps();
+            }catch (Exception e){
+                result = 2;
+                message = e.getMessage();
+                logger.error("【envAutoChecking】, testGetProps occurs error",e);
+            }
 
-            //测试
-            DBUtils.getConnection();
+
+            //TODO 测试邮件发送,如何获取Daily的log然后发送到我的邮箱
+
+            //测试DB连接
+
+            try {
+                DBUtils.getConnection();
+            }catch (Exception e){
+                result = 4;
+                message = e.getMessage();
+                logger.error("【envAutoChecking】, DB Connection occurs error",e);
+            }
+
+
+
         }catch (Exception e){
             logger.error("环境测试： 读取配置文件出现问题,程序终止...",e);
         }
+        retList.add(0,result);
+        retList.add(1,message);
+        return retList;
     }
     public static void main(String [] arges) throws Exception {
 //        System.out.println(ConfigManager.get("secure/db.properties", "DB_USERNAME"));
@@ -357,25 +390,27 @@ public class ConfigManager {
 
 
     private static void testGetProps() throws Exception {
-        System.err.println("########################获取5个properties中的value######################");
+        logger.debug("########################【ConfigManager】开始获取properties中的value######################");
         //"secure/db.properties"
-        System.err.println("1. db.properties=========DB_USERNAME="+ConfigManager.get(Constants.PROPS_DB_FILE, "DB_USERNAME"));
+        logger.debug("1. db.properties=========DB_USERNAME="+ConfigManager.get(Constants.PROPS_DB_FILE, "DB_USERNAME"));
         //"secure/zoho.properties"
-        System.err.println("2. zoho.properties=========DEV_MODE="+ConfigManager.get(Constants.PROPS_ZOHO_FILE, "DEV_MODE"));
-        System.err.println("3. Products.properties======0="+ConfigManager.getProdfromProps("0"));
-        System.err.println("4. Accounts.properties======0="+ConfigManager.getAcctsfromProps("0"));
-        System.err.println("5. zohoUser.properties======Gary Tang="+ConfigManager.getZohoUserfromProps("Gary Tang"));
-        System.err.println("6. lastExecSuccessTime.properties======LAST_EXEC_SUCCESS_TIME=="+ConfigManager.getTimefromProps("LAST_EXEC_SUCCESS_TIME"));
+        logger.debug("2. zoho.properties=========DEV_MODE="+ConfigManager.get(Constants.PROPS_ZOHO_FILE, "DEV_MODE"));
+        logger.debug("3. Products.properties======0="+ConfigManager.getProdfromProps("0"));
+        logger.debug("4. Accounts.properties======0="+ConfigManager.getAcctsfromProps("0"));
+        logger.debug("5. zohoUser.properties======Gary Tang="+ConfigManager.getZohoUserfromProps("Gary Tang"));
+        logger.debug("6. lastExecSuccessTime.properties======LAST_EXEC_SUCCESS_TIME=="+ConfigManager.getTimefromProps("LAST_EXEC_SUCCESS_TIME"));
         //"/secure/db.properties"
-        System.err.println("7. 读取/mapping/*.properties======marketing="+ConfigManager.readProperties(Constants.PROPS_DB_FILE));
+        logger.debug("7. 读取/mapping/*.properties======marketing="+ConfigManager.readProperties(Constants.PROPS_DB_FILE));
+        logger.debug("########################【ConfigManager】完成获取properties中的value######################");
     }
-    private static void testWriteVal2Props(){
-        System.out.println("测试写入文件Accounts");
+    private static void testWriteVal2Props() throws Exception {
+        logger.debug("开始测试写入文件Accounts");
         Map<String,String> map = new HashMap<String, String>();
         map.put(cvtPropsSpace("0"),"123456789_tree_account");
         map.put(cvtPropsSpace("1"),"80487000000099661");
         map.put(cvtPropsSpace("2"),"80487000000099663");
         writeVal2Props(map, Constants.PROPS_ACCT_FILE);
+        logger.debug("完成测试写入文件Accounts");
     }
 
 

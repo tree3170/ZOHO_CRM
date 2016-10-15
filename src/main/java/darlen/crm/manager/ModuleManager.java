@@ -291,22 +291,23 @@ public class ModuleManager {
      *
      * 注意:  注意删除顺序，由于ZOHO的一些限制，主要是针对Product，因为product跟Quates、Invoices、SO有关联，
      * 如果不删除后面三大模块，那么Product会删不掉，但是调用API的时候也会显示删除成功
+     * @param  deleteAll ， 是否删除所有Module的数据
      */
-    public static void execAllModuleHouseKeep() throws Exception {
+    public static void execAllModuleHouseKeep(boolean deleteAll) throws Exception {
         //1, for Account
         long startDate = new Date().getTime();
         logger.debug("##############1. 开始Accounts的HouseKeep#################\n\n\n\n\n");
         IModuleHandler acctModule = AccountsHandler.getInstance();
        // List  zohoAcctCompList =  acctModule.buildSkeletonFromZohoList();
         //拿出ZOHO中ERP为空或者Dulplicate的record，直接删除
-        List delZohoIDList = getDelZohoIDs(acctModule);//(List)zohoAcctCompList.get(2);
+        List delZohoIDList = getDelZohoIDs(acctModule,deleteAll);//(List)zohoAcctCompList.get(2);
         logger.debug("删除模块【Accounts】的ZOHO ID集合为"+Constants.COMMENT_PREFIX+"【House Keep】"+delZohoIDList);
         acctModule.delRecords(ModuleNameKeys.Accounts.toString(),Constants.ZOHO_CRUD_DELETE,delZohoIDList);
 
         logger.debug("##############开始Product的HouseKeep#################\n\n\n\n\n");
         //2. for Product,获取需要删除的所有Product的ID集合
         IModuleHandler prodModule = ProductHandler.getInstance();
-        List delProdIDList = getDelZohoIDs(prodModule);
+        List delProdIDList = getDelZohoIDs(prodModule,deleteAll);
 
         //if(null != zohoCompList && zohoCompList.size() >=3){
         //
@@ -349,7 +350,7 @@ public class ModuleManager {
      * @return
      * @throws Exception
      */
-    private static List getDelZohoIDs(IModuleHandler module) throws Exception {
+    private static List getDelZohoIDs(IModuleHandler module,boolean deleteAll) throws Exception {
         List  zohoProdCompList =  module.buildSkeletonFromZohoList();
         List<String> delZohoIDList = new ArrayList<String>();
 
@@ -358,15 +359,17 @@ public class ModuleManager {
          * */
         delZohoIDList = (List)zohoProdCompList.get(2);
 
-        /**
-         * 2, 如果要删除所有的Product的ID集合 --》开发时候使用
-         */
-        Map<String,String> allProdErpZohoIDMap = (Map<String,String>)zohoProdCompList.get(0);
-        delZohoIDList = new ArrayList<String>();
-        for(Map.Entry<String,String> entry : allProdErpZohoIDMap.entrySet()){
-            if(!"-1".equals(entry.getKey())){//忽略ERP ID 为-1的Account模块
-                String zohoID = entry.getValue();
-                delZohoIDList.add(zohoID);;
+        if(deleteAll){
+            /**
+             * 2, 如果要删除所有的Product的ID集合 --》开发时候使用
+             */
+            Map<String,String> allProdErpZohoIDMap = (Map<String,String>)zohoProdCompList.get(0);
+            delZohoIDList = new ArrayList<String>();
+            for(Map.Entry<String,String> entry : allProdErpZohoIDMap.entrySet()){
+                if(!"-1".equals(entry.getKey())){//忽略ERP ID 为-1的Account模块
+                    String zohoID = entry.getValue();
+                    delZohoIDList.add(zohoID);;
+                }
             }
         }
 
@@ -452,7 +455,7 @@ public class ModuleManager {
         //2.执行
         exeAllModuleSend();
         //3. 执行House Keep
-        //execAllModuleHouseKeep();
+        execAllModuleHouseKeep(true);
         //exeProducts();
         //exeSO();
         //exeInvoice();
@@ -475,9 +478,18 @@ public class ModuleManager {
      * 比如：读写properties、DB连接等等
      * @throws Exception
      */
-    public static void envAutoChecking()throws Exception{
-        ConfigManager.envAutoChecking();
-        logger.debug("$$$$$$$$$$$$$$$$$$$$$$$$$环境检测正常,请继续执行下面工作$$$$$$$$$$$$$$$$$$$$$$");
+    public static List envAutoChecking()throws Exception{
+        List list = ConfigManager.envAutoChecking();
+        if(list.size() > 0){
+            int result = StringUtils.nullToInt(list.get(0));
+            if(result != 0){
+                logger.debug("$$$$$$$$$$$$$$$$$$$$$$$$$环境检测不正常,请排除所有错误后再进行工作$$$$$$$$$$$$$$$$$$$$$$");
+            }else{
+                logger.debug("$$$$$$$$$$$$$$$$$$$$$$$$$环境检测正常,请继续执行下面工作$$$$$$$$$$$$$$$$$$$$$$");
+            }
+        }
+        return list;
+
     }
     /**
      * 真是情况是不需要提前写入File的，因为是执行顺序是Accounts，Products，Quote,SO,Invoices
