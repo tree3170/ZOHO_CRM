@@ -2,10 +2,26 @@
 # 交付
 * 1. 客户所有DB数据需要给我
 * 2. 环境测试（邮件，properties的读取和写入）
-* 3. 手动添加zohoUser.properties中的数据
-* 4. 注意Web项目和java项目路径的不同点
+* 3. 手动添加zohoUser.properties中的数据【TODO】
+* 4. 注意Web项目和java项目路径的不同点【done】
      使用CommonUtils.getFilePath来处理
-* 5. 仅仅lastExecSuccessTime.properties才能做到及时生效，修改其他所有properties都需要重启server
+* 5. 仅仅lastExecSuccessTime.properties才能做到及时生效，修改其他所有properties都需要重启server【done】
+* 6. 定期删除Logfile和table的数据[TODO]
+* 7. 交付时把该隐藏的字段隐藏【TODO】
+* 8. 拿到所有的账号
+* 9. Report SQL
+
+环境搭建（D:/Usage）：
+1. JDK(D:\Usage\Java\jdk1.7.0_71) --> java -version, javac -version能运行
+2. Tomcat(D:\Usage\apache-tomcat-6.0.44) --> 加入环境变量，并能正常启动
+3. 配置properties：DB，zohoUser，mail，latestexecsuccess
+4. 把项目放入webapps下，并启动，看是否有异常
+5. 如果能正常使用，那么打开Chrome浏览器，执行环境检测
+6. 如果环境检测正常，再执行删除所有数据操作
+7. 如果删除所有数据操作正常，那么执行第一次导入操作
+8. 如果导入操作正常，那么启动线程
+
+Notice：如果出现异常，需要发log给我，从tomcat的bin目录中获取log file（每小时生成一个，哪个小时做的操作出错，那就发送哪个小时的log给我）
 
 
 

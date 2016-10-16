@@ -56,14 +56,18 @@ public class QuartzController {
     //localhost:8080/zoho/start
     @ResponseBody
     @RequestMapping("/start")
-    public String start(String id, HttpServletRequest request){
+    public String start( HttpServletRequest request){
         logger.debug("start QuartzController...");
-        WebApplicationContext applicationContext = ContextLoader.getCurrentWebApplicationContext();
+        //WebApplicationContext applicationContext = ContextLoader.getCurrentWebApplicationContext();
         //SchedulerFactoryBean startQuertz = (SchedulerFactoryBean) applicationContext.getBean("startQuertz");
         //startQuertz.start();
         //StdScheduler scheduler =  (StdScheduler)applicationContext.getBean("startQuertz");
         try {
-            scheduler.start();
+            if(!scheduler.isStarted()){
+                scheduler.start();
+            }else{
+                logger.debug("Now Job is started. ");
+            }
         } catch (SchedulerException e) {
             logger.error("Start Quartz 出现错误",e);
             return "1";
@@ -75,13 +79,17 @@ public class QuartzController {
     @RequestMapping("/stop")
     public String stop(String id, HttpServletRequest request){
         logger.debug("stop QuartzController...");
-        WebApplicationContext applicationContext = ContextLoader.getCurrentWebApplicationContext();
+        //WebApplicationContext applicationContext = ContextLoader.getCurrentWebApplicationContext();
         //SchedulerFactoryBean startQuertz = (SchedulerFactoryBean) applicationContext.getBean("startQuertz");
         //startQuertz.start();
         //StdScheduler scheduler =  (StdScheduler)applicationContext.getBean("startQuertz");
         //try {
         try {
-            scheduler.standby();
+            if(scheduler.isInStandbyMode() || scheduler.isShutdown()){
+                scheduler.standby();
+            }else{
+                logger.debug("Now Job is stopped. ");
+            }
         } catch (SchedulerException e) {
             logger.error("Stop Quartz 出现错误", e);
             return "1";

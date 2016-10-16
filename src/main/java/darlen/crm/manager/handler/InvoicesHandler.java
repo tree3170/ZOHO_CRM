@@ -189,7 +189,7 @@ public class InvoicesHandler extends AbstractModule {
 //        Invoices accouts2 = getDBObj2(idInvoicesMap);
         ;
         //dbAcctList.add(idInvoicesMap);
-        logger.debug("【buildDBObjList】,打印DB对象："+Constants.COMMENT_PREFIX +dbAcctList);
+        logger.debug("【buildDBObjList】, size="+dbAcctList.size()+", 打印DB对象："+Constants.COMMENT_PREFIX +dbAcctList);
         //CommonUtils.printList(dbAcctList, "打印DB对象：：：");
         return dbAcctList;
     }
@@ -270,13 +270,13 @@ public class InvoicesHandler extends AbstractModule {
         //"/mapping/dbRdInvoicesFieldMapping.properties"
         Properties fieldMappingProps = ConfigManager.readProperties(Constants.PROPS_INVOICE_DB_MAPPING);
         //2. 添加
-        logger.debug("4.2 【build2ZohoXmlSkeleton】, 开始获取 Invoices【insert】的的XML#####################");
+        logger.debug("4.2 【build2ZohoXmlSkeleton: insert】, 开始获取 Invoices【insert】的的XML#####################");
 //        List<String> addZohoXmlList = buildAdd2ZohoXml(addAccountMap);
         List<String> addZohoXmlList =  buildAdd2ZohoXml(addAccountMap,className,fieldMappingProps);
         logger.debug("end组装 AddZOHOXML...size:::"+addZohoXmlList.size());
 
         //3. 更新
-        logger.debug("4.3 【build2ZohoXmlSkeleton】, 开始获取 Invoices【update】的的XML#####################");
+        logger.debug("4.3 【build2ZohoXmlSkeleton: update】, 开始获取 Invoices【update】的的XML#####################");
         Map<String,String> updateZOHOXmlMap  = buildUpd2ZohoXml(updateAccountMap,className,fieldMappingProps);
         logger.debug("end组装 updateZOHOXml...size:::"+updateZOHOXmlMap.size());
 
@@ -284,7 +284,7 @@ public class InvoicesHandler extends AbstractModule {
         zohoXMLList.add(addZohoXmlList);
         zohoXMLList.add(updateZOHOXmlMap);
         //4. 删除
-        logger.debug("4.4 【build2ZohoXmlSkeleton】, 打印需要删除的ZOHO ID的集合"+Constants.COMMENT_PREFIX+org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,","));
+        logger.debug("4.4 【build2ZohoXmlSkeleton: delete】, 打印需要删除的ZOHO ID的集合"+Constants.COMMENT_PREFIX+org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,","));
         //logger.debug("打印删除ZohoIDs集合 deleteZOHOIDsList...\n"+org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,","));
         zohoXMLList.add(deleteZOHOIDsList);//org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,",")
         return zohoXMLList;

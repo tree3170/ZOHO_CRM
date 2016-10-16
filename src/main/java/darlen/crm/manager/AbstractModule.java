@@ -385,6 +385,8 @@ public abstract  class AbstractModule  implements IModuleHandler {
 
         Map<String,Object> addModuleObjMap = new HashMap<String, Object>();
         Map<String,Object> updateModuleObjMap = new HashMap<String, Object>();
+        //ignoreRecordsMap 仅仅用做记录log使用
+        Map<String,String> ignoreRecordsMap = new HashMap<String, String>();
         long  lastExecSuccessTime = ConfigManager.getTimefromProps("LAST_EXEC_SUCCESS_TIME");
         for(Map.Entry<String,String> entry : erpIDTimeMap.entrySet()){
             String erpID = entry.getKey();
@@ -399,9 +401,12 @@ public abstract  class AbstractModule  implements IModuleHandler {
                 }else{
                     //如果上次执行成功的时间《=db中这条记录修改的时间
                     if(0 == dbLatestEditTime){  //如果是等于0， 因为这是做update，那么已经不用添加到修改列表，但是有可能是会添加到增加列表
-                        logger.debug("Lastest Edit Time is empty,  ignore set into update Map,erpID ="+erpID+"; zohoID="+zohoID);
+                        //logger.debug("for update case : Lastest Edit Time is empty,  ignore set into update Map,erpID ="+erpID+"; zohoID="+zohoID);
+                        ignoreRecordsMap.put(erpID,zohoID+"|"+dbLatestEditTime);
                     }else   if(lastExecSuccessTime <= dbLatestEditTime){
                         updateModuleObjMap.put(zohoID, dbIDModuleObjMap.get(erpID));
+                    }else{
+                        ignoreRecordsMap.put(erpID,zohoID+"|"+dbLatestEditTime);
                     }
                 }
             }else{ //delete
@@ -424,15 +429,12 @@ public abstract  class AbstractModule  implements IModuleHandler {
 
         List sendToZohoAcctList = new ArrayList();
         logger.debug("3.3 【build2Zoho3PartObj】,addMap组装到ZOHO的对象的集合：size = "+addModuleObjMap.size()+"\n##\t ====> " + addModuleObjMap);
-        //CommonUtils.printMap(addModuleObjMap, "addMap组装到ZOHO的对象的集合：：：\n");
         sendToZohoAcctList.add(addModuleObjMap);
         logger.debug("3.3 【build2Zoho3PartObj】,updateMap组装到ZOHO的对象的集合：size = "+updateModuleObjMap.size()+"\n##\t ====> " + updateModuleObjMap);
-        //CommonUtils.printMap(updateModuleObjMap,"updateMap组装到ZOHO的对象的集合：：：\n");
         sendToZohoAcctList.add(updateModuleObjMap);
-        logger.debug("3.3 【build2Zoho3PartObj】,delZohoIDList组装到ZOHO的对象的集合: size = "+delZohoIDList.size()+"\n##\t ====> " + delZohoIDList);
-        //CommonUtils.printList(delZohoIDList, "delZOHOSOIDList组装到ZOHO的对象的集合：：：\n");
+        logger.debug("3.3 【build2Zoho3PartObj】,delZohoIDList组装到ZOHO的对象的集合: size = " + delZohoIDList.size() + "\n##\t ====> " + delZohoIDList);
         sendToZohoAcctList.add(delZohoIDList);
-
+        logger.debug("3.3 【build2Zoho3PartObj】,Ignore Records for update case(1. empty time 2. time not change)的对象集合: size = "+ignoreRecordsMap.size()+"\n##\t ====> " + ignoreRecordsMap);
 
         return sendToZohoAcctList;
     }
@@ -772,7 +774,7 @@ public abstract  class AbstractModule  implements IModuleHandler {
         int failNum  = 0;
         String moduleUrl  = getModuleUrl(moduleName,curdKey);
 
-        logger.debug("#[addRecords], 从ZOHO获取回来的所有记录的XML:::moduleName = "+moduleName+", Operatiton ="+curdKey+", url ="+moduleUrl+", Size = "+addZohoXMLList.size());
+        logger.debug("#[addRecords], 从ZOHO获取回来的所有记录的XML:::"+Constants.COMMENT_PREFIX+"moduleName = "+moduleName+", Operatiton ="+curdKey+", Size = "+addZohoXMLList.size()+", url ="+moduleUrl);
         //List<String> addZohoXMLList = (List<String> ) zohoXMLList.get(0);
         for(int i = 0; i < addZohoXMLList.size(); i ++){
             logger.debug("添加【"+moduleName+"】第"+(i+1)+"条数据");
@@ -798,6 +800,7 @@ public abstract  class AbstractModule  implements IModuleHandler {
     public int updateRecords(String moduleName, int curdKey,Map<String,String> updZohoXMLMap){
         int failNum = 0;
         String moduleUrl  = getModuleUrl(moduleName, curdKey);;
+        logger.debug("#[updateRecords], 从ZOHO获取回来的所有记录的XML:::"+Constants.COMMENT_PREFIX+"moduleName = "+moduleName+", Operatiton ="+curdKey+", Size = "+updZohoXMLMap.size()+", url ="+moduleUrl);
         //Map<String,String> updZohoXMLMap = (Map<String,String>) zohoXMLList.get(1);
         int i = 1 ;
         for(Map.Entry<String,String> zohoIDUpdXmlEntry : updZohoXMLMap.entrySet()){
@@ -835,6 +838,7 @@ public abstract  class AbstractModule  implements IModuleHandler {
         //List result = new ArrayList();
         int failNum = 0;
         String moduleUrl  = getModuleUrl(moduleName, curdKey);
+        logger.debug("#[delRecords], 从ZOHO获取回来的所有记录的XML:::"+Constants.COMMENT_PREFIX+"moduleName = "+moduleName+", Operatiton ="+curdKey+", Size = "+deleteZOHOIDsList.size()+", url ="+moduleUrl);
         //List deleteZOHOIDsList = (List)zohoXMLList.get(2);
         for(int i = 0; i < deleteZOHOIDsList.size(); i++){
             String id = StringUtils.nullToString(deleteZOHOIDsList.get(i));

@@ -6,8 +6,6 @@ log4j.logger.httpclient.wire.header=ERROR
 log4j.logger.httpclient.wire.content=ERROR
 log4j.logger.org.apache.commons.httpclient=ERROR
 log4j.logger.org.apache.commons.configuration=ERROR
-log4j.logger.org.springframework=WARN
-log4j.category.org.springframework=WARN
 
 ###  output to the console ###
 #实例：2015-06-04 21:35:15,428 [TestSpringMybatis.testGetAllUser(TestSpringMybatis.java:69)]-[ERROR] #############123
@@ -52,18 +50,18 @@ log4j.appender.dailyError.layout.ConversionPattern=%-d{yyyy-MM-dd HH:mm:ss}  [ %
 
 
 ##################3.不同类输出到不4同文件  --》处理不同module
-#log4j.logger.darlen.crm.manager.handler.AccountsHandler=ACCT
-#
-##log4j.appender.ACCT=org.apache.log4j.RollingFileAppender
-#log4j.appender.ACCT=org.apache.log4j.DailyRollingFileAppender
-#log4j.appender.ACCT.Threshold =DEBUG
-#log4j.appender.ACCT.File=logs/acct
-##2.输出时间;Log4j每天、每小时、每分钟定时生成日志文件---》每小时生成Error的Log
-#log4j.appender.ACCT.DatePattern='.'yyyy-MM-dd-HH'.log'
-##log4j.appender.ACCT.MaxFileSize=500KB
-##log4j.appender.ACCT.MaxBackupIndex=50
-#log4j.appender.ACCT.Append=true
-#log4j.appender.ACCT.layout=org.apache.log4j.PatternLayout
-#log4j.appender.ACCT.layout.ConversionPattern=%d{ISO8601} - [%p] [%C{1}] - %m%n
+log4j.logger.darlen.crm.manager.handler.AccountsHandler=ACCT
+
+#log4j.appender.ACCT=org.apache.log4j.RollingFileAppender
+log4j.appender.ACCT=org.apache.log4j.DailyRollingFileAppender
+log4j.appender.ACCT.Threshold =DEBUG
+log4j.appender.ACCT.File=logs/acct
+#2.输出时间;Log4j每天、每小时、每分钟定时生成日志文件---》每小时生成Error的Log
+log4j.appender.ACCT.DatePattern='.'yyyy-MM-dd-HH'.log'
+#log4j.appender.ACCT.MaxFileSize=500KB
+#log4j.appender.ACCT.MaxBackupIndex=50
+log4j.appender.ACCT.Append=true
+log4j.appender.ACCT.layout=org.apache.log4j.PatternLayout
+log4j.appender.ACCT.layout.ConversionPattern=%d{ISO8601} - [%p] [%C{1}] - %m%n
 
 

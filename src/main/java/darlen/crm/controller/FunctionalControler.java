@@ -141,7 +141,7 @@ public class FunctionalControler {
         }
 
         List<Report> reports = new ArrayList<Report>();
-        if(!StringUtils.isEmptyString(endTime) || !StringUtils.isEmptyString(endTime)){
+        if(!StringUtils.isEmptyString(startTime) || !StringUtils.isEmptyString(endTime)){
             sql += " ORDER BY END_TIME DESC";
             logger.debug("startTime="+startTime+", endTime = "+endTime +", SQL = "+ sql);
             reports = DBUtils.fetchReportByTime(sql,params);
@@ -180,7 +180,7 @@ public class FunctionalControler {
 
         }else if("2".equals(param)){
             try {
-                //ModuleManager.execAllModuleHouseKeep(false);
+                ModuleManager.execAllModuleHouseKeep(false);
             }catch (Exception e){
                 isSuccess = false;
                 message = StringUtils.nullToString(e.getMessage());
@@ -188,12 +188,27 @@ public class FunctionalControler {
 
         }else if("3".equals(param)){
             try {
-                //ModuleManager.execAllModuleHouseKeep(true);
+                ModuleManager.execAllModuleHouseKeep(true);
             }catch (Exception e){
                 isSuccess = false;
                 message = StringUtils.nullToString(e.getMessage());
             }
-        }else if("4".equals(param)){
+        }else if("4".equals(param)){ //first time load data
+            try{
+               List list =  ModuleManager.exeAllModuleSend();
+               if(null != list && list.size() > 0){
+                   isSuccess = Boolean.valueOf(StringUtils.nullToString(list.get(0)));
+                    if(!isSuccess){
+                        message = StringUtils.nullToString(list.get(1));
+                   }
+                }
+            }catch (Exception e){
+                isSuccess = false;
+                message = StringUtils.nullToString(e.getMessage());
+            }
+
+        }
+        else if("5".equals(param)){
             //    发送所有表数据到我的邮箱
         }
 

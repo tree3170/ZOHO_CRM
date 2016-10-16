@@ -126,7 +126,7 @@ public class QuotesHandler extends AbstractModule {
      * @throws Exception
      */
     private List<ProdRow> retrieveAllRowsFromZoho(int fromIndex, int toIndex, List<ProdRow> allRows) throws Exception {
-        logger.debug("# 1.1 InvoicesHandler 【retrieveAllRowsFromZoho】...");
+        logger.debug("# 1.1 QuotesHandler 【retrieveAllRowsFromZoho】...");
 //     1. 从ZOHO获取有效的xml
         String zohoStr =  retrieveZohoRecords(ModuleNameKeys.Quotes.toString(),fromIndex,toIndex);
 
@@ -226,20 +226,20 @@ public class QuotesHandler extends AbstractModule {
         //1. 获取发送到ZOHO对象集合骨架
         logger.debug("4.1 【build2ZohoXmlSkeleton】, 开始执行方法：build2ZohoObjSkeletonList");
         List zohoComponentList = build2ZohoObjSkeletonList();
-        Map<String,Invoices> addAccountMap =  (Map<String,Invoices> )zohoComponentList.get(0);
-        Map<String,Invoices> updateAccountMap =(Map<String,Invoices> )zohoComponentList.get(1);
+        Map<String,Quotes> addAccountMap =  (Map<String,Quotes> )zohoComponentList.get(0);
+        Map<String,Quotes> updateAccountMap =(Map<String,Quotes> )zohoComponentList.get(1);
         List deleteZOHOIDsList  = (List)zohoComponentList.get(2);
 
         String className = "darlen.crm.model.result.Quotes";
         //"/mapping/dbRdQuotesFieldMapping.properties"
         Properties fieldMappingProps = ConfigManager.readProperties(Constants.PROPS_QUOTE_DB_MAPPING);
         //2. 添加
-        logger.debug("4.2 【build2ZohoXmlSkeleton】, 开始获取 Quotes【insert】的的XML#####################");
+        logger.debug("4.2 【build2ZohoXmlSkeleton: insert】, 开始获取 Quotes【insert】的的XML#####################");
         List<String> addZohoXmlList =  buildAdd2ZohoXml(addAccountMap,className,fieldMappingProps);
         logger.debug("end组装 AddZOHOXML...size:::"+addZohoXmlList.size());
 
         //3. 更新
-        logger.debug("4.3 【build2ZohoXmlSkeleton】, 开始获取 Quotes【update】的的XML#####################");
+        logger.debug("4.3 【build2ZohoXmlSkeleton: update】, 开始获取 Quotes【update】的的XML#####################");
         Map<String,String> updateZOHOXmlMap  = buildUpd2ZohoXml(updateAccountMap,className,fieldMappingProps);
         logger.debug("end组装 updateZOHOXml...size:::"+updateZOHOXmlMap.size());
 
@@ -247,7 +247,7 @@ public class QuotesHandler extends AbstractModule {
         zohoXMLList.add(addZohoXmlList);
         zohoXMLList.add(updateZOHOXmlMap);
         //4. 删除
-        logger.debug("4.4 【build2ZohoXmlSkeleton】, 打印需要删除的ZOHO ID的集合"+Constants.COMMENT_PREFIX+org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,","));
+        logger.debug("4.4 【build2ZohoXmlSkeleton: delete】, 打印需要删除的ZOHO ID的集合"+Constants.COMMENT_PREFIX+org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,","));
         zohoXMLList.add(deleteZOHOIDsList);//org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,",")
         return zohoXMLList;
     }

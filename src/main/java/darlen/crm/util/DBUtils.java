@@ -45,7 +45,7 @@ import java.util.Date;
 public class DBUtils {
     private static Logger logger = Logger.getLogger(DBUtils.class);
     private static final String ACCT_SQL = "select  zoho.* from dbo.Customer as zoho  where 1 =1 ";
-    private static final String PROD_SQL = "select * from dbo.item  as zoho where 1 =1 ";
+    private static final String PROD_SQL = "select * from dbo.item  as zoho where 1 =1 order by zoho.ItemID DESC";
     private static final String QUOTES_SQL = "SELECT zoho.QuoteID AS ERPID, zoho.CustomerID, zoho.QuoteRef, zoho.CUSNAME AS CUSTOMERNAME, zoho.EXCHANGERATE AS EXGRATE ,zoho.LatestEditBy, \n" +
             "iq.Item_QuoteID,item.ITEMID AS PROD_ID, item.NAME AS PROD_NAME, iq.QuotePrice AS PROD_UNITPRICE,  iq.QUANTITY AS PROD_QUANTITY, iq.ITEMDISCOUNT AS PROD_DISCOUNT, iq.DESCRIPTION AS PROD_DESC , \n" +
             "pt.Name as PayTerm,\n" +
@@ -131,7 +131,7 @@ public class DBUtils {
     private static String getWholeSqlWithFilterUser(String sql, String moduleName,String orderBy) throws IOException, ConfigurationException {
         List<String> allUsers = ConfigManager.getAllZohoUserName();
         if(allUsers!= null && allUsers.size() > 0){
-            sql += "and zoho.LatestEditBy in (" ;
+            sql += "\n and zoho.LatestEditBy in (" ;
             for(String name : allUsers){
                 sql += "'"+name+"'" + ",";
             }
@@ -139,7 +139,7 @@ public class DBUtils {
             sql += ") \n";
         }
         sql += orderBy;
-        logger.debug("【getWholeSqlWithFilterUser】, module="+moduleName+ Constants.COMMENT_PREFIX+"\t sql = "+sql);
+        //logger.debug("【getWholeSqlWithFilterUser】, module="+moduleName+ Constants.COMMENT_PREFIX+"\t sql = "+sql);
         return sql;
     }
 
@@ -168,13 +168,26 @@ public class DBUtils {
     public synchronized static List getAccountMap() throws Exception {
         List dbAcctList = new ArrayList();
         Map<String,String> dbIDEditTimeMap = new HashMap<String, String>();
-        Map<String,Object> dbIDModuleObjMap = new HashMap<String, Object>();
+        Map<String,Object> dbIDModuleObjMap = new TreeMap<String, Object>(new Comparator<String>(){
+
+            /*
+             * int compare(Object o1, Object o2) 返回一个基本类型的整型，
+             * 返回负数表示：o1 小于o2，
+             * 返回0 表示：o1和o2相等，
+             * 返回正数表示：o1大于o2。
+             */
+            public int compare(String o1, String o2) {
+                //按照Key ： ERP ID倒序排序
+                //return o1.compareTo(o2);
+                return StringUtils.nullToInt(o2) - StringUtils.nullToInt(o1);
+            }
+        });
         dbAcctList.add(0,dbIDModuleObjMap);
         dbAcctList.add(1,dbIDEditTimeMap);
 //        List<Accounts> accountList = new ArrayList<Accounts>();
 
                 // and CustomerID in (1,8,14,20)"; //暂时只用三条数据
-        String sql = getWholeSqlWithFilterUser(ACCT_SQL,ModuleNameKeys.Accounts.toString()," order by zoho.customerID");
+        String sql = getWholeSqlWithFilterUser(ACCT_SQL,ModuleNameKeys.Accounts.toString()," ORDER BY zoho.customerID DESC");
 
         ResultSet rs = exeQuery(sql);
         while (rs != null && rs.next()){
@@ -248,7 +261,20 @@ public class DBUtils {
     public synchronized static List getProductMap() throws Exception {
         List dbModuleList = new ArrayList();
         Map<String,String> dbIDEditTimeMap = new HashMap<String, String>();
-        Map<String,Object> dbIDModuleObjMap = new HashMap<String, Object>();
+        Map<String,Object> dbIDModuleObjMap = new TreeMap<String, Object>(new Comparator<String>(){
+
+            /*
+             * int compare(Object o1, Object o2) 返回一个基本类型的整型，
+             * 返回负数表示：o1 小于o2，
+             * 返回0 表示：o1和o2相等，
+             * 返回正数表示：o1大于o2。
+             */
+            public int compare(String o1, String o2) {
+                //按照Key ： ERP ID倒序排序
+                //return o1.compareTo(o2);
+                return StringUtils.nullToInt(o2) - StringUtils.nullToInt(o1);
+            }
+        });
         dbModuleList.add(0,dbIDModuleObjMap);
         dbModuleList.add(1,dbIDEditTimeMap);
 //        List<Products> productsList = new ArrayList<Products>();
@@ -319,7 +345,20 @@ public class DBUtils {
     public synchronized static List getQuotesList() throws Exception{
         List dbModuleList = new ArrayList();
         Map<String,String> dbIDEditTimeMap = new HashMap<String, String>();
-        Map<String,Object> dbIDModuleObjMap = new HashMap<String, Object>();
+        Map<String,Object> dbIDModuleObjMap  = new TreeMap<String, Object>(new Comparator<String>(){
+
+            /*
+             * int compare(Object o1, Object o2) 返回一个基本类型的整型，
+             * 返回负数表示：o1 小于o2，
+             * 返回0 表示：o1和o2相等，
+             * 返回正数表示：o1大于o2。
+             */
+            public int compare(String o1, String o2) {
+                //按照Key ： ERP ID倒序排序
+                //return o1.compareTo(o2);
+                return StringUtils.nullToInt(o2) - StringUtils.nullToInt(o1);
+            }
+        });
         dbModuleList.add(0,dbIDModuleObjMap);
         dbModuleList.add(1,dbIDEditTimeMap);
 //        List<Quotes> moduleList = new ArrayList<Quotes>();
@@ -339,7 +378,7 @@ public class DBUtils {
 //                //"and q.QuoteID in (13,16,27)\n" +
 //                "and item.ITEMID is not null" +
 //                " ORDER BY q.QuoteID";
-        String sql = getWholeSqlWithFilterUser(QUOTES_SQL,ModuleNameKeys.Quotes.toString()," ORDER BY zoho.QuoteID");
+        String sql = getWholeSqlWithFilterUser(QUOTES_SQL,ModuleNameKeys.Quotes.toString()," ORDER BY zoho.QuoteID DESC");
         ResultSet rs = exeQuery(sql);
         String preErpID = "";
         List<ProductDetails> pds = new ArrayList<ProductDetails>();
@@ -496,7 +535,20 @@ public class DBUtils {
     public synchronized static List getSOMap() throws Exception{
         List dbModuleList = new ArrayList();
         Map<String,String> dbIDEditTimeMap = new HashMap<String, String>();
-        Map<String,Object> dbIDModuleObjMap = new HashMap<String, Object>();
+        Map<String,Object> dbIDModuleObjMap = new TreeMap<String, Object>(new Comparator<String>(){
+
+            /*
+             * int compare(Object o1, Object o2) 返回一个基本类型的整型，
+             * 返回负数表示：o1 小于o2，
+             * 返回0 表示：o1和o2相等，
+             * 返回正数表示：o1大于o2。
+             */
+            public int compare(String o1, String o2) {
+                //按照Key ： ERP ID倒序排序
+                //return o1.compareTo(o2);
+                return StringUtils.nullToInt(o2) - StringUtils.nullToInt(o1);
+            }
+        });
         dbModuleList.add(0,dbIDModuleObjMap);
         dbModuleList.add(1,dbIDEditTimeMap);
         List<SO> moduleList = new ArrayList<SO>();
@@ -516,7 +568,7 @@ public class DBUtils {
         //        //"and so.SOID in (13,16,27)\n" +//暂时只用三条数据
         //        "and item.ITEMID is not null \n" +
         //        " ORDER BY SO.SOID";
-        String sql = getWholeSqlWithFilterUser(SO_SQL,ModuleNameKeys.SalesOrders.toString()," ORDER BY zoho.SOID");
+        String sql = getWholeSqlWithFilterUser(SO_SQL,ModuleNameKeys.SalesOrders.toString()," ORDER BY zoho.SOID DESC");
         ResultSet rs = exeQuery(sql);
         String preErpID = "";
         List<ProductDetails> pds = new ArrayList<ProductDetails>();
@@ -662,7 +714,20 @@ public class DBUtils {
     public synchronized static List getInvoiceMap() throws Exception{
         List dbModuleList = new ArrayList();
         Map<String,String> dbIDEditTimeMap = new HashMap<String, String>();
-        Map<String,Object> dbIDModuleObjMap = new HashMap<String, Object>();
+        Map<String,Object> dbIDModuleObjMap = new TreeMap<String, Object>(new Comparator<String>(){
+
+            /*
+             * int compare(Object o1, Object o2) 返回一个基本类型的整型，
+             * 返回负数表示：o1 小于o2，
+             * 返回0 表示：o1和o2相等，
+             * 返回正数表示：o1大于o2。
+             */
+            public int compare(String o1, String o2) {
+                //按照Key ： ERP ID倒序排序
+                //return o1.compareTo(o2);
+                return StringUtils.nullToInt(o2) - StringUtils.nullToInt(o1);
+            }
+        });
         dbModuleList.add(0,dbIDModuleObjMap);
         dbModuleList.add(1,dbIDEditTimeMap);
 //        List<Invoices> moduleList = new ArrayList<Invoices>();
@@ -676,7 +741,7 @@ public class DBUtils {
 //                //" inv.InvoiceID in (8,12,145)\n" +
 //                "  item.ITEMID is not null \n" + //暂时只用三条数据
 //                " ORDER BY inv.InvoiceID";
-        String sql = getWholeSqlWithFilterUser(INVOICE_SQL,ModuleNameKeys.Invoices.toString(), " ORDER BY zoho.InvoiceID");
+        String sql = getWholeSqlWithFilterUser(INVOICE_SQL,ModuleNameKeys.Invoices.toString(), " ORDER BY zoho.InvoiceID DESC");
         ResultSet rs = exeQuery(sql);
         String preErpID = "";
         Invoices invoices = null;
@@ -902,6 +967,7 @@ public class DBUtils {
     private static ResultSet exeQuery(String sql) throws SQLException, IOException, ConfigurationException, ClassNotFoundException {
         ResultSet rs = null;
         Connection conn = getConnection();
+        logger.debug("【exeQuery】, sql =\n"+sql);
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
             rs = ps.executeQuery();
@@ -995,8 +1061,8 @@ public class DBUtils {
             }else if("java.lang.String".equals(objectType)){
                 ps.setString(i + 1, StringUtils.nullToString(o));
             }else  if("java.util.Date".equals(objectType)){
-                //ps.setTimestamp(i + 1, new Timestamp(((Date)o).getTime()));
-                ps.setTimestamp(i + 1, (Timestamp)o);
+                ps.setTimestamp(i + 1, new Timestamp(((Date)o).getTime()));
+                //ps.setTimestamp(i + 1, (Timestamp)o);
             }else{//默认设为string
                 ps.setString(i + 1, StringUtils.nullToString(o));
             }

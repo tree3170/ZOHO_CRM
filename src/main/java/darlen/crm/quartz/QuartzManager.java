@@ -48,13 +48,20 @@ public class QuartzManager {
 
 
     public void exe() throws Exception {
-        logger.debug("entering QuartzManager。。。");
-        System.err.println("test 。。。");
-//        ModuleManager.exeAllModuleSend();
+        logger.debug("\n\n\n\n\n\n\n"+Constants.COMMENT_PREFIX+"\n" +
+                "##########################################################################################################\n" +
+                "####\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t #####\n" +
+                "####                       BEGIN JOB["+ThreadLocalDateUtil.formatDate(new Date())+"]                                            #####\n" +
+                "#### \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t #####\n" +
+                "##########################################################################################################");
+        logger.debug("Begin QuartzManager...");
+        //System.err.println("test 。。。");
+        ModuleManager.exeAllModuleSend();
 //        System.out.println(ConfigManager.get("secure/db.properties", "DB_USERNAME"));
 //        System.out.println("======"+ConfigManager.getProdfromProps("marketing"));
 //        System.out.println(ConfigManager.get(Constants.PROPS_DB_FILE,"DB_USERNAME"));
 //        System.out.println("打印时间：date:" + ThreadLocalDateUtil.formatDate(new Date()) + "; marketing =" + ConfigManager.getProdfromProps("marketing"));
 //        ConfigManager.envAutoChecking();
+        logger.debug("End QuartzManager...\n\n\n\n\n\n");
     }
 }

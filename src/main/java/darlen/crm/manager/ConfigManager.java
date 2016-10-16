@@ -108,6 +108,7 @@ public class ConfigManager {
         for(Map.Entry<String,String> entry : zohoUserPropsMap.entrySet()){
             allUsers.add(entry.getKey());
         }
+        logger.debug("【getZohoUserfromProps】, all user = "+allUsers);
         return allUsers;
     }
 
@@ -146,7 +147,7 @@ public class ConfigManager {
         boolean isChanged =  nowModifyTime > PREVIOUS_TIME_PROPS__MOD;
         logger.debug("$$$$$$$$$$$$$$$$$$$$$nowModifyTime = "+nowModifyTime+", PREVIOUS_TIME_PROPS__MOD= "+ PREVIOUS_TIME_PROPS__MOD
             //+ (isChanged ? (Constants.COMMENT_PREFIX+"lastExecSuccessTime.properties has "+(isChanged)+"been changed , need to reload the properties"): ""));
-            + (Constants.COMMENT_PREFIX+"lastExecSuccessTime.properties has been changed【"+isChanged+"】, need "+(isChanged?"":" not ")+"to reload the properties"));
+            + (Constants.COMMENT_PREFIX+"lastExecSuccessTime.properties file has been changed【"+isChanged+"】, need "+(isChanged?"":" not ")+"to reload the properties"));
         if(isChanged){
             PREVIOUS_TIME_PROPS__MOD = nowModifyTime ;
             //if(timePropsMap.size() == 0){

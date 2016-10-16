@@ -152,8 +152,9 @@ public class ModuleManager {
      * TODO ： 如果执行某个模块出错，那么该怎么处理，是继续下去还是可以执行其他的模块
      * @throws Exception
      */
-    public static void exeAllModuleSend()throws Exception{
+    public static List exeAllModuleSend()throws Exception{
         //启动时间
+        List list = new ArrayList();
         Date startDate = new Date();
         String insertFailStr = "";
         String updateFailStr = "";
@@ -165,65 +166,75 @@ public class ModuleManager {
         List quoteList = new ArrayList();
         List soList = new ArrayList();
         List invList = new ArrayList();
+        boolean allSuccess = true;
+        String message = "";
         try{
             try{
-                 logger.debug("##################################################开始执行Account Module##################################################");
+                 logger.debug("①Accounts ##################################################开始执行Account Module##################################################");
                  logger.debug("####################################################################################################");
                  acctList = exeAccounts();
-                 logger.debug(acctList+"\n\n\n\n\n");
+                 logger.debug("exeAccounts result :::"+acctList+"\n\n\n\n\n");
             }catch (Exception e){
+                allSuccess = false;
                 logger.error("【ModuleManager】，执行 exeAccounts 出错",e);
                 wholeModuleFail = "ACCT";
+                message += "Customer : "+e.getMessage();
             }
 
-            logger.debug("##################################################开始执行Product Module##################################################");
+            logger.debug("②Products ##################################################开始执行Product Module##################################################");
             logger.debug("####################################################################################################");
             try{
                 prodList = exeProducts();
-                logger.debug(prodList);
+                logger.debug("exeProducts result :::"+prodList+"\n\n\n\n\n");
             }catch (Exception e){
+                allSuccess = false;
                 logger.error("【ModuleManager】，执行 exeProducts 出错",e);
                 wholeModuleFail += "|"+ "PROD";
+                message += ", Products : "+e.getMessage();
             }
 
-            logger.debug("##################################################Begin写入文件Account.properties,Product.properties...##################################################\n\n\n\n\n");
+            logger.debug("③Write Properties##################################################Begin写入文件Account.properties,Product.properties...##################################################");
             try{
 
                 rewriteAcctProdProps();
-                logger.debug("\n\n\n\n\n");
             }catch (Exception e){
                 logger.error("【ModuleManager】，执行 testWriteFiles 出错", e);
             }
-            logger.debug("##################################################End写入文件Account.properties,Product.properties##################################################");
+            logger.debug("##################################################End写入文件Account.properties,Product.properties##################################################\n\n\n\n\n");
 
-            logger.debug("##################################################开始执行Quotes Module##################################################==");
+            logger.debug("④Quotes ##################################################开始执行Quotes Module##################################################==");
             logger.debug("####################################################################################################");
             try{
                 quoteList = exeQuotes();
-                logger.debug(quoteList+"\n\n\n\n\n");
+                logger.debug("exeQuotes result :::"+quoteList+"\n\n\n\n\n");
             }catch (Exception e){
+                allSuccess = false;
                 logger.error("【ModuleManager】，执行 exeQuotes 出错",e);
                 wholeModuleFail += "|"+ "QUOTES";
+                message += ", Quotes : "+e.getMessage();
             }
 
-            logger.debug("##################################################开始执行SO Module##################################################==");
+            logger.debug("⑤SO ##################################################开始执行SO Module##################################################==");
             logger.debug("####################################################################################################");
             try{
                 soList = exeSO();
-                logger.debug(soList+"\n\n\n\n\n");
+                logger.debug("exeSO result :::"+soList+"\n\n\n\n\n");
             }catch (Exception e){
                 logger.error("【ModuleManager】，执行 exeSO 出错",e);
                 wholeModuleFail += "|"+ "SO";
+                message += ", SO : "+e.getMessage();
             }
 
-            logger.debug("##################################################开始执行Invoices Module##################################################");
+            logger.debug("⑥Invoices ##################################################开始执行Invoices Module##################################################");
             logger.debug("####################################################################################################");
             try{
                 invList = exeInvoice();
-                logger.debug(invList+"\n\n\n\n\n");
+                logger.debug("exeInvoice result :::"+invList+"\n\n\n\n\n");
             }catch (Exception e){
+                allSuccess = false;
                 logger.error("【ModuleManager】，执行 invList 出错",e);
                 wholeModuleFail += "|"+ "Invoice";
+                message += ", Invoices : "+e.getMessage();
             }
             //格式：AccountFailNum|ProductFailNum|QuoteFailNum|SOFailNum|InvoiceFailNum
             boolean isAcctListEmpty = CommonUtils.isEmptyList(acctList);
@@ -251,16 +262,21 @@ public class ModuleManager {
 
 
             //如果都执行成功，那么更新lastExecSuccessTime.properties
-            if(!StringUtils.isEmptyString(wholeModuleFail)){
+            if(allSuccess){
+                logger.debug("⑦update LAST_EXEC_SUCCESS_TIME ##################################################开始执行Invoices Module##################################################");
+                logger.debug("####################################################################################################");
                 Map<String,String> map = new HashMap<String, String>();
                 map.put(Constants.LAST_EXEC_SUCCESS_TIME,ThreadLocalDateUtil.formatDate(new Date()));
-                //ConfigManager.writeVal2Props(map,Constants.PROPS_TIME_FILE);
+                ConfigManager.writeVal2Props(map,Constants.PROPS_TIME_FILE);
             }
 
         }catch (Exception e) {
+            allSuccess = false;
             logger.error("【exeAllModuleSend】, 出现错误",e);
+            message += ", all : "+e.getMessage();
             throw e;
         }finally {
+            logger.debug("⑧update Report ####################################################################################################");
             //结束时间new Date()
             Date endDate = new Date();
             List updERPList = new ArrayList();
@@ -277,6 +293,9 @@ public class ModuleManager {
             logger.debug("################################################"
                     +Constants.COMMENT_PREFIX+"最终执行时间:"+(endDate.getTime()-startDate.getTime())/1000+"秒");
         }
+        list.add(0,allSuccess);
+        list.add(1, message);
+        return list;
     }
 
 
@@ -335,6 +354,14 @@ public class ModuleManager {
         logger.debug("##############6. 最后开始【Products】的HouseKeep#################\n\n\n\n\n");
         logger.debug("删除模块 【Products】的ZOHO ID集合为"+Constants.COMMENT_PREFIX+"【House Keep】"+delZohoIDList);
         prodModule.delRecords(ModuleNameKeys.Products.toString(),Constants.ZOHO_CRUD_DELETE,delProdIDList);
+
+        // 7. 如何housekeep止呕， 一定要把lastExecSuccess.properties置为0。以便下次能把所有数据插入
+        if(deleteAll){
+            logger.debug("##############7. 最后重置LAST_EXEC_SUCCESS_TIME为0#################\n\n\n\n\n");
+            Map<String,String> map = new HashMap<String, String>();
+            map.put(Constants.LAST_EXEC_SUCCESS_TIME,"0");
+            ConfigManager.writeVal2Props(map,Constants.PROPS_TIME_FILE);
+        }
 
         logger.debug("################################################"
                 +Constants.COMMENT_PREFIX+"最终执行时间:"+(new Date().getTime()-startDate)/1000+"秒");
@@ -455,9 +482,9 @@ public class ModuleManager {
         //1. 环境检测
         //envAutoChecking();
         //2.执行
-        exeAllModuleSend();
+        //exeAllModuleSend();
         //3. 执行House Keep
-        execAllModuleHouseKeep(true);
+        //execAllModuleHouseKeep(true);
         //exeProducts();
         //exeSO();
         //exeInvoice();
@@ -472,8 +499,8 @@ public class ModuleManager {
         //logger.debug("删除模块【Accounts】的ZOHO ID集合为"+Constants.COMMENT_PREFIX+"【House Keep】"+delZohoIDList);
         //acctModule.delRecords(ModuleNameKeys.Accounts.toString(),Constants.ZOHO_CRUD_DELETE,delZohoIDList);
 
-        rewriteAcctProdProps();
-        exe();
+        //rewriteAcctProdProps();
+        //exe();
     }
     /**
      * 在使用Manager之前一定要自检，判断环境是否可用，如果不可用，必需停止，排除环境因素后才能继续执行

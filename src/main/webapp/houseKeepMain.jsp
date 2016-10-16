@@ -39,15 +39,18 @@
     <thead>
     <tr>
         <th>Environment Auto detection</th>
-        <th>Normal House Keep</th>
+        <%--<th>Normal House Keep</th>--%>
         <th>Delete ALL Module Records</th>
+        <th>First Time Load Data</th>
+        <%--<th>Delete Useless File And Log</th>--%>
     </tr>
     </thead>
     <tbody>
     <tr>
         <td> <button type="button" class="btn btn-primary" id="env">Submit</button></td>
-        <td> <button type="button" class="btn btn-success" id="hs">Submit</button></td>
+        <%--<td> <button type="button" class="btn btn-success" id="hs">Submit</button></td>--%>
         <td> <button type="button" class="btn btn-info" id="del">Submit</button></td>
+        <td> <button type="button" class="btn btn-success" id="fistTime">Submit</button></td>
     </tr>
     </tbody>
 </table>
@@ -85,6 +88,7 @@
     //var $j = jQuery.noConflict();
     $(function () {
         $("#env").click(function(){
+            $("#env").attr("disabled",true);
             $.ajax({
                 url:"<%=request.getContextPath()%>/houseKeep/1",
                 method:"POST",
@@ -104,7 +108,7 @@
                             keyboard: true
                         })
                     }
-
+                    $("#env").attr("disabled",false);
                 }
             })
         })
@@ -132,6 +136,7 @@
             })
         })
         $("#del").click(function(){
+            $("#del").attr("disabled",true);
             $.ajax({
                 url:"<%=request.getContextPath()%>/houseKeep/3",
                 method:"POST",
@@ -151,6 +156,33 @@
                             keyboard: true
                         })
                     }
+                    $("#del").attr("disabled",false);
+                }
+            })
+        })
+
+        $("#fistTime").click(function(){
+            $("#fistTime").attr("disabled",true);
+            $.ajax({
+                url:"<%=request.getContextPath()%>/houseKeep/4",
+                method:"POST",
+                dataType:"json",
+                success: function(result){
+                    if(result[0] == true){
+                        //alert("Success");
+                        //$('#myModal').modal(options);
+                        $("#content").html("<strong>Congratulations! First Time Load Data Successfully.</strong>  ");
+                        $('#myModal').modal({
+                            keyboard: true
+                        })
+                    }else {
+                        $("#content").html("<strong>So bad! There are some problems, pls find the root Reason and fixed ,  then you can do next step :</strong> " +
+                                "<br> <font color='red'>"+result[1]+"</font>");
+                        $('#myModal').modal({
+                            keyboard: true
+                        })
+                    }
+                    $("#fistTime").attr("disabled",false);
                 }
             })
         })

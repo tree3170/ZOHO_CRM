@@ -179,7 +179,7 @@ public class ProductHandler extends AbstractModule{
 //        getDBObj2(erpIDProductsMap);
 
         //dbAcctList.add(erpIDProductsMap);
-        logger.debug("【buildDBObjList】,打印DB对象："+Constants.COMMENT_PREFIX +dbAcctList);
+        logger.debug("【buildDBObjList】, size="+dbAcctList.size()+",打印DB对象："+Constants.COMMENT_PREFIX +dbAcctList);
         //CommonUtils.printList(dbAcctList, "Build DB Object :::");
         return dbAcctList;
     }
@@ -280,12 +280,12 @@ public class ProductHandler extends AbstractModule{
         Properties fieldMappingProps = ConfigManager.readProperties(Constants.PROPS_PROD_DB_MAPPING);
         //TODO add最大条数为100，
 //        2. 添加
-        logger.debug("4.2 【build2ZohoXmlSkeleton】, 开始获取 Product【insert】的的XML#####################");
+        logger.debug("4.2 【build2ZohoXmlSkeleton: insert】, 开始获取 Product【insert】的的XML#####################");
         List<String> addZohoXmlList = buildAdd2ZohoXml(addMap,className,fieldMappingProps);
         logger.debug("end组装 AddZOHOXML..size:::."+addZohoXmlList.size());
 
 //        3. 更新
-        logger.debug("4.3 【build2ZohoXmlSkeleton】, 开始获取 Product【update】的的XML#####################");
+        logger.debug("4.3 【build2ZohoXmlSkeleton: update】, 开始获取 Product【update】的的XML#####################");
         Map<String,String> updateZOHOXmlMap  = buildUpd2ZohoXml(updateMap,className,fieldMappingProps);
         logger.debug("end组装 updateZOHOXml...size:::"+updateZOHOXmlMap.size());
 
@@ -294,7 +294,7 @@ public class ProductHandler extends AbstractModule{
         zohoXMLList.add(updateZOHOXmlMap);
 //        4. 删除
         List deleteZOHOIDsList  = (List)zohoComponentList.get(2);
-        logger.debug("4.4 【build2ZohoXmlSkeleton】, 打印需要删除的ZOHO ID的集合"+Constants.COMMENT_PREFIX+org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,","));
+        logger.debug("4.4 【build2ZohoXmlSkeleton: delete】, 打印需要删除的ZOHO ID的集合"+Constants.COMMENT_PREFIX+org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,","));
         zohoXMLList.add(deleteZOHOIDsList);//org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,",")
         return zohoXMLList;
     }

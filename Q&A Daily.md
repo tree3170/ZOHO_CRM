@@ -70,6 +70,7 @@
 
 # 20161015
 * 继续完成以前未完成的指标
+* 测试：先一个module，比如说Accounts，db更新一条数据LatestUpdateTime之后, Quartz程序是否只更新一条数据，同时properties是否有修改【done】
 
 # 20161014
    * 1. 继续完成20161012的各个指标
