@@ -2,6 +2,11 @@
 # 交付
 * 1. 客户所有DB数据需要给我
 * 2. 环境测试（邮件，properties的读取和写入）
+* 3. 手动添加zohoUser.properties中的数据
+* 4. 注意Web项目和java项目路径的不同点
+     使用CommonUtils.getFilePath来处理
+* 5. 仅仅lastExecSuccessTime.properties才能做到及时生效，修改其他所有properties都需要重启server
+
 
 
 # 20160926 晚

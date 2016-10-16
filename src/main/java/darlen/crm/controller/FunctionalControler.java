@@ -48,18 +48,18 @@ import java.util.Map;
 public class FunctionalControler {
     private static Logger logger = Logger.getLogger(QuartzController.class);
 
-    //删除所有数据
+    // 删除所有数据
     // 删除某条数据
-    //查看Report
-    //SQL查询
-    //HouseKeep：1.删除无用数据2.删除Report的table数据3.删除本地log的文件
-    //尽量做一个登陆页面，登陆后才能做这些功能
+    // 查看Report
+    // SQL查询
+    // HouseKeep：1.删除无用数据2.删除Report的table数据3.删除本地log的文件
+    // 尽量做一个登陆页面，登陆后才能做这些功能
 
 
 
     public static void main(String[] args) throws Exception {
-//        getDBFieldNameValueMap(SysUser.class.getName(),null);
-//        getConnection();
+        //getDBFieldNameValueMap(SysUser.class.getName(),null);
+        //getConnection();
         Map<String,?> accts = (Map<String,?>)DBUtils.getAccountMap().get(0);
         Map<String,?> so = (Map<String,?>)DBUtils.getSOMap().get(0);
         List list = new ArrayList();
@@ -171,12 +171,12 @@ public class FunctionalControler {
         boolean isSuccess = true;
         String message = "";
         if("1".equals(param)){
-            //List list = ModuleManager.envAutoChecking();
-            //int result = StringUtils.nullToInt(list.get(0));
-            //if(result != 0){
-            //    isSuccess = false;
-            //    message = StringUtils.nullToString(list.get(1));
-            //}
+            List list = ModuleManager.envAutoChecking();
+            int result = StringUtils.nullToInt(list.get(0));
+            if(result != 0){
+                isSuccess = false;
+                message = StringUtils.nullToString(list.get(1));
+            }
 
         }else if("2".equals(param)){
             try {

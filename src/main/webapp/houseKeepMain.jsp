@@ -86,19 +86,20 @@
     $(function () {
         $("#env").click(function(){
             $.ajax({
-                url:"<%=request.getContextPath()%>/houseKeep/{1}",
+                url:"<%=request.getContextPath()%>/houseKeep/1",
                 method:"POST",
                 dataType:"json",
                 success: function(result){
                     if(result[0] == true){
                         //alert("Success");
                         //$('#myModal').modal(options);
-                        $("#content").text("Congratulations! Environment Auto detection Successfully.  ");
+                        $("#content").html("<strong>Congratulations! Environment Auto detection Successfully.  </strong> <br>");
                         $('#myModal').modal({
                             keyboard: true
                         })
                     }else {
-                        $("#content").text("So bad! There are some problems, pls find the root Reason and fixed ,  then you can do next step : \n "+result[1]);
+                        $("#content").html("<strong>So bad! There are some problems, pls find the root Reason and fixed ,  then you can do next step : </strong>" +
+                                "<br> <font color='red'>"+result[1]+"</font>");
                         $('#myModal').modal({
                             keyboard: true
                         })
@@ -109,19 +110,20 @@
         })
         $("#hs").click(function(){
             $.ajax({
-                url:"<%=request.getContextPath()%>/houseKeep/{2}",
+                url:"<%=request.getContextPath()%>/houseKeep/2",
                 method:"POST",
                 dataType:"json",
                 success: function(result){
                     if(result[0] == true){
                         //alert("Success");
                         //$('#myModal').modal(options);
-                        $("#content").text("Congratulations! Normal House Keep Successfully.  ");
+                        $("#content").html("<strong>Congratulations! Normal House Keep Successfully.  </strong> <br>");
                         $('#myModal').modal({
                             keyboard: true
                         })
                     }else {
-                        $("#content").text("So bad! There are some problems, pls find the root Reason and fixed ,  then you can do next step : \n "+result[1]);
+                        $("#content").html("<strong>So bad! There are some problems, pls find the root Reason and fixed ,  then you can do next step : </strong>" +
+                                "<br> <font color='red'>"+result[1]+"</font>");
                         $('#myModal').modal({
                             keyboard: true
                         })
@@ -131,19 +133,20 @@
         })
         $("#del").click(function(){
             $.ajax({
-                url:"<%=request.getContextPath()%>/houseKeep/{3}",
+                url:"<%=request.getContextPath()%>/houseKeep/3",
                 method:"POST",
                 dataType:"json",
                 success: function(result){
                     if(result[0] == true){
                         //alert("Success");
                         //$('#myModal').modal(options);
-                        $("#content").text("Congratulations! Delete ALL Module Records Successfully.  ");
+                        $("#content").html("<strong>Congratulations! Delete ALL Module Records Successfully.</strong>  ");
                         $('#myModal').modal({
                             keyboard: true
                         })
                     }else {
-                        $("#content").text("So bad! There are some problems, pls find the root Reason and fixed ,  then you can do next step : \n "+result[1]);
+                        $("#content").html("<strong>So bad! There are some problems, pls find the root Reason and fixed ,  then you can do next step :</strong> " +
+                                "<br> <font color='red'>"+result[1]+"</font>");
                         $('#myModal').modal({
                             keyboard: true
                         })

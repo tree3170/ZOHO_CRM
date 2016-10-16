@@ -251,9 +251,11 @@ public class ModuleManager {
 
 
             //如果都执行成功，那么更新lastExecSuccessTime.properties
-            Map<String,String> map = new HashMap<String, String>();
-            map.put(Constants.LAST_EXEC_SUCCESS_TIME,ThreadLocalDateUtil.formatDate(new Date()));
-            //ConfigManager.writeVal2Props(map,Constants.PROPS_TIME_FILE);
+            if(!StringUtils.isEmptyString(wholeModuleFail)){
+                Map<String,String> map = new HashMap<String, String>();
+                map.put(Constants.LAST_EXEC_SUCCESS_TIME,ThreadLocalDateUtil.formatDate(new Date()));
+                //ConfigManager.writeVal2Props(map,Constants.PROPS_TIME_FILE);
+            }
 
         }catch (Exception e) {
             logger.error("【exeAllModuleSend】, 出现错误",e);

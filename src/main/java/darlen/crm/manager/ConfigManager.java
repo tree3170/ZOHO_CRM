@@ -64,6 +64,8 @@ public class ConfigManager {
     private static final  int ACCT_FILE_INDEX = 4;
     private static Map<String,String> timePropsMap = new HashMap<String, String>();
     private static final  int TIME_FILE_INDEX = 5;
+    /**lastSuccess properties 上次修改的时间*/
+    private static long PREVIOUS_TIME_PROPS__MOD =0;
 
 
     private ConfigManager(){}
@@ -136,9 +138,20 @@ public class ConfigManager {
     }
 
     public static long getTimefromProps( String property) throws Exception {
-        if(timePropsMap.size() == 0){
-            configManager.initConfig(Constants.PROPS_TIME_FILE, TIME_FILE_INDEX);
-//            configManager.initConfig(Constants.PROPS_DB_FILE, true);
+
+        String absoluteFilePath = CommonUtils.getFileNamePath("", Constants.PROPS_TIME_FILE);
+        File file = new File(absoluteFilePath);
+        //加入判断文件是否有被修改，如果修改，需要重新reload文件
+        long nowModifyTime = file.lastModified();
+        boolean isChanged =  nowModifyTime > PREVIOUS_TIME_PROPS__MOD;
+        logger.debug("$$$$$$$$$$$$$$$$$$$$$nowModifyTime = "+nowModifyTime+", PREVIOUS_TIME_PROPS__MOD= "+ PREVIOUS_TIME_PROPS__MOD
+            //+ (isChanged ? (Constants.COMMENT_PREFIX+"lastExecSuccessTime.properties has "+(isChanged)+"been changed , need to reload the properties"): ""));
+            + (Constants.COMMENT_PREFIX+"lastExecSuccessTime.properties has been changed【"+isChanged+"】, need "+(isChanged?"":" not ")+"to reload the properties"));
+        if(isChanged){
+            PREVIOUS_TIME_PROPS__MOD = nowModifyTime ;
+            //if(timePropsMap.size() == 0){
+                configManager.initConfig(Constants.PROPS_TIME_FILE, TIME_FILE_INDEX);
+            //}
         }
         long retVal = 0;
         if(!"0".equals(StringUtils.nullToString(timePropsMap.get(property)))){
@@ -162,8 +175,13 @@ public class ConfigManager {
      */
     private synchronized void initConfig(String configFile,int fileNameKey) throws ConfigurationException, IOException {
         try {
+
             if( DEFAULT_ZOHO_DB_FILE_INDEX == fileNameKey ){
                 //使用相对路径
+                //String absoluteFilePath = CommonUtils.getFileNamePath("", configFile);
+                //logger.debug("# 【initConfig】, relativePath="+configFile+", absolutePath="+absoluteFilePath);
+                //PropertiesConfiguration config = new PropertiesConfiguration(new File(absoluteFilePath));
+                // 默认WEB是读的WEB-INF/classes下的文件，java项目是读的classes下的文件
                 PropertiesConfiguration config = new PropertiesConfiguration(configFile);
                 defaultMap.put(configFile, config);
             }else{
@@ -173,7 +191,11 @@ public class ConfigManager {
                 //2. 直接从classPath中拿Config文件，CommonUtils.getFileNamePath("",configFile)
                 //prop.load(new FileInputStream(CommonUtils.getFileNamePath("",configFile)) );
                 //3.使用绝对路径，当然也可以采用方法2
-                prop.load(ConfigManager.class.getResourceAsStream("/"+configFile));
+                //prop.load(ConfigManager.class.getResourceAsStream("/"+configFile));
+                //采用方法2
+                String absoluteFilePath = CommonUtils.getFileNamePath("", configFile);
+                logger.debug("# 【initConfig】, relativePath="+configFile+", absolutePath="+absoluteFilePath);
+                prop.load(new FileInputStream(new File(absoluteFilePath)));
                 for(Map.Entry entry : prop.entrySet()){
                     if(ZOHOUSER_FILE_INDEX == fileNameKey){
                         zohoUserPropsMap.put(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
@@ -232,7 +254,9 @@ public class ConfigManager {
 //            File file = new File(url.toURI());
             // 用相对路径，不需要前面的"/"
             //TODO 如果文件不存在就创建
-            File file = new File(CommonUtils.getFileNamePath("",configName));
+            String absoluteFilePath = CommonUtils.getFileNamePath("",configName);
+            logger.debug("# 【writeVal2Props】, relativePath="+configName+", absolutePath="+absoluteFilePath);
+            File file = new File(absoluteFilePath);
             writer = new PrintWriter(file, "UTF-8");
             if( Constants.PROPS_ACCT_FILE.equals(configName)){
                 //如果修改了Acct的profile，那么删除Acct中的cache
@@ -251,6 +275,7 @@ public class ConfigManager {
                 writer.println(cvtPropsSpace(StringUtils.nullToString(entry.getKey()))+"="+ cvtPropsSpace(StringUtils.nullToString(entry.getValue())));
             }
             writer.println("# 写入结束时间： " + ThreadLocalDateUtil.formatDate(new Date()));
+            writer.flush();
         }catch (Exception e){
             logger.error("# 写入"+configName +"出错",e);
             throw  e;
@@ -267,6 +292,8 @@ public class ConfigManager {
      * //http://riddickbryant.iteye.com/blog/436693
      * 前面有"/"--> 根路径，也就是classes目录下的查找的文件  --> 绝对路径
      * 如果前面没有"/"，代表本目录下查找的文件--> 相对路径
+     * 在Java项目中找的路径是target下面的classes目录
+     * 在Web项目中是ZOHO_CRM/WEB-INF/classes目录
      * @param relativePath
      * @return
      * @throws IOException
@@ -275,10 +302,14 @@ public class ConfigManager {
         Properties prop = new Properties();
         try {
             //用绝对路径，需要前面的"/"
-            prop.load(CommonUtils.class.getResourceAsStream("/"+relativePath));// "/secure/db.properties"
-        } catch(IOException e) {
+            //InputStream absolutePath = CommonUtils.class.getResourceAsStream("/"+relativePath);
+            String absolutePath = CommonUtils.getFileNamePath("", relativePath);
+            InputStream absolutePathIn = new FileInputStream(new File(absolutePath));
+            logger.debug("【readProperties】, relativePath="+relativePath+", absolutePath="+absolutePath);
+            prop.load(absolutePathIn);// "/secure/db.properties"
+        } catch(Exception e) {
             logger.error("读取properties文件出错【"+relativePath+"】",e);
-            throw e;
+            throw new IOException(e);
         }
 
         //TODO 开发环境中禁止打印
@@ -326,6 +357,8 @@ public class ConfigManager {
         String message = "";
         int result = 0;
         try{
+
+            logger.debug("# 开始测试写入文件**************************");
             //测试写入文件是否能写入成功
             try {
                 testWriteVal2Props();
@@ -335,30 +368,28 @@ public class ConfigManager {
                 logger.error("【envAutoChecking】, testWriteVal2Props occurs error",e);
             }
 
-
+            logger.debug("# 写入文件测试完毕，开始测试读取文件**************************");
             //测试secure/*.properties的5个properties是否能读写成功
             try {
                 testGetProps();
             }catch (Exception e){
                 result = 2;
-                message = e.getMessage();
+                message +=", "+Constants.COMMENT_PREFIX+ e.getMessage();
                 logger.error("【envAutoChecking】, testGetProps occurs error",e);
             }
 
 
             //TODO 测试邮件发送,如何获取Daily的log然后发送到我的邮箱
 
+            logger.debug("# 读取文件测试完毕，开始测试DB Connection**************************");
             //测试DB连接
-
             try {
                 DBUtils.getConnection();
             }catch (Exception e){
                 result = 4;
-                message = e.getMessage();
+                message += ", "+Constants.COMMENT_PREFIX+e.getMessage();
                 logger.error("【envAutoChecking】, DB Connection occurs error",e);
             }
-
-
 
         }catch (Exception e){
             logger.error("环境测试： 读取配置文件出现问题,程序终止...",e);
@@ -379,11 +410,13 @@ public class ConfigManager {
 //        System.out.println();
 //        OutputStream fos = new FileOutputStream("./secure/Product.properties");
 //        envAutoChecking();
+//        System.err.println("6. lastExecSuccessTime.properties======LAST_EXEC_SUCCESS_TIME="+ConfigManager.getTimefromProps(Constants.LAST_EXEC_SUCCESS_TIME));
+//        Map<String,String> map = new HashMap<String, String>();
+//        map.put("LAST_EXEC_SUCCESS_TIME","2018-10-10 00:43:54");
+//        writeVal2Props(map, Constants.PROPS_TIME_FILE);
         System.err.println("6. lastExecSuccessTime.properties======LAST_EXEC_SUCCESS_TIME="+ConfigManager.getTimefromProps(Constants.LAST_EXEC_SUCCESS_TIME));
-        Map<String,String> map = new HashMap<String, String>();
-        map.put("LAST_EXEC_SUCCESS_TIME","2018-10-10 00:43:54");
-        writeVal2Props(map, Constants.PROPS_TIME_FILE);
-        System.err.println("6. lastExecSuccessTime.properties======LAST_EXEC_SUCCESS_TIME="+ConfigManager.getTimefromProps(Constants.LAST_EXEC_SUCCESS_TIME));
+//        ConfigManager.getAcctsfromProps("0");
+//        logger.debug("1. db.properties=========DB_USERNAME="+ConfigManager.get(Constants.PROPS_DB_FILE, "DB_USERNAME"));
 
 
     }
@@ -391,16 +424,17 @@ public class ConfigManager {
 
     private static void testGetProps() throws Exception {
         logger.debug("########################【ConfigManager】开始获取properties中的value######################");
-        //"secure/db.properties"
+        //只读2个样本文件，一个是在secure下面的DB的properties，一个是在mapping下的
+        logger.debug("0. 读取/mapping/*.properties======db.properties="+ConfigManager.readProperties(Constants.PROPS_DB_FILE));
+        logger.debug("0. 读取/mapping/*.properties=======dbRdAccountsFieldMapping.properties="+ConfigManager.readProperties(Constants.PROPS_ACCT_DB_MAPPING));
+        ////"secure/db.properties"
         logger.debug("1. db.properties=========DB_USERNAME="+ConfigManager.get(Constants.PROPS_DB_FILE, "DB_USERNAME"));
-        //"secure/zoho.properties"
+        ////"secure/zoho.properties"
         logger.debug("2. zoho.properties=========DEV_MODE="+ConfigManager.get(Constants.PROPS_ZOHO_FILE, "DEV_MODE"));
-        logger.debug("3. Products.properties======0="+ConfigManager.getProdfromProps("0"));
+        //logger.debug("3. Products.properties======0="+ConfigManager.getProdfromProps("0"));
         logger.debug("4. Accounts.properties======0="+ConfigManager.getAcctsfromProps("0"));
         logger.debug("5. zohoUser.properties======Gary Tang="+ConfigManager.getZohoUserfromProps("Gary Tang"));
-        logger.debug("6. lastExecSuccessTime.properties======LAST_EXEC_SUCCESS_TIME=="+ConfigManager.getTimefromProps("LAST_EXEC_SUCCESS_TIME"));
-        //"/secure/db.properties"
-        logger.debug("7. 读取/mapping/*.properties======marketing="+ConfigManager.readProperties(Constants.PROPS_DB_FILE));
+        logger.debug("6. lastExecSuccessTime.properties======LAST_EXEC_SUCCESS_TIME="+ConfigManager.getTimefromProps("LAST_EXEC_SUCCESS_TIME"));
         logger.debug("########################【ConfigManager】完成获取properties中的value######################");
     }
     private static void testWriteVal2Props() throws Exception {
