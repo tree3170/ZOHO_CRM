@@ -30,7 +30,7 @@ http://www.springframework.org/schema/context/spring-context-3.2.xsd">
         <property name="name" value="Darlen-Name"></property>
         <property name="jobDetail" ref="myJobDetail"></property>
         <property name="cronExpression">
-            <!--middle night 24. do it  -->
+            <!--every 5 minutes  -->
             <value>0  */5 * * *  ? </value>
             <!--<value>0/20  * * * *  ? </value>-->
         </property>

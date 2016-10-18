@@ -8,7 +8,7 @@ API link：https://www.zoho.com.cn/crm/help/api/
 1. 生成AuthToken：
 https://accounts.zoho.com.cn/apiauthtoken/nb/create?SCOPE=ZohoCRM/crmapi&EMAIL_ID=marketing@matrixgroup.com.hk&PASSWORD=giftu2303&DISPLAY_NAME=Marketing_Matrix
 #
-#Thu Sep 15 00:19:14 CST 2016
+#Thu Sep 15 00:19:14 CST 2016db
 AUTHTOKEN=00f65ee9c91b4906dbf4c1bd46bb1452
 RESULT=TRUE
 

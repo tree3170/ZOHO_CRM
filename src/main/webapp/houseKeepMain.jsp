@@ -88,7 +88,7 @@
     //var $j = jQuery.noConflict();
     $(function () {
         $("#env").click(function(){
-            $("#env").attr("disabled",true);
+            disableAllBtn();
             $.ajax({
                 url:"<%=request.getContextPath()%>/houseKeep/1",
                 method:"POST",
@@ -108,7 +108,7 @@
                             keyboard: true
                         })
                     }
-                    $("#env").attr("disabled",false);
+                    enableAllBtm()
                 }
             })
         })
@@ -136,7 +136,7 @@
             })
         })
         $("#del").click(function(){
-            $("#del").attr("disabled",true);
+            disableAllBtn();
             $.ajax({
                 url:"<%=request.getContextPath()%>/houseKeep/3",
                 method:"POST",
@@ -156,13 +156,13 @@
                             keyboard: true
                         })
                     }
-                    $("#del").attr("disabled",false);
+                    enableAllBtm()
                 }
             })
         })
 
         $("#fistTime").click(function(){
-            $("#fistTime").attr("disabled",true);
+            disableAllBtn();
             $.ajax({
                 url:"<%=request.getContextPath()%>/houseKeep/4",
                 method:"POST",
@@ -182,10 +182,22 @@
                             keyboard: true
                         })
                     }
-                    $("#fistTime").attr("disabled",false);
+                    enableAllBtm();
                 }
             })
         })
     })
+
+    function disableAllBtn(){
+        $("#env").attr("disabled",true);
+        $("#del").attr("disabled",true);
+        $("#fistTime").attr("disabled",true);
+    }
+
+    function enableAllBtm(){
+        $("#env").attr("disabled",false);
+        $("#del").attr("disabled",false);
+        $("#fistTime").attr("disabled",false);
+    }
 
 </script>

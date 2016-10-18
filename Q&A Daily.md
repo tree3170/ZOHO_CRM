@@ -71,6 +71,8 @@
 # 20161015
 * 继续完成以前未完成的指标
 * 测试：先一个module，比如说Accounts，db更新一条数据LatestUpdateTime之后, Quartz程序是否只更新一条数据，同时properties是否有修改【done】
+* 关于Report和日志，都需要每隔一段时间去删除前面的所有的数据【TODO】
+* 需要提供客户的所有数据【TODO】
 
 # 20161014
    * 1. 继续完成20161012的各个指标

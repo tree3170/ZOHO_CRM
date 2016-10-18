@@ -85,8 +85,9 @@ public class QuartzController {
         //StdScheduler scheduler =  (StdScheduler)applicationContext.getBean("startQuertz");
         //try {
         try {
-            if(scheduler.isInStandbyMode() || scheduler.isShutdown()){
+            if(scheduler.isStarted() || !(scheduler.isInStandbyMode() || scheduler.isShutdown())){
                 scheduler.standby();
+                //scheduler.shutdown();//standby();
             }else{
                 logger.debug("Now Job is stopped. ");
             }

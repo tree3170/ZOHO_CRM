@@ -8,7 +8,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Bootstrap 实例 - 基本的表格</title>
+    <title>ZOHO CRM</title>
     <%--<link rel="stylesheet" href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">--%>
     <%--<script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>--%>
     <%--<script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>--%>
@@ -38,16 +38,16 @@
         <td><!-- 表示应谨慎采取的动作 -->
             <button type="button" class="btn btn-warning" id="stop">Stop</button></td>
     </tr>
-    <tr>
-        <td>发送邮件</td><!--以后这边要加个功能，发送人接受人附件，主题-->
-        <td><!-- 表示应谨慎采取的动作 -->
-            <button type="button" class="btn btn-warning" id="mail">SendMail</button></td>
-    </tr>
-    <tr>
-        <td>生成Report</td>
-        <td><!-- 表示应谨慎采取的动作 -->
-            <button type="button" class="btn btn-warning" id="report">Generate Report</button></td>
-    </tr>
+    <%--<tr>--%>
+        <%--<td>发送邮件</td><!--以后这边要加个功能，发送人接受人附件，主题-->--%>
+        <%--<td><!-- 表示应谨慎采取的动作 -->--%>
+            <%--<button type="button" class="btn btn-warning" id="mail">SendMail</button></td>--%>
+    <%--</tr>--%>
+    <%--<tr>--%>
+        <%--<td>生成Report</td>--%>
+        <%--<td><!-- 表示应谨慎采取的动作 -->--%>
+            <%--<button type="button" class="btn btn-warning" id="report">Generate Report</button></td>--%>
+    <%--</tr>--%>
     </tbody>
 </table>
 <!-- 模态框（Modal） -->

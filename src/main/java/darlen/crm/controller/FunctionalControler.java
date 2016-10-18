@@ -9,6 +9,7 @@
 package darlen.crm.controller;
 
 import darlen.crm.manager.AbstractModule;
+import darlen.crm.manager.ConfigManager;
 import darlen.crm.manager.ModuleManager;
 import darlen.crm.model.result.*;
 import darlen.crm.util.Constants;
@@ -81,7 +82,11 @@ public class FunctionalControler {
         List list = new ArrayList();
         List<String> fieldNameList = new ArrayList<String>();
         String className = "";
+        ModuleManager.rewriteAcctProdProps();
+        //ConfigManager.getAcctsfromProps("");
+        //ConfigManager.getProdfromProps("");
         Map<String,?> erpModuleMap = null;
+        String errMessage = "";
         try {
             if(ModuleNameKeys.Accounts.toString().equals(moduleName)){
                 className = Accounts.class.getName();
@@ -117,11 +122,13 @@ public class FunctionalControler {
         } catch (Exception e) {
             logger.error("getModuleList 出错："+moduleName
                     + Constants.COMMENT_PREFIX+erpModuleMap,e);
+            errMessage = e.getMessage();
         }
 
         request.setAttribute("moduleResultList", list);
         request.setAttribute("name",moduleName);
         request.setAttribute("fieldNames",fieldNameList);
+        request.setAttribute("errMessage",errMessage);
         //logger.debug("=========request.setAttribute(moduleName)"+request.getAttribute("moduleResultList") +", ===="+ list);
         return "showModule";
     }
@@ -156,11 +163,13 @@ public class FunctionalControler {
     }
 
     /**
-     * Do Hourse keep
+     * Do House keep
      * @param param
      *  1: Environment Auto detection
      *  2: Normal House Keep
      *  3: Delete ALL Module Records
+     *  4. 删除1个月前的log日志和Report记录【TODO】
+     *  5.
      * @param request
      * @return
      * @throws Exception

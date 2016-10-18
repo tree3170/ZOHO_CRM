@@ -2,7 +2,7 @@ package darlen.crm.util;
 
 import com.sun.xml.internal.bind.marshaller.CharacterEscapeHandler;
 import darlen.crm.manager.ConfigManager;
-import org.apache.commons.configuration.ConfigurationException;
+//import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
 
 import javax.xml.bind.JAXBContext;
