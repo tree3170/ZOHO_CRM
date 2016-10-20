@@ -82,6 +82,7 @@ public class FunctionalControler {
         List list = new ArrayList();
         List<String> fieldNameList = new ArrayList<String>();
         String className = "";
+        //首先获取正确的Account和Product list，因为Quotes、SO。Invoice需要用到正确的Product ID
         ModuleManager.rewriteAcctProdProps();
         //ConfigManager.getAcctsfromProps("");
         //ConfigManager.getProdfromProps("");

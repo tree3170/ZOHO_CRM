@@ -115,7 +115,7 @@ public class DBUtils {
 //        getSOMap();
 //        getInvoiceMap();
 //        CommonUtils.printList(getSOMap(), "打印所有的销售订单：：：");
-
+        getAccountMap();
 
 
 
@@ -131,9 +131,9 @@ public class DBUtils {
     private static String getWholeSqlWithFilterUser(String sql, String moduleName,String orderBy) throws IOException, ConfigurationException {
         List<String> allUsers = ConfigManager.getAllZohoUserName();
         if(allUsers!= null && allUsers.size() > 0){
-            sql += "\n and zoho.LatestEditBy in (" ;
+            sql += "\n and upper(zoho.LatestEditBy) in (" ;
             for(String name : allUsers){
-                sql += "'"+name+"'" + ",";
+                sql += "upper('"+name+"')" + ",";
             }
             sql = sql.substring(0,sql.length()-1);
             sql += ") \n";
