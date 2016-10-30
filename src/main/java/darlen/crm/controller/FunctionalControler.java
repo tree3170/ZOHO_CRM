@@ -49,7 +49,7 @@ import java.util.Map;
 public class FunctionalControler {
     private static Logger logger = Logger.getLogger(QuartzController.class);
 
-    // 删除所有数据
+    // 删除所有数据d
     // 删除某条数据
     // 查看Report
     // SQL查询
@@ -139,9 +139,9 @@ public class FunctionalControler {
         List params = new ArrayList();
         //select * from ZOHO_EXCE_REPORT where  START_TIME > '2016-10-08 0:29:26' and end_time < '2016-10-08 0:29:38'
 
-        String sql = "select * from ZOHO_EXCE_REPORT WHERE 1=1 AND ";
+        String sql = "select * from ZOHO_EXCE_REPORT WHERE 1=1 ";
         if(!StringUtils.isEmptyString(startTime)){
-            sql+= " START_TIME >= '"+startTime+"'" ;
+            sql+= "  AND START_TIME >= '"+startTime+"'" ;
         }
         if(!StringUtils.isEmptyString(endTime) ){
             if(!StringUtils.isEmptyString(startTime)) sql += " AND ";

@@ -1,4 +1,17 @@
 
+#20161030
+* 1.针对Log的一些
+a. log实在是太大，需要大幅度优化(一些DB的数据不需要打印出来，但是对数据的正确性不是特别好调试)
+b. 同时需要优化调用CRM次数，这里大概能每次遍历减少几十次的API调用次数（
+	以前是取出每个Module的所有数据，然后拿CRM中的lastestEditTime与lastSuccessTime判断是否被修改；
+	现在改成直接查询SQL并直接比较lastSuccessTime与DB中的lastestEditTime）
+c. 暂时改为30分钟做一次操作
+d. 开发期间需要share log ： dropbox or 百度云盘--> 因为log的文件很大，所以发邮件不现实，方案：share logs folder as auto upload folder, 也就是自动上传【需要Ken找客户协调】
+* 2. zohoUser.properties  --> 一定得用ZohoID, 因为owner一定是用ID，这里我会向客户澄清并且需要保证他们一定会操作这个properties文件
+* 3. export data： 需要Ken提供最latest的DB table data
+* 4. UI: 加上loading
+* 5. 加上导出DB数据的功能
+
 # 交付
 * 1. 客户所有DB数据需要给我
 * 2. 环境测试（邮件，properties的读取和写入）

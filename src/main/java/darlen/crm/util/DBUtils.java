@@ -115,7 +115,7 @@ public class DBUtils {
 //        getSOMap();
 //        getInvoiceMap();
 //        CommonUtils.printList(getSOMap(), "打印所有的销售订单：：：");
-        getAccountMap();
+//        getAccountMap();
 
 
 

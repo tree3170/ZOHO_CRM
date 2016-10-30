@@ -164,7 +164,7 @@ public class db2sql {
                         result.append("\n);\n");
 
                         // Right, we have a table, so we can go and dump it
-                        //dumpTable(dbConn, result, tableName);
+                        dumpTable(dbConn, result, tableName);
                     }
                 } while (rs.next());
                 rs.close();
