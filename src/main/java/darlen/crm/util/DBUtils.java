@@ -97,7 +97,7 @@ public class DBUtils {
         try {
             Class.forName(driverName);
             dbConn = DriverManager.getConnection(dbURL, userName, userPwd);
-            logger.debug("Connection Successful!");  //如果连接成功 控制台输出Connection Successful!
+            logger.info("Connection Successful!");  //如果连接成功 控制台输出Connection Successful!
         } catch (SQLException e) {
             logger.error("SQLException , 连接DB失败",e);
             throw  e;
@@ -325,7 +325,7 @@ public class DBUtils {
                 dbIDEditTimeMap.put(erpID,latestEditTime);
             //}
         }
-        logger.debug("Product size:::" + dbIDModuleObjMap.size());
+        logger.info("Product size:::" + dbIDModuleObjMap.size());
         return dbModuleList;
     }
 
@@ -967,7 +967,7 @@ public class DBUtils {
     private static ResultSet exeQuery(String sql) throws SQLException, IOException, ConfigurationException, ClassNotFoundException {
         ResultSet rs = null;
         Connection conn = getConnection();
-        logger.debug("【exeQuery】, sql =\n"+sql);
+        logger.info("【exeQuery】, sql =\n[ "+sql+" ]");
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
             rs = ps.executeQuery();

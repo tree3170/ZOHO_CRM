@@ -93,7 +93,7 @@ public class ProductHandler extends AbstractModule{
      * delZOHOIDList:里面是所有 ERP ID 为空时的 ZOHO ID
      */
     public List buildSkeletonFromZohoList() throws Exception {
-        logger.debug("# Ⅰ： ProductHandler 【buildSkeletonFromZohoList】...");
+        logger.info("# Ⅰ： ProductHandler 【buildSkeletonFromZohoList】...");
 ////        1. 从ZOHO获取有效的xml
 //        String zohoStr = retrieveZohoRecords(ModuleNameKeys.Products.toString(),1,100);
 //
@@ -172,7 +172,7 @@ public class ProductHandler extends AbstractModule{
 //        handleProduct.buildDBObjList();
 //    }
     public List buildDBObjList() throws Exception {
-        logger.debug("# Ⅱ：ProductHandler 【buildDBObjList】...");
+        logger.info("# Ⅱ：ProductHandler 【buildDBObjList】...");
         List dbAcctList = DBUtils.getProductMap();
         //Map<String,Object> erpIDProductsMap = DBUtils.getProductMap();
 //        getDBObj(erpIDProductsMap);
@@ -200,7 +200,7 @@ public class ProductHandler extends AbstractModule{
      * @return
      */
     public List build2ZohoObjSkeletonList() throws Exception {
-        logger.debug("# Ⅲ ProductHandler 【build2ZohoObjSkeletonList】...");
+        logger.info("# Ⅲ ProductHandler 【build2ZohoObjSkeletonList】...");
         //1. 获取ZOHO对象的骨架集合
         List allZohoObjList = buildSkeletonFromZohoList();
         Map<String,String> erpZohoIDMap = new HashMap<String, String>();
@@ -267,9 +267,9 @@ public class ProductHandler extends AbstractModule{
      * @throws Exception
      */
     public List build2ZohoXmlSkeleton() throws Exception {
-        logger.debug("# Ⅳ: ProductHandler 【build2ZohoXmlSkeleton】...");
+        logger.info("# Ⅳ: ProductHandler 【build2ZohoXmlSkeleton】...");
 //        1. 获取发送到ZOHO对象集合骨架
-        logger.debug("4.1 【build2ZohoXmlSkeleton】, 开始执行方法：build2ZohoObjSkeletonList");
+        logger.info("4.1 【build2ZohoXmlSkeleton】, 开始执行方法：build2ZohoObjSkeletonList");
         List zohoComponentList = build2ZohoObjSkeletonList();
         Map<String,Products> addMap =  (Map<String,Products> )zohoComponentList.get(0);
         Map<String,Products> updateMap =(Map<String,Products> )zohoComponentList.get(1);
@@ -280,21 +280,21 @@ public class ProductHandler extends AbstractModule{
         Properties fieldMappingProps = ConfigManager.readProperties(Constants.PROPS_PROD_DB_MAPPING);
         //TODO add最大条数为100，
 //        2. 添加
-        logger.debug("4.2 【build2ZohoXmlSkeleton: insert】, 开始获取 Product【insert】的的XML#####################");
+        logger.info("4.2 【build2ZohoXmlSkeleton: insert】, 开始获取 Product【insert】的的XML#####################");
         List<String> addZohoXmlList = buildAdd2ZohoXml(addMap,className,fieldMappingProps);
-        logger.debug("end组装 AddZOHOXML..size:::."+addZohoXmlList.size());
+        logger.info("end组装 AddZOHOXML..size:::."+addZohoXmlList.size());
 
 //        3. 更新
-        logger.debug("4.3 【build2ZohoXmlSkeleton: update】, 开始获取 Product【update】的的XML#####################");
+        logger.info("4.3 【build2ZohoXmlSkeleton: update】, 开始获取 Product【update】的的XML#####################");
         Map<String,String> updateZOHOXmlMap  = buildUpd2ZohoXml(updateMap,className,fieldMappingProps);
-        logger.debug("end组装 updateZOHOXml...size:::"+updateZOHOXmlMap.size());
+        logger.info("end组装 updateZOHOXml...size:::"+updateZOHOXmlMap.size());
 
         List zohoXMLList = new ArrayList();
         zohoXMLList.add(addZohoXmlList);
         zohoXMLList.add(updateZOHOXmlMap);
 //        4. 删除
         List deleteZOHOIDsList  = (List)zohoComponentList.get(2);
-        logger.debug("4.4 【build2ZohoXmlSkeleton: delete】, 打印需要删除的ZOHO ID的集合"+Constants.COMMENT_PREFIX+org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,","));
+        logger.info("4.4 【build2ZohoXmlSkeleton: delete】, 打印需要删除的ZOHO ID的集合"+Constants.COMMENT_PREFIX+org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,","));
         zohoXMLList.add(deleteZOHOIDsList);//org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,",")
         return zohoXMLList;
     }
@@ -306,7 +306,7 @@ public class ProductHandler extends AbstractModule{
      * 删除（testDelAcctRecord）
      */
     public List execSend() throws Exception {
-        logger.debug("# Ⅴ： ProductHandler 【execSend】...");
+        logger.info("# Ⅴ： ProductHandler 【execSend】...");
         List zohoXMLList = build2ZohoXmlSkeleton();
         int addFailNum = addRecords(ModuleNameKeys.Products.toString(),Constants.ZOHO_CRUD_ADD,(List<String>)zohoXMLList.get(0));
         int updFailNum = updateRecords(ModuleNameKeys.Products.toString(),Constants.ZOHO_CRUD_UPDATE,(Map<String,String>) zohoXMLList.get(1));
@@ -388,7 +388,7 @@ public class ProductHandler extends AbstractModule{
      * @throws Exception
      */
     private List<String> buildAdd2ZohoXml(Map accountMap,String className,Properties fieldMappingProps) throws Exception {
-        logger.debug("# 4.2 ProductHandler 【buildAdd2ZohoXml】...");
+        logger.info("# 4.2 ProductHandler 【buildAdd2ZohoXml】...");
         List<String> addZohoXmlList= new ArrayList<String>();
         Response response = new Response();
         Result result = new Result();
@@ -416,7 +416,7 @@ public class ProductHandler extends AbstractModule{
      * @throws Exception
      */
     private Map<String,String> buildUpd2ZohoXml(Map accountMap,String className,Properties fieldMappingProps) throws Exception {
-        logger.debug("# 4.3 ProductHandler 【buildUpd2ZohoXml】...");
+        logger.info("# 4.3 ProductHandler 【buildUpd2ZohoXml】...");
         Map<String,String> updateZphoXmlMap = new HashMap<String, String>();
         String str = "";
         Response response = new Response();
@@ -583,7 +583,7 @@ public class ProductHandler extends AbstractModule{
      * @return
      */
     private Products getDBObj(Map<String, Products> idProductsMap) throws ParseException {
-        logger.debug("# ProductHandler [getDBObj]...");
+        logger.info("# ProductHandler [getDBObj]...");
         Products products = new Products();
         products.setErpID("1");
         // 产品名称
@@ -616,7 +616,7 @@ public class ProductHandler extends AbstractModule{
     }
 
     private Products getDBObj2(Map<String, Products> idProductsMap) throws ParseException {
-        logger.debug("# ProductHandler [getDBObj2]...");
+        logger.info("# ProductHandler [getDBObj2]...");
         Products products = new Products();
         products.setErpID("2");
         // 产品名称

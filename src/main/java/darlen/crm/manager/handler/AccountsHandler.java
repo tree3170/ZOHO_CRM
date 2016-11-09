@@ -93,7 +93,7 @@ public class AccountsHandler  extends AbstractModule {
      * 3. delZohoIDList = zohoListObj.get(2) ：zoho ID list-->ERP ID 为空时的 加入删除列表
      */
     public List buildSkeletonFromZohoList() throws Exception {
-        logger.debug("# Ⅰ: AccountHandler 【buildSkeletonFromZohoList】...");
+        logger.info("# Ⅰ: AccountHandler 【buildSkeletonFromZohoList】...");
         //0 遍历获取List<Response>
 
 //      1. 从ZOHO获取有效的xml
@@ -171,7 +171,7 @@ public class AccountsHandler  extends AbstractModule {
      * 2.  Map<String,String> dbIDEditTimeMap
      */
     public List buildDBObjList() throws Exception {
-        logger.debug("# Ⅱ： AccountHandler 【buildDBObjList】...");
+        logger.info("# Ⅱ： AccountHandler 【buildDBObjList】...");
         List dbAcctList = DBUtils.getAccountMap();
         //Map<String,Object> erpIDProductsMap = DBUtils.getAccountMap();;
 //        for(int i = 6; i< 300;i++){
@@ -197,7 +197,7 @@ public class AccountsHandler  extends AbstractModule {
      * @return
      */
     public List build2ZohoObjSkeletonList() throws Exception {
-        logger.debug("# Ⅲ: AccountHandler 【build2ZohoObjSkeletonList】...");
+        logger.info("# Ⅲ: AccountHandler 【build2ZohoObjSkeletonList】...");
 //        1. 获取ZOHO对象的骨架集合
         List allZohoObjList = buildSkeletonFromZohoList();
         Map<String,String> erpZohoIDMap = new HashMap<String, String>();
@@ -229,9 +229,9 @@ public class AccountsHandler  extends AbstractModule {
      * @throws Exception
      */
     public List build2ZohoXmlSkeleton() throws Exception {
-        logger.debug("# Ⅳ: AccountHandler 【build2ZohoXmlSkeleton】...");
+        logger.info("# Ⅳ: AccountHandler 【build2ZohoXmlSkeleton】...");
         //1. 获取发送到ZOHO的三大对象集合骨架
-        logger.debug("4.1 【build2ZohoXmlSkeleton】, 开始执行方法：build2ZohoObjSkeletonList");
+        logger.info("4.1 【build2ZohoXmlSkeleton】, 开始执行方法：build2ZohoObjSkeletonList");
         List zohoComponentList = build2ZohoObjSkeletonList();
         Map<String,Accounts> addAccountMap =  (Map<String,Accounts> )zohoComponentList.get(0);
         Map<String,Accounts> updateAccountMap =  (Map<String,Accounts> )zohoComponentList.get(1);
@@ -242,21 +242,21 @@ public class AccountsHandler  extends AbstractModule {
         Properties fieldMappingProps = ConfigManager.readProperties(Constants.PROPS_ACCT_DB_MAPPING);
 
 //        2. 添加
-        logger.debug("4.2 【build2ZohoXmlSkeleton:insert】, 开始获取 Accounts【insert】的的XML#####################");
+        logger.info("4.2 【build2ZohoXmlSkeleton:insert】, 开始获取 Accounts【insert】的的XML#####################");
         List<String> addZohoXmlList = buildAdd2ZohoXml(addAccountMap,className,fieldMappingProps);
         logger.debug("end组装 AddZOHOXML..size:"+addZohoXmlList.size());
 
 //        3. 更新
-        logger.debug("4.3 【build2ZohoXmlSkeleton:update】, 开始获取 Accounts【update】的的XML#####################");
-        logger.debug("begin组装 updateZOHOXml...\n");
+        logger.info("4.3 【build2ZohoXmlSkeleton:update】, 开始获取 Accounts【update】的的XML#####################");
+        logger.info("begin组装 updateZOHOXml...\n");
         Map<String,String> updateZOHOXmlMap  = buildUpd2ZohoXml(updateAccountMap,className,fieldMappingProps);
-        logger.debug("end组装 updateZOHOXml...size:"+updateZOHOXmlMap.size());
+        logger.info("end组装 updateZOHOXml...size:"+updateZOHOXmlMap.size());
 
         List zohoXMLList = new ArrayList();
         zohoXMLList.add(addZohoXmlList);
         zohoXMLList.add(updateZOHOXmlMap);
 //        4. 删除
-        logger.debug("4.4 【build2ZohoXmlSkeleton:delete】, 打印需要删除的ZOHO ID的集合"+Constants.COMMENT_PREFIX+org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,","));
+        logger.info("4.4 【build2ZohoXmlSkeleton:delete】, 打印需要删除的ZOHO ID的集合"+Constants.COMMENT_PREFIX+org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,","));
         zohoXMLList.add(deleteZOHOIDsList);//org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,",")
         return zohoXMLList;
     }
@@ -271,7 +271,7 @@ public class AccountsHandler  extends AbstractModule {
      * @return
      */
     public List execSend() throws Exception {
-        logger.debug("# Ⅴ: AccountHandler 【execSend】...");
+        logger.info("# Ⅴ: AccountHandler 【execSend】...");
         List zohoXMLList = build2ZohoXmlSkeleton();
         int addFailNum = addRecords(ModuleNameKeys.Accounts.toString(),Constants.ZOHO_CRUD_ADD,(List<String>)zohoXMLList.get(0));
         int updFailNum = updateRecords(ModuleNameKeys.Accounts.toString(),Constants.ZOHO_CRUD_UPDATE,(Map<String,String>) zohoXMLList.get(1));
@@ -359,7 +359,7 @@ public class AccountsHandler  extends AbstractModule {
      * @throws Exception
      */
     public List<String>  buildAdd2ZohoXml(Map accountMap,String className,Properties fieldMappingProps) throws Exception {
-        logger.debug("# 4.2 AccountHandler 【buildAdd2ZohoXml】...");
+        logger.info("# 4.2 AccountHandler 【buildAdd2ZohoXml】...");
         List<String> addZohoXmlList= new ArrayList<String>();
         Response response = new Response();
         Result result = new Result();
@@ -386,7 +386,7 @@ public class AccountsHandler  extends AbstractModule {
      * @throws Exception
      */
     private Map<String,String> buildUpd2ZohoXml(Map accountMap,String className,Properties fieldMappingProps) throws Exception {
-        logger.debug("# 4.3 AccountHandler 【buildUpd2ZohoXml】...");
+        logger.info("# 4.3 AccountHandler 【buildUpd2ZohoXml】...");
         Map<String,String> updateZphoXmlMap = new HashMap<String, String>();
         String str = "";
         Response response = new Response();
@@ -426,7 +426,7 @@ public class AccountsHandler  extends AbstractModule {
      * @return
      */
     private Accounts getDBObj(Map<String, Object> idAccountsMap,int i) throws ParseException {
-        logger.debug("# AccountHandler [getDBObj]...");
+        logger.info("# AccountHandler [getDBObj]...");
         Accounts accounts = new Accounts();
         //for Tree account
 //        User user = new User("85333000000071039","qq");
@@ -461,7 +461,7 @@ public class AccountsHandler  extends AbstractModule {
     }
     //for update
     private Accounts getAcctDBObj2(Map<String,Object> idAccountsMap) throws ParseException {
-        logger.debug("# AccountHandler [getAcctDBObj2]...");
+        logger.info("# AccountHandler [getAcctDBObj2]...");
         Accounts accounts = new Accounts();
         //for Tree account
 //        User user = new User("85333000000071039","qq");
