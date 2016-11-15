@@ -23,8 +23,8 @@ import java.util.Date;
 /**
  * darlen.crm.util
  * TODO
- * 1. DB Object设置好【done】
- * 2. 13个人设置好【done】
+ * 1. DB Object设置好 [ done]
+ * 2. 13个人设置好 [ done]
  * 3. 当last edit time与ZOHO的不一致才去修改
  *
  *
@@ -139,7 +139,7 @@ public class DBUtils {
             sql += ") \n";
         }
         sql += orderBy;
-        //logger.debug("【getWholeSqlWithFilterUser】, module="+moduleName+ Constants.COMMENT_PREFIX+"\t sql = "+sql);
+        //logger.debug(" [ getWholeSqlWithFilterUser], module="+moduleName+ Constants.COMMENT_PREFIX+"\t sql = "+sql);
         return sql;
     }
 
@@ -153,7 +153,7 @@ public class DBUtils {
         if(!StringUtils.isEmptyString(lastEditBy) && !"".equals(ConfigManager.getZohoUserfromProps(lastEditBy))){
             return true;
         }
-        logger.debug("#不包含ERP ACCT【"+lastEditBy+"】， 忽略...");
+        logger.debug("#不包含ERP ACCT["+lastEditBy+"]， 忽略...");
         return false;
     }
 
@@ -437,7 +437,7 @@ public class DBUtils {
                      */
                     String erpAcctID = StringUtils.nullToString(rs.getString("CustomerID"));
                     String zohoAcctID = ConfigManager.getAcctsfromProps(erpAcctID);
-                    logger.debug("【getQuotesList】 ,ERP ID = "+curErpID+", CustomerID ="+erpAcctID+", ZOHO Account ID="+zohoAcctID);
+                    logger.debug(" [ getQuotesList] ,ERP ID = "+curErpID+", CustomerID ="+erpAcctID+", ZOHO Account ID="+zohoAcctID);
                     //TODO：CONFIRM， 如果找不到AccoutnID
                     if(!StringUtils.isEmptyString(zohoAcctID)){
                         quotes.setCustID(zohoAcctID);//"80487000000096005"
@@ -625,7 +625,7 @@ public class DBUtils {
                      */
                      String erpAcctID = StringUtils.nullToString(rs.getString("CustomerID"));
                      String zohoAcctID = ConfigManager.getAcctsfromProps(erpAcctID);
-                    logger.debug("【getSOMap】,ERP ID = "+curErpID+", CustomerID ="+erpAcctID+", ZOHO Account ID="+zohoAcctID);
+                    logger.debug(" [ getSOMap],ERP ID = "+curErpID+", CustomerID ="+erpAcctID+", ZOHO Account ID="+zohoAcctID);
                     so.setACCOUNTID(zohoAcctID);//"80487000000096005"
                     so.setCustomerNO(StringUtils.nullToString(rs.getString("CusRef")));
                     /**
@@ -916,7 +916,7 @@ public class DBUtils {
         //TODO 当Prod ID或者AccountsID或者userID为空时， throw exception，因为就算发到ZOHO也是会出错
         if(StringUtils.isEmptyString(prodID)){
             //TODO 如果真的存在Prod ID为空， 需要remove这个product，如果这个模块中product仅仅只有1个，那么remove整条模块数据
-            logger.debug("####【assembleProduct：ignore】, 因为Prod ID在Product中不存在，所以忽略这条Product，"
+            logger.debug("#### [ assembleProduct：ignore], 因为Prod ID在Product中不存在，所以忽略这条Product，"
                     +Constants.COMMENT_PREFIX+"原ProdID = "+rs.getString("PROD_ID")+", ERP ID = "+erpID);
             return null;
         }
@@ -943,7 +943,7 @@ public class DBUtils {
          */
         pd.setPd_Product_Id(prodID);
         //产品名字Product Name
-        //TODO 需要找ken确认ItemName为【Name】是表示什么意思？是否根据id从Item表找--》Name
+        //TODO 需要找ken确认ItemName为 [ Name]是表示什么意思？是否根据id从Item表找--》Name
         pd.setPd_Product_Name(prodName);
         //定价 (￥)：单价Unit Price
         pd.setPd_Unit_Price(realUnitPrice);//定价  ： DB-->SOPrice,注意价格要跟Currency一致
@@ -967,7 +967,7 @@ public class DBUtils {
     private static ResultSet exeQuery(String sql) throws SQLException, IOException, ConfigurationException, ClassNotFoundException {
         ResultSet rs = null;
         Connection conn = getConnection();
-        logger.info("【exeQuery】, sql =\n[ "+sql+" ]");
+        logger.info(" [ exeQuery], sql =\n[ "+sql+" ]");
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
             rs = ps.executeQuery();

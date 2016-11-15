@@ -48,7 +48,7 @@ public class QuartzManager {
 
 
     public void exe() throws Exception {
-        logger.debug("\n\n\n\n\n\n\n"+Constants.COMMENT_PREFIX+"\n" +
+        logger.info("\n\n\n\n\n\n\n"+Constants.COMMENT_PREFIX+"\n" +
                 "##########################################################################################################\n" +
                 "####\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t #####\n" +
                 "####                       BEGIN JOB["+ThreadLocalDateUtil.formatDate(new Date())+"]                                            #####\n" +

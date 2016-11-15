@@ -850,7 +850,7 @@ public class InvoicesManager_junitTest extends AbstractModule{
          * 注意 product id和Name一定要是已经存在与产品里面的
          */
         pd.setPd_Product_Id("80487000000095003");
-        pd.setPd_Product_Name("尼龍背心環保袋");//TODO 需要找ken确认ItemName为【Name】是表示什么意思？是否根据id从Item表找
+        pd.setPd_Product_Name("尼龍背心環保袋");//TODO 需要找ken确认ItemName为[Name]是表示什么意思？是否根据id从Item表找
         pd.setPd_Total("86664.0");//金额
         pd.setPd_Net_Total("86666.0");//总计
 

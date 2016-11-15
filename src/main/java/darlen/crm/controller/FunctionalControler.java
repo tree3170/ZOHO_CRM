@@ -169,7 +169,7 @@ public class FunctionalControler {
      *  1: Environment Auto detection
      *  2: Normal House Keep
      *  3: Delete ALL Module Records
-     *  4. 删除1个月前的log日志和Report记录【TODO】
+     *  4. 删除1个月前的log日志和Report记录 [TODO]
      *  5.
      * @param request
      * @return

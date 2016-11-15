@@ -25,25 +25,25 @@ import java.util.*;
  * 2大功能： 1 ： execAllSend()对所有module执行操作  2 --> 执行house Keep工作
  *
  * TODO list:
- * 1. getRecords时最大200条这个还没有做限制【doing】 --> 【done】 20160930
+ * 1. getRecords时最大200条这个还没有做限制[doing] --> [done] 20160930
  *    每次取100条，解析为Response对象之后,就可以拿到所有的条数，判断条数如果<100，则代表已经取完
  * 3. 实例化本类以后将使用Spring
- * 4. 不同module生成的log放到不同的日志文件中【已完成样例，明天应用到系统中】--> 20160931 【will done】
- * 5. 使用适配器模式、单例模式等改造【doing】
- * 6. 当超过13人该怎么办,会出现怎样的Error【提供的文件超过人数，取前面13人】-->周末完成
+ * 4. 不同module生成的log放到不同的日志文件中[已完成样例，明天应用到系统中]--> 20160931 [will done]
+ * 5. 使用适配器模式、单例模式等改造[doing]
+ * 6. 当超过13人该怎么办,会出现怎样的Error[提供的文件超过人数，取前面13人]-->周末完成
  * 当人数properties文件有变动时，重新reload：https://crm.zoho.com.cn/crm/private/xml/Users/getUsers?authtoken=00f65ee9c91b4906dbf4c1bd46bb1452&scope=crmapi&type=AllUsers
  * 从ZOHO更新最新的人员列表进入缓存，以后可以直接用
- * 7. 当API使用次数超过，会出现怎样的Error【doing,稍后查询尝试4000次，遍历最大次数后会出现怎样的情况】--》20160931：晚上11：30开始跑
- * 8. DB的操作，查找-->  20160930完成，如果完成不了，周末一定要完成【done】
+ * 7. 当API使用次数超过，会出现怎样的Error[doing,稍后查询尝试4000次，遍历最大次数后会出现怎样的情况]--》20160931：晚上11：30开始跑
+ * 8. DB的操作，查找-->  20160930完成，如果完成不了，周末一定要完成[done]
  * 9. 每次到ZOHO做完操作后，记录时间到file文件中--> 周末完成
- * 10. Spring Quatz【周末开始】--》周末完成【done】
- * 11. Quotas应用--> 周末完成【done，但还需要改进--》能手动触发】
- * 12. 确认UI【尽量在这周末】--》周末完成
+ * 10. Spring Quatz[周末开始]--》周末完成[done]
+ * 11. Quotas应用--> 周末完成[done，但还需要改进--》能手动触发]
+ * 12. 确认UI[尽量在这周末]--》周末完成
  * 13. 异常处理情况，比如说连不到网络
  * 14.等DB工作完全做完应用到系统之后，需要把lastEditTime这个时间是否呗修改应用到update方法上
  *
  * 15. 加一个拦截器，在每个方法执行前和执行后打印一句话
- * 16. LastEditTime修改时间这个判断还没加上【20161002】
+ * 16. LastEditTime修改时间这个判断还没加上[20161002]
  * 17. 写一个线程，每隔一段时间更新LastEditTime，这样我的程序就能每隔一段时间去ZOHO更新数据
  *
  * 问题：
@@ -170,69 +170,68 @@ public class ModuleManager {
         String message = "";
         try{
             try{
-                 logger.debug("①Accounts ##################################################开始执行Account Module##################################################");
-                 logger.debug("####################################################################################################");
+                 logger.info("①, Accounts##################################################begin execute Account Module##################################################");
+                 logger.info("####################################################################################################");
                  acctList = exeAccounts();
-                 logger.debug("exeAccounts result :::"+acctList+"\n\n\n\n\n");
+                 logger.info("Print exeAccounts result :::"+acctList+"\n\n\n\n\n");
             }catch (Exception e){
                 allSuccess = false;
-                logger.error("【ModuleManager】，执行 exeAccounts 出错",e);
+                logger.error("[ModuleManager]， exeAccounts occurs error ",e);
                 wholeModuleFail = "ACCT";
                 message += "Customer : "+e.getMessage();
             }
 
-            logger.debug("②Products ##################################################开始执行Product Module##################################################");
-            logger.debug("####################################################################################################");
+            logger.info("②， Products ##################################################begin execute Product Module##################################################");
+            logger.info("####################################################################################################");
             try{
                 prodList = exeProducts();
-                logger.debug("exeProducts result :::"+prodList+"\n\n\n\n\n");
+                logger.info("Print exeProducts result :::"+prodList+"\n\n\n\n\n");
             }catch (Exception e){
                 allSuccess = false;
-                logger.error("【ModuleManager】，执行 exeProducts 出错",e);
+                logger.error("[ModuleManager], exeProducts occurs error",e);
                 wholeModuleFail += "|"+ "PROD";
                 message += ", Products : "+e.getMessage();
             }
 
-            logger.debug("③Write Properties##################################################Begin写入文件Account.properties,Product.properties...##################################################");
+            logger.info("③, Write Properties##################################################Begin Execute Write Properties : Account.properties,Product.properties...##################################################");
             try{
-
                 rewriteAcctProdProps();
             }catch (Exception e){
-                logger.error("【ModuleManager】，执行 testWriteFiles 出错", e);
+                logger.error("[ModuleManager]， testWriteFiles occurs error", e);
             }
-            logger.debug("##################################################End写入文件Account.properties,Product.properties##################################################\n\n\n\n\n");
+            logger.info("##################################################End Execute Write Properties Account.properties,Product.properties##################################################\n\n\n\n\n");
 
-            logger.debug("④Quotes ##################################################开始执行Quotes Module##################################################==");
-            logger.debug("####################################################################################################");
+            logger.info("④, Quotes ##################################################Begin Execute Quotes Module##################################################==");
+            logger.info("####################################################################################################");
             try{
                 quoteList = exeQuotes();
-                logger.debug("exeQuotes result :::"+quoteList+"\n\n\n\n\n");
+                logger.info("Print exeQuotes result :::"+quoteList+"\n\n\n\n\n");
             }catch (Exception e){
                 allSuccess = false;
-                logger.error("【ModuleManager】，执行 exeQuotes 出错",e);
+                logger.error("[ModuleManager], exeQuotes occurs error",e);
                 wholeModuleFail += "|"+ "QUOTES";
                 message += ", Quotes : "+e.getMessage();
             }
 
-            logger.debug("⑤SO ##################################################开始执行SO Module##################################################==");
-            logger.debug("####################################################################################################");
+            logger.info("⑤, SO ##################################################Begin Execute SO Module##################################################==");
+            logger.info("####################################################################################################");
             try{
                 soList = exeSO();
-                logger.debug("exeSO result :::"+soList+"\n\n\n\n\n");
+                logger.info("Print exeSO result :::"+soList+"\n\n\n\n\n");
             }catch (Exception e){
-                logger.error("【ModuleManager】，执行 exeSO 出错",e);
+                logger.error("[ModuleManager],  exeSO occurs error",e);
                 wholeModuleFail += "|"+ "SO";
                 message += ", SO : "+e.getMessage();
             }
 
-            logger.debug("⑥Invoices ##################################################开始执行Invoices Module##################################################");
-            logger.debug("####################################################################################################");
+            logger.info("⑥, Invoices ##################################################Begin Execute Invoices Module##################################################");
+            logger.info("####################################################################################################");
             try{
                 invList = exeInvoice();
-                logger.debug("exeInvoice result :::"+invList+"\n\n\n\n\n");
+                logger.info("Print exeInvoice result :::"+invList+"\n\n\n\n\n");
             }catch (Exception e){
                 allSuccess = false;
-                logger.error("【ModuleManager】，执行 invList 出错",e);
+                logger.error("[ModuleManager]， Execute Invoice List occurs error ",e);
                 wholeModuleFail += "|"+ "Invoice";
                 message += ", Invoices : "+e.getMessage();
             }
@@ -263,8 +262,8 @@ public class ModuleManager {
 
             //如果都执行成功，那么更新lastExecSuccessTime.properties
             if(allSuccess){
-                logger.debug("⑦update LAST_EXEC_SUCCESS_TIME ##################################################开始执行Invoices Module##################################################");
-                logger.debug("####################################################################################################");
+                logger.info("⑦, update LAST_EXEC_SUCCESS_TIME ##################################################Begin Execute Invoices Module##################################################");
+                logger.info("####################################################################################################");
                 Map<String,String> map = new HashMap<String, String>();
                 map.put(Constants.LAST_EXEC_SUCCESS_TIME,ThreadLocalDateUtil.formatDate(new Date()));
                 ConfigManager.writeVal2Props(map,Constants.PROPS_TIME_FILE);
@@ -272,11 +271,11 @@ public class ModuleManager {
 
         }catch (Exception e) {
             allSuccess = false;
-            logger.error("【exeAllModuleSend】, 出现错误",e);
+            logger.error("[exeAllModuleSend], all error ",e);
             message += ", all : "+e.getMessage();
             throw e;
         }finally {
-            logger.debug("⑧update Report ####################################################################################################");
+            logger.info("⑧, update Report ####################################################################################################");
             //结束时间new Date()
             Date endDate = new Date();
             List updERPList = new ArrayList();
@@ -286,12 +285,12 @@ public class ModuleManager {
             updERPList.add(updateFailStr);
             updERPList.add(deleteFailStr);
             updERPList.add(wholeModuleFail);
-            CommonUtils.printList(updERPList,"#####最后更新Report");
+            CommonUtils.printList(updERPList,"#####Late Update Report");
             ////执行更新Report操作
             String sql = "INSERT INTO ZOHO_EXCE_REPORT (START_TIME, END_TIME,INS_FAILED,UPD_FAILED,DEL_FAILED,WHOLEFAIL) VALUES(?,?,?,?,?,?)";
             DBUtils.exeUpdReport(sql, updERPList);
             logger.debug("################################################"
-                    +Constants.COMMENT_PREFIX+"最终执行时间:"+(endDate.getTime()-startDate.getTime())/1000+"秒");
+                    +Constants.COMMENT_PREFIX+"$$$Late Execute Time:"+(endDate.getTime()-startDate.getTime())/1000+"(s)");
         }
         list.add(0,allSuccess);
         list.add(1, message);
@@ -317,15 +316,15 @@ public class ModuleManager {
     public static void execAllModuleHouseKeep(boolean deleteAll) throws Exception {
         //1, for Account
         long startDate = new Date().getTime();
-        logger.debug("##############1. 开始Accounts的HouseKeep#################\n\n\n\n\n");
+        logger.debug("##############1. Begin Accounts HouseKeep#################\n\n\n\n\n");
         IModuleHandler acctModule = AccountsHandler.getInstance();
        // List  zohoAcctCompList =  acctModule.buildSkeletonFromZohoList();
         //拿出ZOHO中ERP为空或者Dulplicate的record，直接删除
         List delZohoIDList = getDelZohoIDs(acctModule,deleteAll);//(List)zohoAcctCompList.get(2);
-        logger.debug("删除模块【Accounts】的ZOHO ID集合为"+Constants.COMMENT_PREFIX+"【House Keep】"+delZohoIDList);
+        logger.debug("Delete Module [Accounts] ZOHO IDList : "+Constants.COMMENT_PREFIX+"[House Keep]"+delZohoIDList);
         acctModule.delRecords(ModuleNameKeys.Accounts.toString(),Constants.ZOHO_CRUD_DELETE,delZohoIDList);
 
-        logger.debug("##############开始Product的HouseKeep#################\n\n\n\n\n");
+        logger.debug("##############Begin Product HouseKeep#################\n\n\n\n\n");
         //2. for Product,获取需要删除的所有Product的ID集合
         IModuleHandler prodModule = ProductHandler.getInstance();
         List delProdIDList = getDelZohoIDs(prodModule,deleteAll);
@@ -338,33 +337,33 @@ public class ModuleManager {
         // 删除Quotes，SO，Invoices
        if(delProdIDList.size() > 0){
             //3. for Quotes
-           logger.debug("##############3. 开始【QUOTES】的HouseKeep#################\n\n\n\n\n");
+           logger.debug("##############3. Begin [QUOTES] HouseKeep#################\n\n\n\n\n");
             module = QuotesHandler.getInstance();
             execModuleHouseKeep(delProdIDList,ModuleNameKeys.Quotes.toString());
             //4. for SO
-           logger.debug("##############4. 开始【SO】的HouseKeep#################\n\n\n\n\n");
+           logger.debug("##############4. Begin [SO] HouseKeep#################\n\n\n\n\n");
             module = SOHandler.getInstance();
             execModuleHouseKeep(delProdIDList,ModuleNameKeys.SalesOrders.toString());
             //5. for Invoice
-           logger.debug("##############5. 开始【INVOICES】的HouseKeep#################\n\n\n\n\n");
+           logger.debug("##############5. Begin [INVOICES] HouseKeep#################\n\n\n\n\n");
             module = InvoicesHandler.getInstance();
             execModuleHouseKeep(delProdIDList,ModuleNameKeys.Invoices.toString());
         }
         //6. 最后删除Product
-        logger.debug("##############6. 最后开始【Products】的HouseKeep#################\n\n\n\n\n");
-        logger.debug("删除模块 【Products】的ZOHO ID集合为"+Constants.COMMENT_PREFIX+"【House Keep】"+delZohoIDList);
+        logger.debug("##############6. Last Begin [Products] HouseKeep#################\n\n\n\n\n");
+        logger.debug("删除模块 [Products]的ZOHO ID集合为"+Constants.COMMENT_PREFIX+"[House Keep]"+delZohoIDList);
         prodModule.delRecords(ModuleNameKeys.Products.toString(),Constants.ZOHO_CRUD_DELETE,delProdIDList);
 
         // 7. 如何housekeep止呕， 一定要把lastExecSuccess.properties置为0。以便下次能把所有数据插入
         if(deleteAll){
-            logger.debug("##############7. 最后重置LAST_EXEC_SUCCESS_TIME为0#################\n\n\n\n\n");
+            logger.debug("##############7. Last Rest LAST_EXEC_SUCCESS_TIME为0#################\n\n\n\n\n");
             Map<String,String> map = new HashMap<String, String>();
             map.put(Constants.LAST_EXEC_SUCCESS_TIME,"0");
             ConfigManager.writeVal2Props(map,Constants.PROPS_TIME_FILE);
         }
 
         logger.debug("################################################"
-                +Constants.COMMENT_PREFIX+"最终执行时间:"+(new Date().getTime()-startDate)/1000+"秒");
+                +Constants.COMMENT_PREFIX+"$$$Last Execute[execAllModuleHouseKeep] time :"+(new Date().getTime()-startDate)/1000+"秒");
 
 
     //    TODO 删除报表的table中以前的数据，暂定是1个月的
@@ -465,13 +464,13 @@ public class ModuleManager {
             for(Map.Entry<String,String> entry : erpZohoIDMap.entrySet()){
                 delZohoIDList.add(entry.getValue());
             }
-            logger.debug(" 删除模块 【"+moduleName+"】的Accounts ZOHO ID集合为"+Constants.COMMENT_PREFIX+"【House Keep】"+delZohoIDList);
+            logger.debug(" 删除模块 ["+moduleName+"]的Accounts ZOHO ID集合为"+Constants.COMMENT_PREFIX+"[House Keep]"+delZohoIDList);
             module.delRecords(moduleName, Constants.ZOHO_CRUD_DELETE, delZohoIDList);
         }else{
         //    不需要做任何事，因为我们再第一步已经把跟Account删掉了，那么就代表已经把所有的Quotes/SO/Invoice删掉了，不需要再删除了
         }
 
-        //logger.debug(" 删除模块 【"+moduleName+"】的Accounts ZOHO ID集合为"+Constants.COMMENT_PREFIX+"【House Keep】"+delZohoIDList);
+        //logger.debug(" 删除模块 ["+moduleName+"]的Accounts ZOHO ID集合为"+Constants.COMMENT_PREFIX+"[House Keep]"+delZohoIDList);
         //NOTICE: 注意这里是删除Accounts模块，因为删除相应的Account ZOHO ID之后，相关联的Quotes，Invoice，SO模块也会相应删除
         //module.delRecords(ModuleNameKeys.SalesOrders.toString(), Constants.ZOHO_CRUD_DELETE, delZohoIDList);
         //module.delRecords(ModuleNameKeys.Accounts.toString(), Constants.ZOHO_CRUD_DELETE, delZohoIDList);
@@ -496,7 +495,7 @@ public class ModuleManager {
         //// List  zohoAcctCompList =  acctModule.buildSkeletonFromZohoList();
         ////拿出ZOHO中ERP为空或者Dulplicate的record，直接删除
         //List delZohoIDList = getDelZohoIDs(acctModule);//(List)zohoAcctCompList.get(2);
-        //logger.debug("删除模块【Accounts】的ZOHO ID集合为"+Constants.COMMENT_PREFIX+"【House Keep】"+delZohoIDList);
+        //logger.debug("删除模块[Accounts]的ZOHO ID集合为"+Constants.COMMENT_PREFIX+"[House Keep]"+delZohoIDList);
         //acctModule.delRecords(ModuleNameKeys.Accounts.toString(),Constants.ZOHO_CRUD_DELETE,delZohoIDList);
 
         //rewriteAcctProdProps();
@@ -632,7 +631,7 @@ public class ModuleManager {
                 //2. 获取对象中Method返回类型
                 //            Method method = list.get(i).getClass().getMethod("get",null);
                 //            Class returnTypeClass = method.getReturnType();
-                //            System.out.println("对象【"+objectType+"】类型为:"+returnTypeClass);
+                //            System.out.println("对象["+objectType+"]类型为:"+returnTypeClass);
             }catch(Exception e){
                 System.out.println(e);
             }

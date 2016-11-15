@@ -235,7 +235,7 @@ public class CommonUtils {
                 post.setParameter(key, value);
             }
         }
-        logger.debug("发送的URL是:::"+url.substring(0,url.length()-1));
+        logger.debug("# Send Post to ZOHO URL is :::"+url.substring(0,url.length()-1));
         //System.err.println("发送的URL是:::"+url.substring(0,url.length()-1));
         /*post.setParameter(Constants.HTTP_POST_PARAM_AUTHTOKEN, authToken);
         post.setParameter(Constants.HTTP_POST_PARAM_SCOPE, scope);
@@ -305,7 +305,7 @@ public class CommonUtils {
         try {
             prop.load(CommonUtils.class.getResourceAsStream(relativePath));// "/secure/db.properties"
         } catch(IOException e) {
-            logger.error("读取properties文件出错【"+relativePath+"】",e);
+            logger.error("读取properties文件出错["+relativePath+"]",e);
             throw e;
         }
 

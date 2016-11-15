@@ -101,7 +101,7 @@ public class InvoicesHandler extends AbstractModule {
      * delZOHOIDList = = zohoComponentObjList.get(2): 里面是所有 ERP ID 为空时的 ZOHO ID
      */
     public List buildSkeletonFromZohoList() throws Exception {
-        logger.info("# Ⅰ: InvoicesHandler 【buildSkeletonFromZohoList】...");
+        logger.info("# Ⅰ: InvoicesHandler [buildSkeletonFromZohoList]...");
         // TODO ：：：Notice: 最大只能取到200条数据，这边可能需要另外的逻辑控制判断数据是否取完
 ////       1. 从ZOHO获取有效的xml
 //        String zohoStr =  retrieveZohoRecords(ModuleNameKeys.Invoices.toString(),1,100);
@@ -145,19 +145,19 @@ public class InvoicesHandler extends AbstractModule {
      * @throws Exception
      */
     private List<ProdRow> retrieveAllRowsFromZoho(int fromIndex, int toIndex, List<ProdRow> allRows) throws Exception {
-        logger.debug("# 1.1  InvoicesHandler 【retrieveAllRowsFromZoho】...");
+        logger.debug("# 1.1  InvoicesHandler [retrieveAllRowsFromZoho]...");
 //     1. 从ZOHO获取有效的xml
         String zohoStr =  retrieveZohoRecords(ModuleNameKeys.Invoices.toString(),fromIndex,toIndex);
 
         if(StringUtils.isEmptyString(zohoStr) || zohoStr.indexOf("<error>") != -1){ //如果获取不到
-            throw  new Exception("【InvoiceHandler】,retrieveAllRowsFromZoho出现错误, retrieveZohoRecords返回Error");
+            throw  new Exception("[InvoiceHandler],retrieveAllRowsFromZoho出现错误, retrieveZohoRecords返回Error");
         }
 //      2. xml 转 java bean
         Response response = JaxbUtil.converyToJavaBean(convertFLToPdsXmlTag2(zohoStr), Response.class); //response.getResult().getLeads().getRows().get(0).getFls().get(1).getFl()
-        logger.debug("1.2 【retrieveAllRowsFromZoho】，转化ZOHO获取XML回来的Java对象\n#" + response);
+        logger.debug("1.2 [retrieveAllRowsFromZoho]，转化ZOHO获取XML回来的Java对象\n#" + response);
 
 //      3. 由javabean获取所有的row记录，如果没有取完，需要重新取
-        logger.debug("# 1.3 【retrieveAllRowsFromZoho】，如果没有取完，需要迭代遍历...");
+        logger.debug("# 1.3 [retrieveAllRowsFromZoho]，如果没有取完，需要迭代遍历...");
         //TODO 如果没有数据<response uri="/crm/private/xml/Products/getRecords"><nodata><code>4422</code><message>There is no data to show</message></nodata></response>
         if(null != response.getResult()){
             List<ProdRow>  currentRows = response.getResult().getInvoices().getRows();
@@ -182,14 +182,14 @@ public class InvoicesHandler extends AbstractModule {
 //        handleInvoices.buildDBObjList();
 //    }
     public List buildDBObjList() throws Exception {
-        logger.info("# Ⅱ：InvoicesHandler 【buildDBObjList】...");
+        logger.info("# Ⅱ：InvoicesHandler [buildDBObjList]...");
         List dbAcctList = DBUtils.getInvoiceMap();
         //Map<String,Object> idInvoicesMap = DBUtils.getInvoiceMap();
 //        getDBObj(idInvoicesMap);
 //        Invoices accouts2 = getDBObj2(idInvoicesMap);
         ;
         //dbAcctList.add(idInvoicesMap);
-        logger.debug("【buildDBObjList】, size="+dbAcctList.size()+", 打印DB对象："+Constants.COMMENT_PREFIX +dbAcctList);
+        logger.debug("[buildDBObjList], size="+dbAcctList.size()+", 打印DB对象："+Constants.COMMENT_PREFIX +dbAcctList);
         //CommonUtils.printList(dbAcctList, "打印DB对象：：：");
         return dbAcctList;
     }
@@ -211,7 +211,7 @@ public class InvoicesHandler extends AbstractModule {
      * @return
      */
     public List build2ZohoObjSkeletonList() throws Exception {
-        logger.info("# Ⅲ: InvoicesHandler 【build2ZohoObjSkeletonList】...");
+        logger.info("# Ⅲ: InvoicesHandler [build2ZohoObjSkeletonList]...");
         //1. 获取ZOHO对象的骨架集合
 //        List allZohoObjList = buildSkeletonFromZohoList();
 //        //Map<ERPID，ZOHOID>
@@ -258,9 +258,9 @@ public class InvoicesHandler extends AbstractModule {
      * @throws Exception
      */
     public List build2ZohoXmlSkeleton() throws Exception {
-        logger.info("# Ⅳ: InvoicesHandler 【build2ZohoXmlSkeleton】...");
+        logger.info("# Ⅳ: InvoicesHandler [build2ZohoXmlSkeleton]...");
         //1. 获取发送到ZOHO对象集合骨架
-        logger.info("4.1 【build2ZohoXmlSkeleton】, 开始执行方法：build2ZohoObjSkeletonList...");
+        logger.info("4.1 execute build2ZohoObjSkeletonList method");
         List zohoComponentList = build2ZohoObjSkeletonList();
         Map<String,Invoices> addAccountMap =  (Map<String,Invoices> )zohoComponentList.get(0);
         Map<String,Invoices> updateAccountMap =(Map<String,Invoices> )zohoComponentList.get(1);
@@ -270,21 +270,21 @@ public class InvoicesHandler extends AbstractModule {
         //"/mapping/dbRdInvoicesFieldMapping.properties"
         Properties fieldMappingProps = ConfigManager.readProperties(Constants.PROPS_INVOICE_DB_MAPPING);
         //2. 添加
-        logger.info("4.2 【build2ZohoXmlSkeleton: insert】, 开始获取 Invoices【insert】的的XML#####################");
+        logger.info("4.2 Begin [build2ZohoXmlSkeleton:insert], Build to ZOHO [Invoice] XML List #####################");
 //        List<String> addZohoXmlList = buildAdd2ZohoXml(addAccountMap);
         List<String> addZohoXmlList =  buildAdd2ZohoXml(addAccountMap,className,fieldMappingProps);
-        logger.info("end组装 AddZOHOXML...size:::"+addZohoXmlList.size());
+        logger.info("End Build  addZohoXmlList. size::::"+addZohoXmlList.size());
 
         //3. 更新
-        logger.info("4.3 【build2ZohoXmlSkeleton: update】, 开始获取 Invoices【update】的的XML#####################");
+        logger.info("4.3  Begin [build2ZohoXmlSkeleton:update], Build to ZOHO [Invoice] XML Map #####################");
         Map<String,String> updateZOHOXmlMap  = buildUpd2ZohoXml(updateAccountMap,className,fieldMappingProps);
-        logger.info("end组装 updateZOHOXml...size:::"+updateZOHOXmlMap.size());
+        logger.info("End Build updateZOHOXmlMap...size:::"+updateZOHOXmlMap.size());
 
         List zohoXMLList = new ArrayList();
         zohoXMLList.add(addZohoXmlList);
         zohoXMLList.add(updateZOHOXmlMap);
         //4. 删除
-        logger.info("4.4 【build2ZohoXmlSkeleton: delete】, 打印需要删除的ZOHO ID的集合"+Constants.COMMENT_PREFIX+org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,","));
+        logger.info("4.4 [build2ZohoXmlSkeleton:delete], Build to ZOHO [Invoice] ID List "+Constants.COMMENT_PREFIX+org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,","));
         //logger.debug("打印删除ZohoIDs集合 deleteZOHOIDsList...\n"+org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,","));
         zohoXMLList.add(deleteZOHOIDsList);//org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,",")
         return zohoXMLList;
@@ -298,7 +298,7 @@ public class InvoicesHandler extends AbstractModule {
      * 删除（testDelAcctRecord）
      */
     public List execSend() throws Exception {
-        logger.info("# Ⅴ：InvoicesHandler 【execSend】...");
+        logger.info("# Ⅴ：InvoicesHandler [execSend]...");
         List zohoXMLList = build2ZohoXmlSkeleton();
         int addFailNum = addRecords(ModuleNameKeys.Invoices.toString(),Constants.ZOHO_CRUD_ADD,(List<String>)zohoXMLList.get(0));
         int updFailNum = updateRecords(ModuleNameKeys.Invoices.toString(),Constants.ZOHO_CRUD_UPDATE,(Map<String,String>) zohoXMLList.get(1));
@@ -388,7 +388,7 @@ public class InvoicesHandler extends AbstractModule {
      * @throws Exception
      */
     private List<String> buildAdd2ZohoXml(Map accountMap,String className,Properties fieldMappingProps) throws Exception {
-        logger.info("# 4.2 InvoicesHandler 【buildAdd2ZohoXml】...");
+        logger.info("# 4.2 InvoicesHandler [buildAdd2ZohoXml]...");
         List<String> addZohoXmlList= new ArrayList<String>();
         Response response = new Response();
         Result result = new Result();
@@ -458,7 +458,7 @@ public class InvoicesHandler extends AbstractModule {
      * @throws Exception
      */
     private Map<String,String> buildUpd2ZohoXml(Map accountMap,String className,Properties fieldMappingProps) throws Exception {
-        logger.info("# 4.3 InvoicesHandler 【buildUpd2ZohoXml】...");
+        logger.info("# 4.3 InvoicesHandler [buildUpd2ZohoXml]...");
         Map<String,String> updateZphoXmlMap = new HashMap<String, String>();
         String str = "";
         Response response = new Response();
@@ -853,7 +853,7 @@ public class InvoicesHandler extends AbstractModule {
          * 注意 product id和Name一定要是已经存在与产品里面的
          */
         pd.setPd_Product_Id("80487000000095003");
-        pd.setPd_Product_Name("尼龍背心環保袋");//TODO 需要找ken确认ItemName为【Name】是表示什么意思？是否根据id从Item表找
+        pd.setPd_Product_Name("尼龍背心環保袋");//TODO 需要找ken确认ItemName为[Name]是表示什么意思？是否根据id从Item表找
         pd.setPd_Total("86664.0");//金额
         pd.setPd_Net_Total("86666.0");//总计
 
