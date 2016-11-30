@@ -320,7 +320,8 @@ public abstract  class AbstractModule  implements IModuleHandler {
             erpZohoIDMap.put(erpID, zohoID);
             erpIDTimeMap.put(erpID, lastEditTime);
             //如果ERPID为空或者重复，那么加入到删除列表中
-            if(!hasERPID) delZohoIDList.add(zohoID);
+            //如果是Accounts模块，那么不加入删除列表
+            if(!hasERPID && !ModuleNameKeys.Accounts.toString().equals(moduleName)) delZohoIDList.add(zohoID);
 
             // 2. 处理Product Detail  -- >  Quotes，SO,Invoices
             if(!(ModuleNameKeys.Accounts.toString().equals(moduleName)
@@ -349,11 +350,11 @@ public abstract  class AbstractModule  implements IModuleHandler {
         //CommonUtils.printMap(erpZohoIDMap,"ERPID 和 ZOHOID Map");
         //CommonUtils.printMap(erpIDTimeMap,"ERPID 和 LastEditTime Map");
         //CommonUtils.printList(delZohoIDList, "Remove ZOHO ID list");
-        logger.info("1.3 [buildZohoComponentList], ERPID 和 ZOHOID Map：\n##\t erpZohoIDMap ====> " + erpZohoIDMap);
-        logger.info("1.3 [buildZohoComponentList], ERPID 和 LastEditTime Map：\n##\t erpIDTimeMap ====> " + erpIDTimeMap);
-        logger.info("1.3 [buildZohoComponentList], Remove ZOHO ID list：\n##\t delZohoIDList ====> " + delZohoIDList);
-        logger.info("1.3 [buildZohoComponentList], Customer ZOHO ID 与Product ID list：\n##\t acctZohoIDProdIDsMap ====> " + acctZohoIDProdIDsMap);
-        logger.info("1.3 [buildZohoComponentList], ZOHO ID 与Product ID list：\n##\t zohoIDProdIDsMap ====> " + zohoIDProdIDsMap);
+        logger.debug("1.3 [buildZohoComponentList], ERPID 和 ZOHOID Map：\n##\t erpZohoIDMap ====> " + erpZohoIDMap);
+        logger.debug("1.3 [buildZohoComponentList], ERPID 和 LastEditTime Map：\n##\t erpIDTimeMap ====> " + erpIDTimeMap);
+        logger.debug("1.3 [buildZohoComponentList], Remove ZOHO ID list：\n##\t delZohoIDList ====> " + delZohoIDList);
+        logger.debug("1.3 [buildZohoComponentList], Customer ZOHO ID 与Product ID list：\n##\t acctZohoIDProdIDsMap ====> " + acctZohoIDProdIDsMap);
+        logger.debug("1.3 [buildZohoComponentList], ZOHO ID 与Product ID list：\n##\t zohoIDProdIDsMap ====> " + zohoIDProdIDsMap);
         //CommonUtils.printList(erpIDProdIDsMap,"ZOHO ID 与Product ID list");
 
         //当Module是Product或者是Account的时候，需要把所有的ERPID 和ZOHOID分别写入不同文件中，为了以后在数据库读取Accounts和Product使用
@@ -840,24 +841,28 @@ public abstract  class AbstractModule  implements IModuleHandler {
         String moduleUrl  = getModuleUrl(moduleName, curdKey);
         logger.info("#[delRecords], All record ID list From ZOHO :::"+Constants.COMMENT_PREFIX+"moduleName = "+moduleName+", Operatiton ="+curdKey+", Size = "+deleteZOHOIDsList.size()+", url ="+moduleUrl
             +"\n delete ID list :::"+deleteZOHOIDsList);
-        //List deleteZOHOIDsList = (List)zohoXMLList.get(2);
-        for(int i = 0; i < deleteZOHOIDsList.size(); i++){
-            String id = StringUtils.nullToString(deleteZOHOIDsList.get(i));
-            logger.debug("Delete ["+moduleName+"] , The ["+(i+1)+"] record in deleting... ,id ="+id);
-            //Map<String,String> postParams = new HashMap<String, String>();
-            //postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,moduleUrl);
-            //postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
-            //postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
-            //postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
-            //postParams.put(Constants.HTTP_POST_PARAM_ID,id );
-            //try {
-            //     CommonUtils.executePostMethod(postParams);
-            //} catch(Exception e) {
-            //    logger.error("删除第"+(i+1)+"条数据失败"+"，执行delRecords["+moduleName+"]操作出现错误," +
-            //            "HTTP_POST_PARAM_ID = "+id,e);
-            //    failNum ++;
-            //}
-            failNum = commonPostMethod(moduleUrl,id,"",failNum,moduleName,curdKey);
+        // Accounts Module do not do delete operation for 交易模块，user will add 用户 in Accounts
+        if(!ModuleNameKeys.Accounts.toString().equals(moduleName)){
+            //List deleteZOHOIDsList = (List)zohoXMLList.get(2);
+            for(int i = 0; i < deleteZOHOIDsList.size(); i++){
+                String id = StringUtils.nullToString(deleteZOHOIDsList.get(i));
+                logger.debug("Delete ["+moduleName+"] , The ["+(i+1)+"] record in deleting... ,id ="+id);
+                //Map<String,String> postParams = new HashMap<String, String>();
+                //postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,moduleUrl);
+                //postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
+                //postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
+                //postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, NEWFORMAT_1);
+                //postParams.put(Constants.HTTP_POST_PARAM_ID,id );
+                //try {
+                //     CommonUtils.executePostMethod(postParams);
+                //} catch(Exception e) {
+                //    logger.error("删除第"+(i+1)+"条数据失败"+"，执行delRecords["+moduleName+"]操作出现错误," +
+                //            "HTTP_POST_PARAM_ID = "+id,e);
+                //    failNum ++;
+                //}
+
+                failNum = commonPostMethod(moduleUrl,id,"",failNum,moduleName,curdKey);
+            }
         }
         //result.add(0,failNum);
         //result.add(1,deleteZOHOIDsList);

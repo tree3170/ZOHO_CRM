@@ -170,7 +170,7 @@ public class ModuleManager {
         String message = "";
         try{
             try{
-                 logger.info("①, Accounts##################################################begin execute Account Module##################################################");
+                 logger.info("一, Accounts##################################################begin execute Account Module##################################################");
                  logger.info("####################################################################################################");
                  acctList = exeAccounts();
                  logger.info("Print exeAccounts result :::"+acctList+"\n\n\n\n\n");
@@ -181,7 +181,7 @@ public class ModuleManager {
                 message += "Customer : "+e.getMessage();
             }
 
-            logger.info("②， Products ##################################################begin execute Product Module##################################################");
+            logger.info("二, Products ##################################################begin execute Product Module##################################################");
             logger.info("####################################################################################################");
             try{
                 prodList = exeProducts();
@@ -193,7 +193,7 @@ public class ModuleManager {
                 message += ", Products : "+e.getMessage();
             }
 
-            logger.info("③, Write Properties##################################################Begin Execute Write Properties : Account.properties,Product.properties...##################################################");
+            logger.info("三, Write Properties##################################################Begin Execute Write Properties : Account.properties,Product.properties...##################################################");
             try{
                 rewriteAcctProdProps();
             }catch (Exception e){
@@ -201,7 +201,7 @@ public class ModuleManager {
             }
             logger.info("##################################################End Execute Write Properties Account.properties,Product.properties##################################################\n\n\n\n\n");
 
-            logger.info("④, Quotes ##################################################Begin Execute Quotes Module##################################################==");
+            logger.info("四, Quotes ##################################################Begin Execute Quotes Module##################################################==");
             logger.info("####################################################################################################");
             try{
                 quoteList = exeQuotes();
@@ -213,7 +213,7 @@ public class ModuleManager {
                 message += ", Quotes : "+e.getMessage();
             }
 
-            logger.info("⑤, SO ##################################################Begin Execute SO Module##################################################==");
+            logger.info("五, SO ##################################################Begin Execute SO Module##################################################==");
             logger.info("####################################################################################################");
             try{
                 soList = exeSO();
@@ -224,7 +224,7 @@ public class ModuleManager {
                 message += ", SO : "+e.getMessage();
             }
 
-            logger.info("⑥, Invoices ##################################################Begin Execute Invoices Module##################################################");
+            logger.info("六, Invoices ##################################################Begin Execute Invoices Module##################################################");
             logger.info("####################################################################################################");
             try{
                 invList = exeInvoice();
@@ -262,7 +262,7 @@ public class ModuleManager {
 
             //如果都执行成功，那么更新lastExecSuccessTime.properties
             if(allSuccess){
-                logger.info("⑦, update LAST_EXEC_SUCCESS_TIME ##################################################Begin Execute Invoices Module##################################################");
+                logger.info("七, update LAST_EXEC_SUCCESS_TIME ##################################################Begin Execute Invoices Module##################################################");
                 logger.info("####################################################################################################");
                 Map<String,String> map = new HashMap<String, String>();
                 map.put(Constants.LAST_EXEC_SUCCESS_TIME,ThreadLocalDateUtil.formatDate(new Date()));
@@ -275,7 +275,7 @@ public class ModuleManager {
             message += ", all : "+e.getMessage();
             throw e;
         }finally {
-            logger.info("⑧, update Report ####################################################################################################");
+            logger.info("八, update Report ####################################################################################################");
             //结束时间new Date()
             Date endDate = new Date();
             List updERPList = new ArrayList();
