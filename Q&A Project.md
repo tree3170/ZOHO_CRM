@@ -30,6 +30,9 @@
       ①、拿到所有的ZOHO用户：getUser--》放到Cache中
       ②、过滤： 拿到DB中的lastEditBy，如果Cache中存在的，DB中这条记录有效
 
+* 6. 必需增加一个手动导入某个功能，可以选择Module，选择时间，去导入数据  【TODO 20161130-201611】
+	条件：Module+Time+ERP ID  -->这个周末完成,可以分批也可以分个个来做
+
 ##项目
 * 1. > Q: 关于用户数确认，暂时只支持13个人
      A: 必需由客户给出用户list（做成一个properties，可以自己添加的配置文件），需要校验人数通过ZOHO API(getUsers)
