@@ -229,6 +229,21 @@ public class FunctionalControler {
         ret.add(message);
         return ret;
     }
+    /**
+     * 单独run 某个module，这个功能主要为了处理没有跑成功的case，假设Accounts module没有run成功，那么这批数据需要手动去run
+     * 主要条件为Module+Time+Erp IDs
+     *  6. 必需增加一个手动导入某个功能，可以选择Module，选择时间，去导入数据  【TODO 20161130-201611】
+     * 条件：Module+Time+ERP ID  -->这个周末完成,可以分批也可以分个个来做
+     * @param request
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping("/sepRun/{param}")//{startTime}/{endTime}
+    @ResponseBody
+    public List sepRunModule(@PathVariable String param, HttpServletRequest request) throws Exception {
+        //TODO 必需这个周末完成
+        return null;
+    }
 
 
 
