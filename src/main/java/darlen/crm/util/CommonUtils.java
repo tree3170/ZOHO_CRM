@@ -224,7 +224,7 @@ public class CommonUtils {
 
     }
 
-    public static void setPostMethodParams(PostMethod post,Map<String,String> map){
+    public static String setPostMethodParams(PostMethod post,Map<String,String> map){
         String url = map.get(Constants.HTTP_POST_PARAM_TARGETURL)+"?";
         post.getParams().setParameter(HttpMethodParams.HTTP_CONTENT_CHARSET, Constants.HTTP_POST_PARAM_UTF8);
         for(Map.Entry<String,String> entry: map.entrySet()){
@@ -235,7 +235,8 @@ public class CommonUtils {
                 post.setParameter(key, value);
             }
         }
-        logger.debug("# Send Post to ZOHO URL is :::"+url.substring(0,url.length()-1));
+        //logger.debug("# Send Post to ZOHO URL is :::"+url.substring(0,url.length()-1));
+        return url.substring(0,url.length()-1);
         //System.err.println("发送的URL是:::"+url.substring(0,url.length()-1));
         /*post.setParameter(Constants.HTTP_POST_PARAM_AUTHTOKEN, authToken);
         post.setParameter(Constants.HTTP_POST_PARAM_SCOPE, scope);
@@ -262,24 +263,24 @@ public class CommonUtils {
 
         String id = map.get(Constants.HTTP_POST_PARAM_ID);
         if(!StringUtils.isEmptyString(id)) post.setParameter(Constants.HTTP_POST_PARAM_ID,id);*/
-        setPostMethodParams(post,map);
+        String requestUrl = setPostMethodParams(post,map);
         HttpClient httpclient = new HttpClient();
-        //PrintWriter myout = null;
         String postResp = "";
         try
         {
             long t1 = System.currentTimeMillis();
             int result = httpclient.executeMethod(post);
-            logger.debug("HTTP Response status code: " + result);
-            logger.debug(">> Time taken " + (System.currentTimeMillis() - t1));
-
-            // writing the response to a file
-            //myout = new PrintWriter(new File("response.xml"));
-            //myout.print(post.getResponseBodyAsString());
-
+            long spendTime = (System.currentTimeMillis() - t1);
             //-----------------------Get response as a string ----------------
             postResp = post.getResponseBodyAsString();
-            logger.debug("postResp=======>"+postResp);
+
+            //如果执行返回error，则打印request url
+            if(postResp.indexOf("<error>") != -1){
+                logger.debug(">> HTTP Response status code: " + result);
+                logger.error(">> Time taken " + spendTime);
+                logger.error(" >> Send Post to ZOHO URL is :::"+requestUrl);
+                logger.error("postResp=======>"+postResp);
+            }
 
             //TODO 解析返回的response是成功还是失败
             /**

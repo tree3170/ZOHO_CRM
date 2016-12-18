@@ -181,9 +181,9 @@ public class InvoicesHandler extends AbstractModule {
 //    public void testAssembleDBAcctObjList() throws ParseException {
 //        handleInvoices.buildDBObjList();
 //    }
-    public List buildDBObjList() throws Exception {
+    public List buildDBObjList(boolean isSepatateRun,String sqlWithErpIDs) throws Exception {
         logger.info("# Ⅱ：InvoicesHandler [buildDBObjList]...");
-        List dbAcctList = DBUtils.getInvoiceMap();
+        List dbAcctList = DBUtils.getInvoiceMap(isSepatateRun,sqlWithErpIDs);
         //Map<String,Object> idInvoicesMap = DBUtils.getInvoiceMap();
 //        getDBObj(idInvoicesMap);
 //        Invoices accouts2 = getDBObj2(idInvoicesMap);
@@ -210,7 +210,7 @@ public class InvoicesHandler extends AbstractModule {
      * 3.addAccountMap：如果dbModel中的id不存在于zohoMap中，则组装dbModel为xml并调用Zoho中的添加API：
      * @return
      */
-    public List build2ZohoObjSkeletonList() throws Exception {
+    public List build2ZohoObjSkeletonList(boolean isSepatateRun,String sqlWithErpIDs) throws Exception {
         logger.info("# Ⅲ: InvoicesHandler [build2ZohoObjSkeletonList]...");
         //1. 获取ZOHO对象的骨架集合
 //        List allZohoObjList = buildSkeletonFromZohoList();
@@ -231,11 +231,11 @@ public class InvoicesHandler extends AbstractModule {
         }
 
         //2.组装DB 对象List
-        List dbModuleList = buildDBObjList();
+        List dbModuleList = buildDBObjList(isSepatateRun,sqlWithErpIDs);
         //Map<String,Object> idInvoicesMap = (Map<String,Object>)dbAcctList.get(0);
 
         //3. 解析并组装addMap、updateMap、delZohoIDList
-        return build2Zoho3PartObj(erpZohoIDMap,erpIDTimeMap,delZohoIDList,dbModuleList);
+        return build2Zoho3PartObj(erpZohoIDMap,erpIDTimeMap,delZohoIDList,dbModuleList,isSepatateRun);
     }
 
     /**
@@ -257,11 +257,11 @@ public class InvoicesHandler extends AbstractModule {
      * @return  zohoComponentList
      * @throws Exception
      */
-    public List build2ZohoXmlSkeleton() throws Exception {
+    public List build2ZohoXmlSkeleton(boolean isSepatateRun,String sqlWithErpIDs) throws Exception {
         logger.info("# Ⅳ: InvoicesHandler [build2ZohoXmlSkeleton]...");
         //1. 获取发送到ZOHO对象集合骨架
         logger.info("4.1 execute build2ZohoObjSkeletonList method");
-        List zohoComponentList = build2ZohoObjSkeletonList();
+        List zohoComponentList = build2ZohoObjSkeletonList(isSepatateRun,sqlWithErpIDs);
         Map<String,Invoices> addAccountMap =  (Map<String,Invoices> )zohoComponentList.get(0);
         Map<String,Invoices> updateAccountMap =(Map<String,Invoices> )zohoComponentList.get(1);
         List deleteZOHOIDsList  = (List)zohoComponentList.get(2);
@@ -297,9 +297,9 @@ public class InvoicesHandler extends AbstractModule {
      * 添加（testAddAcctRecord）
      * 删除（testDelAcctRecord）
      */
-    public List execSend() throws Exception {
+    public List execSend(boolean isSepatateRun,String sqlWithErpIDs) throws Exception {
         logger.info("# Ⅴ：InvoicesHandler [execSend]...");
-        List zohoXMLList = build2ZohoXmlSkeleton();
+        List zohoXMLList = build2ZohoXmlSkeleton(isSepatateRun,sqlWithErpIDs);
         int addFailNum = addRecords(ModuleNameKeys.Invoices.toString(),Constants.ZOHO_CRUD_ADD,(List<String>)zohoXMLList.get(0));
         int updFailNum = updateRecords(ModuleNameKeys.Invoices.toString(),Constants.ZOHO_CRUD_UPDATE,(Map<String,String>) zohoXMLList.get(1));
         int delFailNum = delRecords(ModuleNameKeys.Invoices.toString(),Constants.ZOHO_CRUD_DELETE,(List)zohoXMLList.get(2));

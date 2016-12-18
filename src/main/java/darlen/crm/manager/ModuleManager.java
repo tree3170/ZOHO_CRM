@@ -76,7 +76,7 @@ public class ModuleManager {
         System.out.println("第N次执行结果，｛add/update/delete｝成功多少，失败多少"+ ModuleNameKeys.Accounts);
     }
 
-    public static List exeAccounts() throws Exception {
+    public static List exeAccounts(boolean isSepatateRun,String sqlWithErpIDs) throws Exception {
         //for Accounts
         module = AccountsHandler.getInstance();
 
@@ -97,27 +97,27 @@ public class ModuleManager {
 //            System.err.println("遍历次数"+i);
 //            module.retrieveZohoRecords(ModuleNameKeys.Accounts.toString(), 1, 2);
 //        }
-        return module.execSend();
+        return module.execSend(isSepatateRun,sqlWithErpIDs);
     }
 
 
-    public static List exeProducts() throws Exception {
+    public static List exeProducts(boolean isSepatateRun,String sqlWithErpIDs) throws Exception {
         //for Accounts
         module = ProductHandler.getInstance();
 //        module.build2ZohoXmlSkeleton();
 //        module.buildDBObjList();
 //        List zohoXMLList =module.build2ZohoXmlSkeleton();
 //        module.updateRecords(ModuleNameKeys.Products.toString(), Constants.ZOHO_CRUD_UPDATE,zohoXMLList);
-        return  module.execSend();
+        return  module.execSend(isSepatateRun,sqlWithErpIDs);
     }
-    public static List exeQuotes() throws Exception {
+    public static List exeQuotes(boolean isSepatateRun,String sqlWithErpIDs) throws Exception {
         //for invoice
         module = QuotesHandler.getInstance();      //module.build2ZohoXmlSkeleton();
         //module.build2ZohoXmlSkeleton();
-        return module.execSend();
+        return module.execSend(isSepatateRun,sqlWithErpIDs);
     }
 
-    public static List exeSO() throws Exception {
+    public static List exeSO(boolean isSepatateRun,String sqlWithErpIDs) throws Exception {
 
         module = SOHandler.getInstance();
 
@@ -128,16 +128,16 @@ public class ModuleManager {
         //module = SOHandler.getInstance();
         //module.build2ZohoXmlSkeleton();
         //module.buildDBObjList();
-        return  module.execSend();
+        return  module.execSend(isSepatateRun,sqlWithErpIDs);
 
     }
-    public static List exeInvoice() throws Exception {
+    public static List exeInvoice(boolean isSepatateRun,String sqlWithErpIDs) throws Exception {
         //for invoice
         module = InvoicesHandler.getInstance();
 
         //module.build2ZohoXmlSkeleton();
         //module.build2ZohoXmlSkeleton();
-        return module.execSend();
+        return module.execSend(isSepatateRun,sqlWithErpIDs);
     }
 
 
@@ -172,7 +172,7 @@ public class ModuleManager {
             try{
                  logger.info("一, Accounts##################################################begin execute Account Module##################################################");
                  logger.info("####################################################################################################");
-                 acctList = exeAccounts();
+                 acctList = exeAccounts(false,"");
                  logger.info("Print exeAccounts result :::"+acctList+"\n\n\n\n\n");
             }catch (Exception e){
                 allSuccess = false;
@@ -184,7 +184,7 @@ public class ModuleManager {
             logger.info("二, Products ##################################################begin execute Product Module##################################################");
             logger.info("####################################################################################################");
             try{
-                prodList = exeProducts();
+                prodList = exeProducts(false,"");
                 logger.info("Print exeProducts result :::"+prodList+"\n\n\n\n\n");
             }catch (Exception e){
                 allSuccess = false;
@@ -204,7 +204,7 @@ public class ModuleManager {
             logger.info("四, Quotes ##################################################Begin Execute Quotes Module##################################################==");
             logger.info("####################################################################################################");
             try{
-                quoteList = exeQuotes();
+                quoteList = exeQuotes(false,"");
                 logger.info("Print exeQuotes result :::"+quoteList+"\n\n\n\n\n");
             }catch (Exception e){
                 allSuccess = false;
@@ -216,7 +216,7 @@ public class ModuleManager {
             logger.info("五, SO ##################################################Begin Execute SO Module##################################################==");
             logger.info("####################################################################################################");
             try{
-                soList = exeSO();
+                soList = exeSO(false,"");
                 logger.info("Print exeSO result :::"+soList+"\n\n\n\n\n");
             }catch (Exception e){
                 logger.error("[ModuleManager],  exeSO occurs error",e);
@@ -227,7 +227,7 @@ public class ModuleManager {
             logger.info("六, Invoices ##################################################Begin Execute Invoices Module##################################################");
             logger.info("####################################################################################################");
             try{
-                invList = exeInvoice();
+                invList = exeInvoice(false,"");
                 logger.info("Print exeInvoice result :::"+invList+"\n\n\n\n\n");
             }catch (Exception e){
                 allSuccess = false;

@@ -44,9 +44,9 @@ import java.util.Date;
  */
 public class DBUtils {
     private static Logger logger = Logger.getLogger(DBUtils.class);
-    private static final String ACCT_SQL = "select  zoho.* from dbo.Customer as zoho  where 1 =1 ";
-    private static final String PROD_SQL = "select * from dbo.item  as zoho where 1 =1 order by zoho.ItemID DESC";
-    private static final String QUOTES_SQL = "SELECT zoho.QuoteID AS ERPID, zoho.CustomerID, zoho.QuoteRef, zoho.CUSNAME AS CUSTOMERNAME, zoho.EXCHANGERATE AS EXGRATE ,zoho.LatestEditBy, \n" +
+    public static final String ACCT_SQL = "select  zoho.customerid as ERPID ,zoho.* from dbo.Customer as zoho  where 1 =1 ";
+    public static final String PROD_SQL = "select zoho.itemid as ERPID ,* from dbo.item  as zoho where 1 =1 ";
+    public static final String QUOTES_SQL = "SELECT zoho.QuoteID AS ERPID, zoho.CustomerID, zoho.QuoteRef, zoho.CUSNAME AS CUSTOMERNAME, zoho.EXCHANGERATE AS EXGRATE ,zoho.LatestEditBy, \n" +
             "iq.Item_QuoteID,item.ITEMID AS PROD_ID, item.NAME AS PROD_NAME, iq.QuotePrice AS PROD_UNITPRICE,  iq.QUANTITY AS PROD_QUANTITY, iq.ITEMDISCOUNT AS PROD_DISCOUNT, iq.DESCRIPTION AS PROD_DESC , \n" +
             "pt.Name as PayTerm,\n" +
             "zoho.*\n" +
@@ -59,7 +59,7 @@ public class DBUtils {
             "and item.ITEMID is not null\n" ;
             //"and zoho.LatestEditBy in ('Pik Fai Chan','marketin','Gary Tang')" ;
             //"and item.LatestEditBy in ('Pik Fai Chan','marketin','Gary Tang')\n" +
-    private static final String SO_SQL = "SELECT zoho.SOID AS ERPID, zoho.CustomerID, zoho.soREF, zoho.CUSNAME AS CUSTOMERNAME, zoho.EXCHANGERATE AS EXGRATE , zoho.LatestEditBy ,\n" +
+            public static final String SO_SQL = "SELECT zoho.SOID AS ERPID, zoho.CustomerID, zoho.soREF, zoho.CUSNAME AS CUSTOMERNAME, zoho.EXCHANGERATE AS EXGRATE , zoho.LatestEditBy ,\n" +
             "itemso.ITEM_SOID,item.ITEMID AS PROD_ID, item.NAME AS PROD_NAME, itemso.SOPRICE AS PROD_UNITPRICE,  itemso.QUANTITY AS PROD_QUANTITY, itemso.ITEMDISCOUNT AS PROD_DISCOUNT, itemso.DESCRIPTION AS PROD_DESC , \n" +
             "pt.Name as PayTerm,\n" +
             "zoho.*\n" +
@@ -72,7 +72,7 @@ public class DBUtils {
             "and item.ITEMID is not null\n" ;
             //"and zoho.LatestEditBy in ('Pik Fai Chan','marketin','Gary Tang')\n" +
             //"and item.LatestEditBy in ('Pik Fai Chan','marketin','Gary Tang')" ;
-    private static final String INVOICE_SQL = "SELECT zoho.InvoiceID AS ERPID, zoho.InvoiceRef,zoho.CustomerID,zoho.CUSNAME AS CUSTOMERNAME, zoho.EXCHANGERATE AS EXGRATE ,zoho.LatestEditBy,\n" +
+            public static final String INVOICE_SQL = "SELECT zoho.InvoiceID AS ERPID, zoho.InvoiceRef,zoho.CustomerID,zoho.CUSNAME AS CUSTOMERNAME, zoho.EXCHANGERATE AS EXGRATE ,zoho.LatestEditBy,\n" +
                     "item_inv.Item_InvoiceID,item.ITEMID AS PROD_ID, item.NAME AS PROD_NAME, item_inv.InvoicePrice AS PROD_UNITPRICE,  item_inv.QUANTITY AS PROD_QUANTITY, item_inv.ITEMDISCOUNT AS PROD_DISCOUNT, item_inv.DESCRIPTION AS PROD_DESC , \n" +
                     "pt.Name as PayTerm,\n" +
                     "zoho.*\n" +
@@ -128,7 +128,7 @@ public class DBUtils {
      * @throws IOException
      * @throws ConfigurationException
      */
-    private static String getWholeSqlWithFilterUser(String sql, String moduleName,String orderBy) throws IOException, ConfigurationException {
+    public static String getWholeSqlWithFilterUser(String sql, String moduleName,String orderBy) throws IOException, ConfigurationException {
         List<String> allUsers = ConfigManager.getAllZohoUserName();
         if(allUsers!= null && allUsers.size() > 0){
             sql += "\n and upper(zoho.LatestEditBy) in (" ;
@@ -165,7 +165,7 @@ public class DBUtils {
      * @throws SQLException
      * @throws ParseException
      */
-    public synchronized static List getAccountMap() throws Exception {
+    public synchronized static List getAccountMap(boolean isSepatateRun,String sqlWithErpIDs) throws Exception {
         List dbAcctList = new ArrayList();
         Map<String,String> dbIDEditTimeMap = new HashMap<String, String>();
         Map<String,Object> dbIDModuleObjMap = new TreeMap<String, Object>(new Comparator<String>(){
@@ -188,7 +188,9 @@ public class DBUtils {
 
                 // and CustomerID in (1,8,14,20)"; //暂时只用三条数据
         String sql = getWholeSqlWithFilterUser(ACCT_SQL,ModuleNameKeys.Accounts.toString()," ORDER BY zoho.customerID DESC");
-
+        if(isSepatateRun){
+            sql = sqlWithErpIDs;
+        }
         ResultSet rs = exeQuery(sql);
         while (rs != null && rs.next()){
             String lastEditBy = StringUtils.nullToString(rs.getString("LatestEditBy"));
@@ -240,7 +242,8 @@ public class DBUtils {
                 String creationTime = ThreadLocalDateUtil.formatDate(rs.getTimestamp("CreationTime"));
                 //TODO 暂时测试阶段用最新的时间
 //                boolean isDevMod  = "1".equals(ConfigManager.get(Constants.PROPS_ZOHO_FILE,Constants.ZOHO_PROPS_DEV_MODE));
-                String lastEditTime = ConfigManager.isDevMod() ? ThreadLocalDateUtil.formatDate(new Date()):ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
+//                String lastEditTime = ConfigManager.isDevMod() ? ThreadLocalDateUtil.formatDate(new Date()):ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
+                String lastEditTime = ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
                 account.setCreationTime(creationTime);
                 account.setLatestEditTime(lastEditTime);
 
@@ -258,7 +261,7 @@ public class DBUtils {
      * @return
      * @throws Exception
      */
-    public synchronized static List getProductMap() throws Exception {
+    public synchronized static List getProductMap(boolean isSepatateRun,String sqlWithErpIDs) throws Exception {
         List dbModuleList = new ArrayList();
         Map<String,String> dbIDEditTimeMap = new HashMap<String, String>();
         Map<String,Object> dbIDModuleObjMap = new TreeMap<String, Object>(new Comparator<String>(){
@@ -278,7 +281,10 @@ public class DBUtils {
         dbModuleList.add(0,dbIDModuleObjMap);
         dbModuleList.add(1,dbIDEditTimeMap);
 //        List<Products> productsList = new ArrayList<Products>();
-        String sql = PROD_SQL;
+        String sql = PROD_SQL + "order by zoho.ItemID DESC";
+        if(isSepatateRun){
+            sql = sqlWithErpIDs;
+        }
                 //+ "where itemid in (6,9,10,130)"; //暂时只用三条数据
         ResultSet rs = exeQuery(sql);
         while (rs != null && rs.next()){
@@ -317,7 +323,8 @@ public class DBUtils {
                 product.setRemark(StringUtils.nullToString(rs.getString("Remark")));
                 product.setLatestEditBy(lastEditBy);
 //                boolean isDevMod  = "1".equals(ConfigManager.get(Constants.PROPS_ZOHO_FILE,Constants.ZOHO_PROPS_DEV_MODE));
-                String latestEditTime = ConfigManager.isDevMod() ? ThreadLocalDateUtil.formatDate(new Date()):ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
+//                String latestEditTime = ConfigManager.isDevMod() ? ThreadLocalDateUtil.formatDate(new Date()):ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
+                String latestEditTime = ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
 //                String latestEditTime = ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
                 product.setLatestEditTime(latestEditTime);
 //                productsList.add(product);
@@ -342,7 +349,7 @@ public class DBUtils {
      * @throws SQLException
      * @throws ParseException
      */
-    public synchronized static List getQuotesList() throws Exception{
+    public synchronized static List getQuotesList(boolean isSepatateRun,String sqlWithErpIDs) throws Exception{
         List dbModuleList = new ArrayList();
         Map<String,String> dbIDEditTimeMap = new HashMap<String, String>();
         Map<String,Object> dbIDModuleObjMap  = new TreeMap<String, Object>(new Comparator<String>(){
@@ -379,6 +386,9 @@ public class DBUtils {
 //                "and item.ITEMID is not null" +
 //                " ORDER BY q.QuoteID";
         String sql = getWholeSqlWithFilterUser(QUOTES_SQL,ModuleNameKeys.Quotes.toString()," ORDER BY zoho.QuoteID DESC");
+        if(isSepatateRun){
+            sql = sqlWithErpIDs;
+        }
         ResultSet rs = exeQuery(sql);
         String preErpID = "";
         List<ProductDetails> pds = new ArrayList<ProductDetails>();
@@ -478,7 +488,8 @@ public class DBUtils {
                     String quoteDate = ThreadLocalDateUtil.formatDate(rs.getTimestamp("QuoteDate"));
                     quotes.setQuotesDate(quoteDate);
 //                    boolean isDevMod  = "1".equals(ConfigManager.get(Constants.PROPS_ZOHO_FILE,Constants.ZOHO_PROPS_DEV_MODE));
-                    String latestEditTime = ConfigManager.isDevMod() ? ThreadLocalDateUtil.formatDate(new Date()):ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
+//                    String latestEditTime = ConfigManager.isDevMod() ? ThreadLocalDateUtil.formatDate(new Date()):ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
+                    String latestEditTime = ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
 //                    String currentDate = ThreadLocalDateUtil.formatDate(new Date());
                     quotes.setLatestEditTime(latestEditTime);
 //                    so.setCreationTime("2016-09-01 10:10:10");
@@ -532,7 +543,7 @@ public class DBUtils {
      * @throws SQLException
      * @throws ParseException
      */
-    public synchronized static List getSOMap() throws Exception{
+    public synchronized static List getSOMap(boolean isSepatateRun,String sqlWithErpIDs) throws Exception{
         List dbModuleList = new ArrayList();
         Map<String,String> dbIDEditTimeMap = new HashMap<String, String>();
         Map<String,Object> dbIDModuleObjMap = new TreeMap<String, Object>(new Comparator<String>(){
@@ -569,6 +580,9 @@ public class DBUtils {
         //        "and item.ITEMID is not null \n" +
         //        " ORDER BY SO.SOID";
         String sql = getWholeSqlWithFilterUser(SO_SQL,ModuleNameKeys.SalesOrders.toString()," ORDER BY zoho.SOID DESC");
+        if(isSepatateRun){
+            sql = sqlWithErpIDs;
+        }
         ResultSet rs = exeQuery(sql);
         String preErpID = "";
         List<ProductDetails> pds = new ArrayList<ProductDetails>();
@@ -657,7 +671,8 @@ public class DBUtils {
                     String SODate = ThreadLocalDateUtil.formatDate(rs.getTimestamp("SODate"));
                     so.setErpDueDate(SODate);
 //                    boolean isDevMod  = "1".equals(ConfigManager.get(Constants.PROPS_ZOHO_FILE,Constants.ZOHO_PROPS_DEV_MODE));
-                    String latestEditTime = ConfigManager.isDevMod() ? ThreadLocalDateUtil.formatDate(new Date()):ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
+//                    String latestEditTime = ConfigManager.isDevMod() ? ThreadLocalDateUtil.formatDate(new Date()):ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
+                    String latestEditTime = ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
 //                    String currentDate = ThreadLocalDateUtil.formatDate(new Date());
                     so.setLatestEditTime(latestEditTime);
 //                    so.setCreationTime("2016-09-01 10:10:10");
@@ -711,7 +726,7 @@ public class DBUtils {
      * @throws SQLException
      * @throws ParseException
      */
-    public synchronized static List getInvoiceMap() throws Exception{
+    public synchronized static List getInvoiceMap(boolean isSepatateRun,String sqlWithErpIDs) throws Exception{
         List dbModuleList = new ArrayList();
         Map<String,String> dbIDEditTimeMap = new HashMap<String, String>();
         Map<String,Object> dbIDModuleObjMap = new TreeMap<String, Object>(new Comparator<String>(){
@@ -742,6 +757,9 @@ public class DBUtils {
 //                "  item.ITEMID is not null \n" + //暂时只用三条数据
 //                " ORDER BY inv.InvoiceID";
         String sql = getWholeSqlWithFilterUser(INVOICE_SQL,ModuleNameKeys.Invoices.toString(), " ORDER BY zoho.InvoiceID DESC");
+        if(isSepatateRun){
+            sql = sqlWithErpIDs;
+        }
         ResultSet rs = exeQuery(sql);
         String preErpID = "";
         Invoices invoices = null;
@@ -859,7 +877,8 @@ public class DBUtils {
                     BigDecimal total = rs.getBigDecimal("Total");
                     invoices.setTotal(StringUtils.nullToString(total.multiply(exgRate)));
 //                    boolean isDevMod  = "1".equals(ConfigManager.get(Constants.PROPS_ZOHO_FILE,Constants.ZOHO_PROPS_DEV_MODE));
-                    String latestEditTime = ConfigManager.isDevMod() ? ThreadLocalDateUtil.formatDate(new Date()):ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
+//                    String latestEditTime = ConfigManager.isDevMod() ? ThreadLocalDateUtil.formatDate(new Date()):ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
+                    String latestEditTime = ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
 //                    String lastEditTime = ThreadLocalDateUtil.formatDate(rs.getTimestamp("LatestEditTime"));
                     invoices.setLatestEditTime(latestEditTime);
     //            String dueDate = ThreadLocalDateUtil.formatDate(rs.getTimestamp("invoiceDate"));
@@ -970,6 +989,20 @@ public class DBUtils {
         logger.info(" [ exeQuery], sql =\n[ "+sql+" ]");
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+        } catch (SQLException e) {
+            logger.error("exeQuery出现错误",e);
+            throw e;
+        }
+        return rs;
+    }
+    public static ResultSet exeQuery(String sql,List list) throws SQLException, IOException, ConfigurationException, ClassNotFoundException {
+        ResultSet rs = null;
+        Connection conn = getConnection();
+        logger.info(" [ exeQuery], sql =\n[ "+sql+" ]");
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            setPSParams(ps,list);
             rs = ps.executeQuery();
         } catch (SQLException e) {
             logger.error("exeQuery出现错误",e);

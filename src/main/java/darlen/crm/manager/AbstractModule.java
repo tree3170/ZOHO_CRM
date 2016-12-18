@@ -219,7 +219,7 @@ public abstract  class AbstractModule  implements IModuleHandler {
             ////4. 组装finalStr=prefProduct+"</pds>" + suffixProduct
             //String finalStr = prefProduct+"</pds>" + suffixProduct;
             String finalStr = prexPds.replaceAll("</product></FL>","</product></pds>");
-            logger.info("finalStr::" + finalStr);
+            //logger.info("finalStr::" + finalStr);
             str = finalStr;
         }
         return str;
@@ -282,7 +282,8 @@ public abstract  class AbstractModule  implements IModuleHandler {
         zohoCompList.add(zohoIDProdIDsMap);
 
         for (int i = 0; i < rows.size() ; i++){
-            logger.debug("#[buildZohoComponentList], Travel ["+(i+1)+"] rows Record:::"+rows.get(i));
+            if(ConfigManager.isDevMod())
+                logger.debug("#[buildZohoComponentList], Travel ["+(i+1)+"] rows Record:::"+rows.get(i));
             String zohoID = "";
             String erpID = "";
             String lastEditTime = "";
@@ -350,11 +351,13 @@ public abstract  class AbstractModule  implements IModuleHandler {
         //CommonUtils.printMap(erpZohoIDMap,"ERPID 和 ZOHOID Map");
         //CommonUtils.printMap(erpIDTimeMap,"ERPID 和 LastEditTime Map");
         //CommonUtils.printList(delZohoIDList, "Remove ZOHO ID list");
-        logger.debug("1.3 [buildZohoComponentList], ERPID 和 ZOHOID Map：\n##\t erpZohoIDMap ====> " + erpZohoIDMap);
-        logger.debug("1.3 [buildZohoComponentList], ERPID 和 LastEditTime Map：\n##\t erpIDTimeMap ====> " + erpIDTimeMap);
-        logger.debug("1.3 [buildZohoComponentList], Remove ZOHO ID list：\n##\t delZohoIDList ====> " + delZohoIDList);
-        logger.debug("1.3 [buildZohoComponentList], Customer ZOHO ID 与Product ID list：\n##\t acctZohoIDProdIDsMap ====> " + acctZohoIDProdIDsMap);
-        logger.debug("1.3 [buildZohoComponentList], ZOHO ID 与Product ID list：\n##\t zohoIDProdIDsMap ====> " + zohoIDProdIDsMap);
+        if(ConfigManager.isDevMod()){
+            logger.debug("1.3 [buildZohoComponentList], ERPID and ZOHOID Map：\n##\t erpZohoIDMap ====> " + erpZohoIDMap);
+            logger.debug("1.3 [buildZohoComponentList], ERPID and LastEditTime Map：\n##\t erpIDTimeMap ====> " + erpIDTimeMap);
+            logger.debug("1.3 [buildZohoComponentList], Remove ZOHO ID list：\n##\t delZohoIDList ====> " + delZohoIDList);
+            logger.debug("1.3 [buildZohoComponentList], Customer ZOHO ID 与Product ID list：\n##\t acctZohoIDProdIDsMap ====> " + acctZohoIDProdIDsMap);
+            logger.debug("1.3 [buildZohoComponentList], ZOHO ID and Product ID list：\n##\t zohoIDProdIDsMap ====> " + zohoIDProdIDsMap);
+        }
         //CommonUtils.printList(erpIDProdIDsMap,"ZOHO ID 与Product ID list");
 
         //当Module是Product或者是Account的时候，需要把所有的ERPID 和ZOHOID分别写入不同文件中，为了以后在数据库读取Accounts和Product使用
@@ -380,7 +383,7 @@ public abstract  class AbstractModule  implements IModuleHandler {
      * @return
      */
     public List build2Zoho3PartObj(Map<String,String> erpZohoIDMap,Map<String,String> erpIDTimeMap,List<String> delZohoIDList,
-                                   List dbModuleList) throws Exception {
+                                   List dbModuleList,boolean isSeperateRun) throws Exception {
         Map<String,Object> dbIDModuleObjMap = (Map<String,Object>)dbModuleList.get(0);
         Map<String,String> dbIDEditTimeMap = (Map<String,String>)dbModuleList.get(1);
 
@@ -394,20 +397,24 @@ public abstract  class AbstractModule  implements IModuleHandler {
             String zohoID = erpZohoIDMap.get(erpID);
             if(dbIDModuleObjMap.containsKey(erpID)){//update
                 //TODO 添加lastestEditTime是否被修改
-                //**************拿出DB中的lastEditTime，如果上次修改的时间<=DB中的修改时间，那么加入修改列表
-                String dbLatestEditTimeStr = dbIDEditTimeMap.get(erpID);
-                long  dbLatestEditTime = StringUtils.isEmptyString(dbLatestEditTimeStr)?0:ThreadLocalDateUtil.parse(StringUtils.nullToString(dbLatestEditTimeStr)).getTime();
-                if(ConfigManager.isDevMod()){
+                if(isSeperateRun){//如果是单独跑的，并且ZOHO中的ID包含在db中，那么强制直接做update操作
                     updateModuleObjMap.put(zohoID, dbIDModuleObjMap.get(erpID));
                 }else{
-                    //如果上次执行成功的时间《=db中这条记录修改的时间
-                    if(0 == dbLatestEditTime){  //如果是等于0， 因为这是做update，那么已经不用添加到修改列表，但是有可能是会添加到增加列表
-                        //logger.debug("for update case : Lastest Edit Time is empty,  ignore set into update Map,erpID ="+erpID+"; zohoID="+zohoID);
-                        ignoreRecordsMap.put(erpID,zohoID+"|"+dbLatestEditTime);
-                    }else   if(lastExecSuccessTime <= dbLatestEditTime){
+                    //**************拿出DB中的lastEditTime，如果上次修改的时间<=DB中的修改时间，那么加入修改列表
+                    String dbLatestEditTimeStr = dbIDEditTimeMap.get(erpID);
+                    long  dbLatestEditTime = StringUtils.isEmptyString(dbLatestEditTimeStr)?0:ThreadLocalDateUtil.parse(StringUtils.nullToString(dbLatestEditTimeStr)).getTime();
+                    if(ConfigManager.isDevMod()){
                         updateModuleObjMap.put(zohoID, dbIDModuleObjMap.get(erpID));
                     }else{
-                        ignoreRecordsMap.put(erpID,zohoID+"|"+dbLatestEditTime);
+                        //如果上次执行成功的时间《=db中这条记录修改的时间
+                        if(0 == dbLatestEditTime){  //如果是等于0， 因为这是做update，那么已经不用添加到修改列表，但是有可能是会添加到增加列表
+                            //logger.debug("for update case : Lastest Edit Time is empty,  ignore set into update Map,erpID ="+erpID+"; zohoID="+zohoID);
+                            ignoreRecordsMap.put(erpID,zohoID+"|"+dbLatestEditTime);
+                        }else   if(lastExecSuccessTime <= dbLatestEditTime){
+                            updateModuleObjMap.put(zohoID, dbIDModuleObjMap.get(erpID));
+                        }else{
+                            ignoreRecordsMap.put(erpID,zohoID+"|"+dbLatestEditTime);
+                        }
                     }
                 }
             }else{ //delete
@@ -429,13 +436,17 @@ public abstract  class AbstractModule  implements IModuleHandler {
         }
 
         List sendToZohoAcctList = new ArrayList();
-        logger.info("3.3 [build2Zoho3PartObj], Assemble ZOHO Object Collections into AddMap ：size = "+addModuleObjMap.size()+"\n##\t ====> " + addModuleObjMap);
+        logger.info("3.3 [build2Zoho3PartObj], Assemble ZOHO Object Collections into AddMap ：size = "+addModuleObjMap.size());
+        logger.debug(" ##\t AddMap====> " + addModuleObjMap);
         sendToZohoAcctList.add(addModuleObjMap);
-        logger.info("3.3 [build2Zoho3PartObj], Assemble ZOHO Object Collections into UpdateMap：size = "+updateModuleObjMap.size()+"\n##\t ====> " + updateModuleObjMap);
+        logger.info("3.3 [build2Zoho3PartObj], Assemble ZOHO Object Collections into UpdateMap：size = "+updateModuleObjMap.size());
+        logger.debug("##\t UpdateMap ====> " + updateModuleObjMap);
         sendToZohoAcctList.add(updateModuleObjMap);
-        logger.info("3.3 [build2Zoho3PartObj], Assemble ZOHO ID List into delZohoIDList: size = " + delZohoIDList.size() + "\n##\t ====> " + delZohoIDList);
+        logger.info("3.3 [build2Zoho3PartObj], Assemble ZOHO ID List into delZohoIDList: size = " + delZohoIDList.size());
+        //logger.debug("##\t delZohoIDList====> " + delZohoIDList);
         sendToZohoAcctList.add(delZohoIDList);
-        logger.info("3.3 [build2Zoho3PartObj], Ignore Records for update case(1. empty time 2. time not change) Collections: size = "+ignoreRecordsMap.size()+"\n##\t ====> " + ignoreRecordsMap);
+        logger.info("3.3 [build2Zoho3PartObj], Ignore Records for update case(1. empty time 2. time not change) Collections: size = "+ignoreRecordsMap.size());
+        logger.debug("##\t ignoreRecordsMap====> " + ignoreRecordsMap);
 
         return sendToZohoAcctList;
     }
@@ -654,6 +665,7 @@ public abstract  class AbstractModule  implements IModuleHandler {
         }
         allFls.add(commonFls);
         allFls.add(products);
+        if(ConfigManager.isDevMod())
         logger.debug("[getZOHOFLsByProps], Get All valid ZOHO Field List by after filter with DB and Properties files：" + Constants.COMMENT_PREFIX + allFls);
         //CommonUtils.printList(allFls, "ZOHO Field List:");
         return allFls;
@@ -712,7 +724,9 @@ public abstract  class AbstractModule  implements IModuleHandler {
             }
             map.put((i+1)+"",tmpMap);
         }
-        logger.info("[getDBProdDetlFieldMap], Get all DB Product Detail , and get FieldName and FieldValue into Map "+Constants.COMMENT_PREFIX +map);
+        //TODO only Dev mod print the log
+        if(ConfigManager.isDevMod())
+          logger.debug("[getDBProdDetlFieldMap], Get all DB Product Detail , and get FieldName and FieldValue into Map "+Constants.COMMENT_PREFIX +map);
         //CommonUtils.printMap(map, "打印 DB Product Detail Field Map:");
         return map;
     }

@@ -35,16 +35,16 @@ public interface IModuleHandler {
 //    1.3 组装 zohoModuleList
     public List buildZohoComponentList(List<ProdRow> rows, String zohoIDName, String erpIDName,String moduleName) throws Exception;
 //  2.组装DB 对象List
-    public List buildDBObjList() throws Exception;
+    public List buildDBObjList(boolean isSepatateRun,String sqlWithErpIDs) throws Exception;
 //    3.由获得的ZOHO所有对象集合和从DB获取的对象集合，经过过滤，获取的组装需要***发送到ZOHO的对象集合骨架***
-    public List build2ZohoObjSkeletonList() throws Exception;
+    public List build2ZohoObjSkeletonList(boolean isSepatateRun,String sqlWithErpIDs) throws Exception;
 //    3.1  获取ZOHO对象的骨架集合
 //    3.2 组装DB 对象List
 //    3.3 经过过滤，组装发送到ZOHO的三大对象并放入到List中:addMap、updateMap、delZohoIDList
     public List build2Zoho3PartObj(Map<String,String> erpZohoIDMap,Map<String,String> erpIDTimeMap,
-                                List<String> delZohoIDList,List dbModuleList) throws Exception;
+                                List<String> delZohoIDList,List dbModuleList,boolean isSeperateRun) throws Exception;
 //    4.组装addZOHOXml，updateZOHOXml，deleteZOHOIDsList,放进zohoXMLList集合对象中
-    public List build2ZohoXmlSkeleton() throws Exception;
+    public List build2ZohoXmlSkeleton(boolean isSepatateRun,String sqlWithErpIDs) throws Exception;
 //    4.1. 获取发送到ZOHO的三大对象集合骨架<String, Object>
 //    public List<String>  buildAdd2ZohoXml(Map accountMap) throws Exception;
 //    4.2. 添加
@@ -61,5 +61,5 @@ public interface IModuleHandler {
     public int delRecords(String moduleName,int curdKey,List<String> deleteZOHOIDsList);
 
 
-    public List execSend() throws Exception;
+    public List execSend(boolean isSepatateRun,String sqlWithErpIDs) throws Exception;
 }

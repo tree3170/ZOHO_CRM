@@ -170,9 +170,9 @@ public class AccountsHandler  extends AbstractModule {
      * 1. Map<String,Account> dbIDModuleObjMap
      * 2.  Map<String,String> dbIDEditTimeMap
      */
-    public List buildDBObjList() throws Exception {
+    public List buildDBObjList(boolean isSepatateRun,String sqlWithErpIDs) throws Exception {
         logger.info("# Ⅱ： AccountHandler [buildDBObjList]...");
-        List dbAcctList = DBUtils.getAccountMap();
+        List dbAcctList = DBUtils.getAccountMap(isSepatateRun,sqlWithErpIDs);
         //Map<String,Object> erpIDProductsMap = DBUtils.getAccountMap();;
 //        for(int i = 6; i< 300;i++){
 //            getDBObj(erpIDProductsMap,1);
@@ -196,7 +196,7 @@ public class AccountsHandler  extends AbstractModule {
      * dbIDModuleObjMap： DB ID 和Module对象的集合
      * @return
      */
-    public List build2ZohoObjSkeletonList() throws Exception {
+    public List build2ZohoObjSkeletonList(boolean isSepatateRun,String sqlWithErpIDs) throws Exception {
         logger.info("# Ⅲ: AccountHandler [build2ZohoObjSkeletonList]...");
 //        1. 获取ZOHO对象的骨架集合
         List allZohoObjList = buildSkeletonFromZohoList();
@@ -211,12 +211,12 @@ public class AccountsHandler  extends AbstractModule {
         }
 
 //        2.组装DB 对象List
-        List dbAcctList = buildDBObjList();
+        List dbAcctList = buildDBObjList(isSepatateRun,sqlWithErpIDs);
         Map<String,Object> dbIDModuleObjMap = (Map<String,Object>)dbAcctList.get(0);
         Map<String,String> dbIDEditTimeMap = (Map<String,String>)dbAcctList.get(1);
 
 //        3. 组装发送到ZOHO的三大对象并放入到List中:addMap、updateMap、delZohoIDList
-        return build2Zoho3PartObj(erpZohoIDMap,erpIDTimeMap,delZohoIDList,dbAcctList);
+        return build2Zoho3PartObj(erpZohoIDMap,erpIDTimeMap,delZohoIDList,dbAcctList,isSepatateRun);
     }
 
 
@@ -228,11 +228,11 @@ public class AccountsHandler  extends AbstractModule {
      * @return  zohoComponentList
      * @throws Exception
      */
-    public List build2ZohoXmlSkeleton() throws Exception {
+    public List build2ZohoXmlSkeleton(boolean isSepatateRun,String sqlWithErpIDs) throws Exception {
         logger.info("# Ⅳ: AccountHandler [build2ZohoXmlSkeleton]...");
         //1. 获取发送到ZOHO的三大对象集合骨架
         logger.info("4.1 execute build2ZohoObjSkeletonList method");
-        List zohoComponentList = build2ZohoObjSkeletonList();
+        List zohoComponentList = build2ZohoObjSkeletonList(isSepatateRun,sqlWithErpIDs);
         Map<String,Accounts> addAccountMap =  (Map<String,Accounts> )zohoComponentList.get(0);
         Map<String,Accounts> updateAccountMap =  (Map<String,Accounts> )zohoComponentList.get(1);
         List deleteZOHOIDsList  = (List)zohoComponentList.get(2);
@@ -255,7 +255,8 @@ public class AccountsHandler  extends AbstractModule {
         zohoXMLList.add(addZohoXmlList);
         zohoXMLList.add(updateZOHOXmlMap);
 //        4. 删除
-        logger.info("4.4 [build2ZohoXmlSkeleton:delete], Build to ZOHO [Accounts] ID List ::: "+Constants.COMMENT_PREFIX+org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,","));
+        logger.debug("4.4 [build2ZohoXmlSkeleton:delete], Build to ZOHO [Accounts] ID List size ::: "+deleteZOHOIDsList.size());
+        logger.debug("4.4 [build2ZohoXmlSkeleton:delete], Build to ZOHO [Accounts] ID List ::: "+Constants.COMMENT_PREFIX+org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,","));
         zohoXMLList.add(deleteZOHOIDsList);//org.apache.commons.lang.StringUtils.join(deleteZOHOIDsList,",")
         return zohoXMLList;
     }
@@ -269,9 +270,9 @@ public class AccountsHandler  extends AbstractModule {
      *
      * @return
      */
-    public List execSend() throws Exception {
+    public List execSend(boolean isSepatateRun,String sqlWithErpIDs) throws Exception {
         logger.info("# Ⅴ: AccountHandler [execSend]...");
-        List zohoXMLList = build2ZohoXmlSkeleton();
+        List zohoXMLList = build2ZohoXmlSkeleton(isSepatateRun,sqlWithErpIDs);
         int addFailNum = addRecords(ModuleNameKeys.Accounts.toString(),Constants.ZOHO_CRUD_ADD,(List<String>)zohoXMLList.get(0));
         int updFailNum = updateRecords(ModuleNameKeys.Accounts.toString(),Constants.ZOHO_CRUD_UPDATE,(Map<String,String>) zohoXMLList.get(1));
         int delFailNum = delRecords(ModuleNameKeys.Accounts.toString(),Constants.ZOHO_CRUD_DELETE,(List)zohoXMLList.get(2));

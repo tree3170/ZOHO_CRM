@@ -81,7 +81,25 @@ public class InvoicesManager_junitTest extends AbstractModule{
 //
     private static Logger logger =  Logger.getLogger(InvoicesManager_junitTest.class);
 
+    @Override
+    public List buildDBObjList(boolean isSepatateRun, String sqlWithErpIDs) throws Exception {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
 
+    @Override
+    public List build2ZohoObjSkeletonList(boolean isSepatateRun, String sqlWithErpIDs) throws Exception {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public List build2ZohoXmlSkeleton(boolean isSepatateRun, String sqlWithErpIDs) throws Exception {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public List execSend(boolean isSepatateRun, String sqlWithErpIDs) throws Exception {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
     /**
      * BeforeClass 与Before的区别
      */
@@ -151,6 +169,8 @@ public class InvoicesManager_junitTest extends AbstractModule{
 
         return zohoModuleList;
     }
+
+
 
 
     /**

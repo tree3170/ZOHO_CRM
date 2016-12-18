@@ -130,7 +130,7 @@ public interface Constants {
     /**Max Add size*/
     public static final int MAX_ADD_SIZE = 100;
     //每次查找时最大的增量for search
-    public static final int MAX_FETCH_SIZE = 100;
+    public static final int MAX_FETCH_SIZE = 200;
 
     /**ZOHO需要做的增删改查操作*/
     public static final int ZOHO_CRUD_ADD = 1;

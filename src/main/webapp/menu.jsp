@@ -29,6 +29,7 @@
                 </li>
                 <li><a href="<%=request.getContextPath()%>/report">Show Report</a></li>
                 <li><a href="<%=request.getContextPath()%>/houseKeepMain.jsp">HouseKeep</a></li>
+                <li><a href="<%=request.getContextPath()%>/sepRunFunction.jsp">Separate Run Manually</a></li>
             </ul>
         </div>
     </div>
