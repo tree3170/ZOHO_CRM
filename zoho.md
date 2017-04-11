@@ -11,3 +11,9 @@
 ### ZOHO 重大要点
 * 1. ERP到CRM是单向的，所以我们不存在更新，只存在插入和删除
 * 2.
+
+### ZOHO客户维护的时候主要关注这几个文件
+db.properties
+zoho.properties
+lastExecSuccessTime.properties
+spring-quartz.xml

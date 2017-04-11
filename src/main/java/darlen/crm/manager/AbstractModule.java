@@ -282,15 +282,20 @@ public abstract  class AbstractModule  implements IModuleHandler {
         zohoCompList.add(zohoIDProdIDsMap);
 
         for (int i = 0; i < rows.size() ; i++){
-            if(ConfigManager.isDevMod())
+            if(ConfigManager.isDevMod()){
                 logger.debug("#[buildZohoComponentList], Travel ["+(i+1)+"] rows Record:::"+rows.get(i));
+            }
             String zohoID = "";
             String erpID = "";
             String lastEditTime = "";
             String custID = "";
             // 1. 处理common字段
             List<FL> fls = rows.get(i).getFls();
-            boolean hasERPID = true;
+            //boolean hasERPID = true;
+            //包含empty的erp ID
+            boolean hasEmptyErpID = false;
+            //包含duplicate的ErpID
+            boolean hasDulErpID = false;
             for(FL fl : fls){
                 String fieldName = fl.getFieldName();
                 String fieldVal = fl.getFieldValue();
@@ -300,13 +305,15 @@ public abstract  class AbstractModule  implements IModuleHandler {
                 if(erpIDName.equals(fieldName)){
                     if(StringUtils.isEmptyString(fieldVal)){
                         fieldVal = Constants.ZOHO_FIELD_ZOHOID_EMPTY_PREFIX +i;
-                        hasERPID = false;
+                        //hasERPID = false;
+                        hasEmptyErpID = true;
                     }
                     erpID = fieldVal;
                     //如果出现重复的erpID，那么删除其中一条
                     if(erpZohoIDMap.containsKey(erpID)){
-                        hasERPID = false;
+                        //hasERPID = false;
                         erpID = Constants.ZOHO_FIELD_ZOHOID_DUL_PREFIX+erpID+"_"+i;
+                        hasDulErpID = true;
                     }
                 }
                 if(Constants.ZOHO_FIELD_LAST_TIME.equals(fieldName)){
@@ -318,33 +325,48 @@ public abstract  class AbstractModule  implements IModuleHandler {
                 }
 
             }
-            erpZohoIDMap.put(erpID, zohoID);
-            erpIDTimeMap.put(erpID, lastEditTime);
-            //如果ERPID为空或者重复，那么加入到删除列表中
-            //如果是Accounts模块，那么不加入删除列表
-            if(!hasERPID && !ModuleNameKeys.Accounts.toString().equals(moduleName)) delZohoIDList.add(zohoID);
+            //1. if erp id is not empty, it will be added into map
+            //2. if erp id is duplicate, it will add into delete list
+            if(!hasEmptyErpID){
+                erpZohoIDMap.put(erpID, zohoID);
+                erpIDTimeMap.put(erpID, lastEditTime);
 
-            // 2. 处理Product Detail  -- >  Quotes，SO,Invoices
-            if(!(ModuleNameKeys.Accounts.toString().equals(moduleName)
-                    || ModuleNameKeys.Products.toString().equals(moduleName))){
-                ProdDetails pd = rows.get(i).getPds();
-                List<String> productIDs = new ArrayList<String>();
-                if(pd != null){
-                    List<Product> products = pd.getProducts();
-                    for(Product p : products){
-                        List<FL> pdFls = p.getFls();
-                        for(FL pdFl : pdFls){
-                            String fieldName = pdFl.getFieldName();
-                            String fieldVal = pdFl.getFieldValue();
-                            if(Constants.ZOHO_FIELD_PRODUCT_ID.equals(fieldName)){
-                                productIDs.add(fieldVal);
+                /**
+                 * 如果Erp ID为重复，那么加入到删除列表中
+                 * version 1.0 : (!hasERPID)   --> ERP ID 不为empty或者duplicate, 那么加入删除列表
+                 * version 2.0 : (!hasERPID && !ModuleNameKeys.Accounts.toString().equals(moduleName))
+                 *              --> 如果不是Accounts模块，并且ERP ID 不能为empty或者duplicate， 那么加入删除列表
+                 * version 3.0 : ( hasDulErpID)--> 只判断ERP ID是否为duplicate，
+                 *
+                 * 注意：ERP ID 为空，代表是用户手动输入，当执行删除的操作时候应该忽略这种情况
+                 */
+                if( hasDulErpID){ //如果ERP ID不为空，并且是duplicate的，则加入删除列表
+                    delZohoIDList.add(zohoID);
+                }
+
+
+                // 2. 处理Product Detail  -- >  Quotes，SO,Invoices
+                if(!(ModuleNameKeys.Accounts.toString().equals(moduleName)
+                        || ModuleNameKeys.Products.toString().equals(moduleName))){
+                    ProdDetails pd = rows.get(i).getPds();
+                    List<String> productIDs = new ArrayList<String>();
+                    if(pd != null){
+                        List<Product> products = pd.getProducts();
+                        for(Product p : products){
+                            List<FL> pdFls = p.getFls();
+                            for(FL pdFl : pdFls){
+                                String fieldName = pdFl.getFieldName();
+                                String fieldVal = pdFl.getFieldValue();
+                                if(Constants.ZOHO_FIELD_PRODUCT_ID.equals(fieldName)){
+                                    productIDs.add(fieldVal);
+                                }
                             }
                         }
                     }
+                    //注意使用Customer ZOHO ID，而不是zohoID
+                    acctZohoIDProdIDsMap.put(custID, productIDs);
+                    zohoIDProdIDsMap.put(zohoID, productIDs);
                 }
-                //注意使用Customer ZOHO ID，而不是zohoID
-                acctZohoIDProdIDsMap.put(custID, productIDs);
-                zohoIDProdIDsMap.put(zohoID, productIDs);
             }
         }
 
@@ -862,7 +884,7 @@ public abstract  class AbstractModule  implements IModuleHandler {
         logger.info("#[delRecords], All record ID list From ZOHO :::"+Constants.COMMENT_PREFIX+"moduleName = "+moduleName+", Operatiton ="+curdKey+", Size = "+deleteZOHOIDsList.size()+", url ="+moduleUrl
             +"\n delete ID list :::"+deleteZOHOIDsList);
         // Accounts Module do not do delete operation for 交易模块，user will add 用户 in Accounts
-        if(!ModuleNameKeys.Accounts.toString().equals(moduleName)){
+        //if(!ModuleNameKeys.Accounts.toString().equals(moduleName)){
             //List deleteZOHOIDsList = (List)zohoXMLList.get(2);
             for(int i = 0; i < deleteZOHOIDsList.size(); i++){
                 String id = StringUtils.nullToString(deleteZOHOIDsList.get(i));
@@ -883,7 +905,7 @@ public abstract  class AbstractModule  implements IModuleHandler {
 
                 failNum = commonPostMethod(moduleUrl,id,"",failNum,moduleName,curdKey);
             }
-        }
+        //}
         //result.add(0,failNum);
         //result.add(1,deleteZOHOIDsList);
         //return result;

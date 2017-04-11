@@ -372,31 +372,40 @@ public class ModuleManager {
     }
 
     /**
-     * 获取所有需要删除的Product的ID集合
+     * 获取所有需要删除的Module的ZOHO ID集合
      * 1. 正常模式-->仅仅删除 ERP为空或者Dulplicate的Product的ID集合
-     * 2. 开发模式-->删除所有
+     * 2. 开发模式-->删除所有模块的记录，但是保留ZOHO ID为empty的记录
      * @return
      * @throws Exception
      */
     private static List getDelZohoIDs(IModuleHandler module,boolean deleteAll) throws Exception {
-        List  zohoProdCompList =  module.buildSkeletonFromZohoList();
+        List  zohoModuleList =  module.buildSkeletonFromZohoList();
         List<String> delZohoIDList = new ArrayList<String>();
 
-        /**
-         * 1. 如果仅仅删除 ERP为空或者Dulplicate的Product的ID集合--》正常环境中使用
-         * */
-        delZohoIDList = (List)zohoProdCompList.get(2);
-
-        if(deleteAll){
+        if(!deleteAll){
             /**
-             * 2, 如果要删除所有的Product的ID集合 --》开发时候使用
+             * 1. 如果仅仅删除 ERP为空或者Duplicate的Module的ZOHO ID集合--》正常环境中使用
+             * */
+            delZohoIDList = (List)zohoModuleList.get(2);
+        }else{
+            /**
+             * 2, 如果要删除所有的Module的Zoho ID集合 --》开发时候使用
              */
-            Map<String,String> allProdErpZohoIDMap = (Map<String,String>)zohoProdCompList.get(0);
-            delZohoIDList = new ArrayList<String>();
-            for(Map.Entry<String,String> entry : allProdErpZohoIDMap.entrySet()){
-                if(!"-1".equals(entry.getKey())){//忽略ERP ID 为-1的Account模块
+            Map<String,String> allErpZohoIDMap = (Map<String,String>)zohoModuleList.get(0);
+            //delZohoIDList = new ArrayList<String>();
+            for(Map.Entry<String,String> entry : allErpZohoIDMap.entrySet()){
+                String erpID = entry.getKey();
+                // ERP为-1的时候有可能是ERP中本身存在的记录
+                /**
+                 * 如果ERP ID 不为empty 并且 ERP ID 不为-1 并且不以ZOHO_FIELD_ZOHOID_EMPTY_PREFIX开头
+                 * 则加入删除列表
+                 */
+                if(!StringUtils.isEmptyString(erpID)
+                        &&  !"-1".equals(erpID)
+                        &&  (erpID.indexOf(Constants.ZOHO_FIELD_ZOHOID_EMPTY_PREFIX) == -1)
+                        ){
                     String zohoID = entry.getValue();
-                    delZohoIDList.add(zohoID);;
+                    delZohoIDList.add(zohoID);
                 }
             }
         }
@@ -404,6 +413,7 @@ public class ModuleManager {
         return delZohoIDList;
 
     }
+
 
     /**
      * 根据需要删除的Product ID的集合delProdIDList，获取需要删除的所有SO记录，并执行删除
