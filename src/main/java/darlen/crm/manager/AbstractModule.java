@@ -422,7 +422,9 @@ public abstract  class AbstractModule  implements IModuleHandler {
                      // 如果ZOHO中关于Account模块erpID为-1，ignore，这个是默认的账号,忽略
                     logger.debug("[build2Zoho3PartObj], Ignore ERP ID = -1 Record from ZOHO。");
                 }else if(!delZohoIDList.contains(zohoID)){
-                    delZohoIDList.add(zohoID);
+                    if(!isSeperateRun){//if seperate run ,  will not execute the delete operation
+                          delZohoIDList.add(zohoID);
+                    }
                 }
             }
         }
@@ -476,8 +478,10 @@ public abstract  class AbstractModule  implements IModuleHandler {
 
             rows.add(row);
             //由于ZOHO最大只支持100条数据，所以当row的size达到了100，那么需要放入
-            if(i == Constants.MAX_ADD_SIZE){
-                logger.info("4.2 Add Rows size already exceed 100，need to put into rowsMap and re-compute the Rows index...");
+            int maxAddSize = ConfigManager.getMaxAddSize();
+            //if(i == Constants.MAX_ADD_SIZE){
+            if(i == maxAddSize){
+                logger.debug("4.2 Add Rows size already exceed 100，need to put into rowsMap and re-compute the Rows index...");
                 rowsMap.put(rowsMap.size(),rows);
                 rows = new ArrayList<ProdRow>();
                 i = 1;
@@ -809,6 +813,7 @@ public abstract  class AbstractModule  implements IModuleHandler {
             //}
             failNum = commonPostMethod(moduleUrl,"",addData,failNum,moduleName,curdKey);
         }
+        logger.info("#[addRecords] end, success["+(addZohoXMLList.size()-failNum*ConfigManager.getMaxAddSize())+"],fail["+failNum+"]");
         return failNum;
 
     }
@@ -838,6 +843,7 @@ public abstract  class AbstractModule  implements IModuleHandler {
             failNum = commonPostMethod(moduleUrl,zohoIDUpdXmlEntry.getKey(),zohoIDUpdXmlEntry.getValue(),failNum,moduleName,curdKey);
             i++;
         }
+        logger.info("#[updateRecords] end, success["+(updZohoXMLMap.size()-failNum)+"],fail["+failNum+"]");
         return failNum;
 
     }
@@ -881,6 +887,7 @@ public abstract  class AbstractModule  implements IModuleHandler {
         //result.add(0,failNum);
         //result.add(1,deleteZOHOIDsList);
         //return result;
+        logger.info("#[delRecords] end, success["+(deleteZOHOIDsList.size()-failNum)+"],fail["+failNum+"]");
         return failNum;
     }
 

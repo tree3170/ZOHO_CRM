@@ -289,7 +289,7 @@ public class ModuleManager {
             ////执行更新Report操作
             String sql = "INSERT INTO ZOHO_EXCE_REPORT (START_TIME, END_TIME,INS_FAILED,UPD_FAILED,DEL_FAILED,WHOLEFAIL) VALUES(?,?,?,?,?,?)";
             DBUtils.exeUpdReport(sql, updERPList);
-            logger.debug("################################################"
+            logger.info("################################################"
                     +Constants.COMMENT_PREFIX+"$$$Late Execute Time:"+(endDate.getTime()-startDate.getTime())/1000+"(s)");
         }
         list.add(0,allSuccess);
@@ -529,13 +529,14 @@ public class ModuleManager {
         module = AccountsHandler.getInstance();
         //module.buildSkeletonFromZohoList();
         List<ProdRow> zohoAcctRows = new ArrayList<ProdRow>();
-        AccountsHandler.retrieveAllRowsFromZoho(1, Constants.MAX_FETCH_SIZE, zohoAcctRows);
+        int maxFetchSize = ConfigManager.getMaxFetchSize();
+        AccountsHandler.retrieveAllRowsFromZoho(1, maxFetchSize, zohoAcctRows);
         getAndWriteProps(zohoAcctRows,Constants.MODULE_ACCOUNTS_ID, Constants.ERPID,ModuleNameKeys.Accounts.toString());
 
         module = ProductHandler.getInstance();
         //module.buildSkeletonFromZohoList();
         List<ProdRow> zohoProdRows = new ArrayList<ProdRow>();
-        ProductHandler.retrieveAllRowsFromZoho(1, Constants.MAX_FETCH_SIZE, zohoProdRows);
+        ProductHandler.retrieveAllRowsFromZoho(1, maxFetchSize, zohoProdRows);
         getAndWriteProps(zohoProdRows,Constants.MODULE_PRODUCTS_ID, Constants.ERPID,ModuleNameKeys.Products.toString());
 
 
@@ -552,7 +553,8 @@ public class ModuleManager {
      */
     private static void getAndWriteProps(List<ProdRow> rows, String zohoIDName, String erpIDName,String moduleName) throws Exception {
         //List<ProdRow> rows = new ArrayList<ProdRow>();
-        //AccountsHandler.retrieveAllRowsFromZoho(1, Constants.MAX_FETCH_SIZE, rows);
+        //int maxFetchSize = Integer.parseInt(ConfigManager.get(Constants.PROPS_ZOHO_FILE,ConfigManager.MAX_FETCH_SIZE));
+        //AccountsHandler.retrieveAllRowsFromZoho(1, maxFetchSize, rows);
         Map<String,String> erpZohoIDMap = new HashMap<String, String>();
         //Constants.MODULE_ACCOUNTS_ID, Constants.ERPID
         for (int i = 0; i < rows.size() ; i++){

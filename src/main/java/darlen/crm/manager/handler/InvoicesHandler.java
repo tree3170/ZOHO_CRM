@@ -124,7 +124,8 @@ public class InvoicesHandler extends AbstractModule {
 //
 //      1. 获取所有的记录
         List<ProdRow> rows = new ArrayList<ProdRow>();
-        retrieveAllRowsFromZoho(1, Constants.MAX_FETCH_SIZE, rows);
+        int maxFetchSize = ConfigManager.getMaxFetchSize();
+        retrieveAllRowsFromZoho(1, maxFetchSize, rows);
 
 //      2. 获取Zoho组件的集合，其中包含四个对象，分别为 erpZohoIDMap，erpZohoIDTimeMap，delZohoIDList（zoho ID list），zohoIDProdIDsMap
         List  zohoModuleList = buildZohoComponentList(rows, Constants.MODULE_INVOICES_ID, Constants.ERPID,ModuleNameKeys.Invoices.toString());
@@ -146,6 +147,7 @@ public class InvoicesHandler extends AbstractModule {
      */
     private List<ProdRow> retrieveAllRowsFromZoho(int fromIndex, int toIndex, List<ProdRow> allRows) throws Exception {
         logger.debug("# 1.1  InvoicesHandler [retrieveAllRowsFromZoho]...");
+        int maxFetchSize = ConfigManager.getMaxFetchSize();
 //     1. 从ZOHO获取有效的xml
         String zohoStr =  retrieveZohoRecords(ModuleNameKeys.Invoices.toString(),fromIndex,toIndex);
 
@@ -163,9 +165,9 @@ public class InvoicesHandler extends AbstractModule {
             List<ProdRow>  currentRows = response.getResult().getInvoices().getRows();
             allRows.addAll(currentRows);
             //如果已经达到了最大的查询条数，则代表还可以继续下一次查询；如果没有，则代表记录已经获取完
-            if(currentRows.size() == Constants.MAX_FETCH_SIZE){
-                logger.debug("#通过RetrieveRecord需要已经遍历的次数：" + ((toIndex / Constants.MAX_FETCH_SIZE) ));
-                retrieveAllRowsFromZoho(fromIndex + Constants.MAX_FETCH_SIZE, toIndex + Constants.MAX_FETCH_SIZE, allRows);
+            if(currentRows.size() == maxFetchSize){
+                logger.debug("#通过RetrieveRecord需要已经遍历的次数：" + ((toIndex / maxFetchSize) ));
+                retrieveAllRowsFromZoho(fromIndex + maxFetchSize, toIndex + maxFetchSize, allRows);
             }
         }
         return allRows;

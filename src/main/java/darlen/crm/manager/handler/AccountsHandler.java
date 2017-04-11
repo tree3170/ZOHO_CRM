@@ -116,7 +116,9 @@ public class AccountsHandler  extends AbstractModule {
 //        }
 //      1. 获取所有的记录
         List<ProdRow> rows = new ArrayList<ProdRow>();
-        retrieveAllRowsFromZoho(1, Constants.MAX_FETCH_SIZE, rows);
+        int maxFetchSize = ConfigManager.getMaxFetchSize();
+        //retrieveAllRowsFromZoho(1, Constants.MAX_FETCH_SIZE, rows);
+        retrieveAllRowsFromZoho(1, maxFetchSize, rows);
 
 //      2. 获取Zoho组件的集合，其中包含三个对象，分别为 erpZohoIDMap，erpZohoIDTimeMap，delZohoIDList（zoho ID list）
         List  zohoModuleList = buildZohoComponentList(rows, Constants.MODULE_ACCOUNTS_ID, Constants.ERPID,ModuleNameKeys.Accounts.toString());
@@ -138,6 +140,7 @@ public class AccountsHandler  extends AbstractModule {
     public static List<ProdRow> retrieveAllRowsFromZoho(int fromIndex, int toIndex, List<ProdRow> allRows) throws Exception {
         logger.debug("# 1.1 AccountHandler [retrieveAllRowsFromZoho]...fromIndex="+fromIndex+", toIndex="+toIndex+", row size="+allRows.size());
 //     1. 从ZOHO获取有效的xml
+        int maxFetchSize = ConfigManager.getMaxFetchSize();
         String zohoStr =  handleAccounts.retrieveZohoRecords(ModuleNameKeys.Accounts.toString(),fromIndex,toIndex);
 
         if(StringUtils.isEmptyString(zohoStr) || zohoStr.indexOf("<error>") != -1){ //如果获取不到
@@ -155,10 +158,10 @@ public class AccountsHandler  extends AbstractModule {
             List<ProdRow>  currentRows = response.getResult().getAccounts().getRows();
             allRows.addAll(currentRows);
             //如果已经达到了最大的查询条数，则代表还可以继续下一次查询；如果没有，则代表记录已经获取完
-            if(currentRows.size() == Constants.MAX_FETCH_SIZE){
-                fromIndex = fromIndex + Constants.MAX_FETCH_SIZE;
-                toIndex = toIndex + Constants.MAX_FETCH_SIZE;
-                logger.debug("#通过RetrieveRecord需要已经遍历的次数：" + ((toIndex / Constants.MAX_FETCH_SIZE) ));
+            if(currentRows.size() == maxFetchSize){
+                fromIndex = fromIndex + maxFetchSize;
+                toIndex = toIndex + maxFetchSize;
+                logger.debug("#通过RetrieveRecord需要已经遍历的次数：" + ((toIndex / maxFetchSize) ));
                 retrieveAllRowsFromZoho(fromIndex,toIndex , allRows);
             }
         }

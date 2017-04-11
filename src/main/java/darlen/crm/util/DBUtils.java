@@ -205,6 +205,11 @@ public class DBUtils {
 //                User user = new User("80487000000076001","marketing");
                 User user = new User(ConfigManager.getZohoUserfromProps(lastEditBy),lastEditBy);
                 account.setUser(user);
+                boolean isUserExist = checkUserAndAcctExist("","",user,
+                        erpID,lastEditBy,ModuleNameKeys.Accounts.toString());
+                if(!isUserExist){
+                    continue;
+                }
                 //客戶編號
                 account.setCustomerNO(StringUtils.nullToString(rs.getString("CustomerRef")));
                 //客户公司名
@@ -447,18 +452,22 @@ public class DBUtils {
                      */
                     String erpAcctID = StringUtils.nullToString(rs.getString("CustomerID"));
                     String zohoAcctID = ConfigManager.getAcctsfromProps(erpAcctID);
-                    logger.debug(" [ getQuotesList] ,ERP ID = "+curErpID+", CustomerID ="+erpAcctID+", ZOHO Account ID="+zohoAcctID);
-                    //TODO：CONFIRM， 如果找不到AccoutnID
+                    //logger.debug(" [ getQuotesList] ,ERP ID = "+curErpID+", CustomerID ="+erpAcctID+", ZOHO Account ID="+zohoAcctID);
+                    //TODO：CONFIRM， 如果找不到AccoutnID,则默认为空
                     if(!StringUtils.isEmptyString(zohoAcctID)){
                         quotes.setCustID(zohoAcctID);//"80487000000096005"
                         quotes.setACCOUNTID(zohoAcctID);
-                        quotes.setCustNO(StringUtils.nullToString(rs.getString("CusRef")));
+                        quotes.setCustName(StringUtils.nullToString(rs.getString("CusName")));
                     }else{
                         //TODO：CONFIRM  如果找不到Accounts ID， 那么用为空，默认就是Admin账号
                     }
+                    boolean isUserAndAcctExist = checkUserAndAcctExist(erpAcctID,zohoAcctID,user,
+                            curErpID,lastEditBy,ModuleNameKeys.Quotes.toString());
+                    if(!isUserAndAcctExist){
+                        continue;
+                    }
+                    quotes.setCustNO(StringUtils.nullToString(rs.getString("CusRef")));
 
-
-                    quotes.setCustName(StringUtils.nullToString(rs.getString("CusName")));
                     /**
                      * 客户名Account Name：PriPac Design & Communication AB, 注意&符号，以后会改成CDATA形式
                      */
@@ -639,8 +648,19 @@ public class DBUtils {
                      */
                      String erpAcctID = StringUtils.nullToString(rs.getString("CustomerID"));
                      String zohoAcctID = ConfigManager.getAcctsfromProps(erpAcctID);
-                    logger.debug(" [ getSOMap],ERP ID = "+curErpID+", CustomerID ="+erpAcctID+", ZOHO Account ID="+zohoAcctID);
-                    so.setACCOUNTID(zohoAcctID);//"80487000000096005"
+                    //logger.debug(" [ getSOMap],ERP ID = "+curErpID+", CustomerID ="+erpAcctID+", ZOHO Account ID="+zohoAcctID);
+                    boolean isUserExist = checkUserAndAcctExist(erpAcctID,zohoAcctID,user,
+                            curErpID,lastEditBy,ModuleNameKeys.SalesOrders.toString());
+                    if(!isUserExist){
+                        continue;
+                    }
+                    //TODO：CONFIRM， 如果找不到AccoutnID,则默认为空
+                    if(!StringUtils.isEmptyString(zohoAcctID)){
+                        so.setACCOUNTID(zohoAcctID);
+                    }else{
+                        //TODO：CONFIRM  如果找不到Accounts ID， 那么用为空
+                    }
+                    //so.setACCOUNTID(zohoAcctID);//"80487000000096005"
                     so.setCustomerNO(StringUtils.nullToString(rs.getString("CusRef")));
                     /**
                      * 客户名Account Name：PriPac Design & Communication AB, 注意&符号，以后会改成CDATA形式
@@ -711,6 +731,42 @@ public class DBUtils {
         return dbModuleList;
 //        return moduleList;
     }
+
+    /**
+     *  检测当前用户和客户是否存在与ZOHO
+     * @param erpAcctID   DB Account ID
+     * @param zohoAcctID  根据erpAcctID得到的ZOHO中的Account ID
+     * @param user      ZOHO User ID
+     * @param curErpID    当前模块ID
+     * @param lastEditBy    最后更新人
+     * @param module      Module Name
+     * @return
+     */
+    private static boolean checkUserAndAcctExist(String erpAcctID,String zohoAcctID, User user,
+                           String curErpID, String lastEditBy, String module) {
+        boolean exist = true;
+        //if(StringUtils.isEmptyString(zohoAcctID)|| StringUtils.isEmptyString(user.getUserID())){
+        if(StringUtils.isEmptyString(user.getUserID())){
+            //for Accounts only check the User
+            if(ModuleNameKeys.Accounts.toString().equals(module) && StringUtils.isEmptyString(user.getUserID())){
+                exist = false;
+            }else{
+                //for Quotes/SO/Invoice ,  need check Account ID and User at the same time
+                exist = false;
+            }
+            // for Product no need to check ,  because all product has import
+        }
+        if(!exist){
+            logger.debug("\n [DBUtils: "+module+"]======>IGNORE 不存在:::  "
+                    + "\n Because of "
+                    //" the DB Account ID[" + erpAcctID + "] not exist in ZOHO Account module, zohoAcctID is empty[" +StringUtils.isEmptyString(zohoAcctID)+"] "
+                    //+ "\n or "
+                    + "User ["+lastEditBy+"] not exist in ZOHO User, User["+user.getUserID()+":" +user.getUserName()+"] is empty["+StringUtils.isEmptyString(user.getUserID())+"]"
+                    + "\n Current Module["+module+"] ERP ID = " + curErpID + ", Customer ID =" + erpAcctID + ", ZOHO Account ID=" + zohoAcctID +", Last Edit By="+lastEditBy);
+        }
+        return exist;
+    }
+
 
     /**
      * TODO:不是直接顯示ID，要顯示PaymentTerm表中的Name字段
@@ -832,12 +888,20 @@ public class DBUtils {
                      */
                     String erpAcctID = StringUtils.nullToString(rs.getString("CustomerID"));
                     String zohoAcctID = ConfigManager.getAcctsfromProps(erpAcctID);
-                    logger.debug("[ Invoices ], ERP ID = "+curErpID+", CustomerID ="+rs.getString("CustomerID")+", ZOHO Account ID="+zohoAcctID);
-                    invoices.setACCOUNTID(zohoAcctID);
-                    /**
-                     * PriPac Design & Communication AB, 注意&符号，以后会改成CDATA形式
-                     */
-                    invoices.setAcctName(StringUtils.nullToString(rs.getString("CusName")));
+                    //logger.debug("[ Invoices ], ERP ID = "+curErpID+", CustomerID ="+rs.getString("CustomerID")+", ZOHO Account ID="+zohoAcctID);
+
+                    boolean isUserExist = checkUserAndAcctExist(erpAcctID,zohoAcctID,user,
+                            curErpID,lastEditBy,ModuleNameKeys.Invoices.toString());
+                    if(!isUserExist){
+                        continue;
+                    }
+                    //TODO：CONFIRM， 如果找不到AccoutnID,则默认为空
+                    if(!StringUtils.isEmptyString(zohoAcctID)){
+                        invoices.setACCOUNTID(zohoAcctID);
+                        invoices.setAcctName(StringUtils.nullToString(rs.getString("CusName")));
+                    }else{
+                        //TODO：CONFIRM  如果找不到Accounts ID， 那么用为空
+                    }
                     //Contact公司聯絡人
                     invoices.setContact(StringUtils.nullToString(rs.getString("CusContact")));
                      invoices.setEmail(StringUtils.nullToString(rs.getString("CusEmail")));

@@ -30,6 +30,10 @@ import java.util.*;
 public class ConfigManager {
     private static Logger logger = Logger.getLogger(ConfigManager.class);
     private static ConfigManager configManager = new ConfigManager();
+    //每次查找时最大的增量for search  max is 100
+    public static final String MAX_ADD_SIZE = "MAX_ADD_SIZE";
+    //每次查找时最大的增量for search  max is 200
+    public static final String MAX_FETCH_SIZE = "MAX_FETCH_SIZE";
     /**
      * 使用ZOHO API时必需要的密钥
      */
@@ -321,6 +325,42 @@ public class ConfigManager {
         logger.debug(propValues);
 
         return  prop;
+    }
+
+    public static int getMaxAddSize()  {
+        int maxAddSize = 100;
+        try {
+            String size = ConfigManager.get(Constants.PROPS_ZOHO_FILE,ConfigManager.MAX_ADD_SIZE);
+            if(StringUtils.isEmptyString(size)){
+                maxAddSize = Constants.MAX_ADD_SIZE;
+            }else {
+                maxAddSize =  StringUtils.nullToInt(size);
+            }
+        } catch (Exception e) {
+            logger.error("获取MaxAddSize出错，取默认的200为值");
+            maxAddSize = Constants.MAX_ADD_SIZE;
+        }
+        return maxAddSize;
+    }
+
+    /**
+     * 获取最大的Fetch大小，默认最大值为是200
+     * @return
+     */
+    public static int getMaxFetchSize()  {
+        int maxFetchSize = 200;
+        try {
+            String size = ConfigManager.get(Constants.PROPS_ZOHO_FILE,ConfigManager.MAX_FETCH_SIZE);
+            if(StringUtils.isEmptyString(size)){
+                maxFetchSize = Constants.MAX_FETCH_SIZE;
+            }else {
+                maxFetchSize =  StringUtils.nullToInt(size);
+            }
+        } catch (Exception e) {
+            logger.error("获取MaxFetchSize出错，取默认的200为值");
+            maxFetchSize = Constants.MAX_FETCH_SIZE;
+        }
+        return maxFetchSize;
     }
 
     /**

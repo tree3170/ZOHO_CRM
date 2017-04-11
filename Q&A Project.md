@@ -25,6 +25,7 @@
    c.同时拥有Name和ID--》 ①存在ID，Name不对--》按ID更新
    						  ② 只要ID不存在无论Name是否存在--》出错：4401
    						  ③ ID和Name都存在且对--》正常更新
+   d. 都不存在--》 默认更新管理员账户
 * 5. 关于13个人的账号
    a. accounts.properties: ERP Name 和 ZOHO ID
       ①、拿到所有的ZOHO用户：getUser--》放到Cache中
