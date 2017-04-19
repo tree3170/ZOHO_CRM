@@ -845,8 +845,10 @@ public abstract  class AbstractModule  implements IModuleHandler {
         logger.info("#[updateRecords], All XML Record from ZOHO:::"+Constants.COMMENT_PREFIX+"moduleName = "+moduleName+", Operatiton ="+curdKey+", Size = "+updZohoXMLMap.size()+", url ="+moduleUrl);
         //Map<String,String> updZohoXMLMap = (Map<String,String>) zohoXMLList.get(1);
         int i = 1 ;
+        StringBuilder sb = new StringBuilder(10240);
         for(Map.Entry<String,String> zohoIDUpdXmlEntry : updZohoXMLMap.entrySet()){
-            logger.debug("update ["+moduleName+"], The [" + (i) + "] record is updating... , ZOHO ID =" + zohoIDUpdXmlEntry.getKey());//xml为："+zohoIDUpdXmlEntry.getValue()
+            sb.append("\n, i = ").append(i).append("; zoho ID = ").append(zohoIDUpdXmlEntry.getKey());
+            //logger.debug("update ["+moduleName+"], The [" + (i) + "] record is updating... , ZOHO ID =" + zohoIDUpdXmlEntry.getKey());//xml为："+zohoIDUpdXmlEntry.getValue()
             //Map<String,String> postParams = new HashMap<String, String>();
             //postParams.put(Constants.HTTP_POST_PARAM_ID,zohoIDUpdXmlEntry.getKey());
             //postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,moduleUrl);
@@ -865,6 +867,7 @@ public abstract  class AbstractModule  implements IModuleHandler {
             failNum = commonPostMethod(moduleUrl,zohoIDUpdXmlEntry.getKey(),zohoIDUpdXmlEntry.getValue(),failNum,moduleName,curdKey);
             i++;
         }
+        logger.debug("update ["+moduleName+"], The [" + (i) + "] record is updating... ,all ZOHO IDs =" + sb);//xml为："+zohoIDUpdXmlEntry.getValue()
         logger.info("#[updateRecords] end, success["+(updZohoXMLMap.size()-failNum)+"],fail["+failNum+"]");
         return failNum;
 
@@ -913,6 +916,16 @@ public abstract  class AbstractModule  implements IModuleHandler {
         return failNum;
     }
 
+    private static String reEncodeXML(String xml){
+        xml = xml.replaceAll("%"," percent").replaceAll("&"," and ").replaceAll("#"," ")
+                .replaceAll("\\u000B"," ").replaceAll("\u000B"," ")
+                .replaceAll("\n"," ").replaceAll("\r"," ").replaceAll("\r\n"," ");
+        //xml = xml.replaceAll("&"," and ");
+        //xml = xml.replaceAll("#"," ");
+
+        return xml;
+    }
+
     /**
      * Common 的post 方法
      * @param url
@@ -932,7 +945,7 @@ public abstract  class AbstractModule  implements IModuleHandler {
             postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,url);
         }
         if(!StringUtils.isEmptyString(xmlData)){
-            postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,xmlData);
+            postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,reEncodeXML(xmlData));
         }
         postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,AUTHTOKEN);
         postParams.put(Constants.HTTP_POST_PARAM_SCOPE, SCOPE);
@@ -960,6 +973,172 @@ public abstract  class AbstractModule  implements IModuleHandler {
         }
 
         return execFailNum;
+    }
+
+    public static void commonPostMethodForSepRuun(String url, String id,String xmlData,String moduleName,int crudKey){
+        Map<String,String> postParams = new HashMap<String, String>();
+        if(!StringUtils.isEmptyString(id)){
+            postParams.put(Constants.HTTP_POST_PARAM_ID,id);
+        }
+        if(!StringUtils.isEmptyString(url)){
+            postParams.put(Constants.HTTP_POST_PARAM_TARGETURL,url);
+        }
+        if(!StringUtils.isEmptyString(xmlData)){
+            postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,reEncodeXML(xmlData));
+        }
+        postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,"ADD Real Token");
+        postParams.put(Constants.HTTP_POST_PARAM_SCOPE, "crmapi");
+        postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, "1");
+        try {
+            String zohoReturnStr =  CommonUtils.executePostMethod(postParams);
+        } catch(Exception e) {
+            String operation = "";
+            if(Constants.ZOHO_CRUD_ADD == crudKey){
+                operation = "addRecords";
+            }else if(Constants.ZOHO_CRUD_UPDATE == crudKey){
+                operation = "updateRecords";
+            }else if(Constants.ZOHO_CRUD_DELETE == crudKey){
+                operation = "delRecords";
+            }
+            logger.error("["+moduleName+"], Execute ["+operation+"] Operation, " +
+                    "HTTP_POST_PARAM_ID = "+id+" ," +
+                    "HTTP_POST_PARAM_TARGETURL = "+url+" ," +
+                    " HTTP_POST_PARAM_XMLDATA = "+xmlData,e);
+        }
+
+    }
+
+    public static void main(String[] args ){
+        //https://crm.zoho.com.cn/crm/private/xml/Quotes/insertRecords?authtoken=Real Token ID&scope=crmapi
+        String url = "https://crm.zoho.com.cn/crm/private/xml/Quotes/insertRecords";
+        String id="";
+        String xmlData=getXmlData();
+        String moduleName=ModuleNameKeys.Quotes.toString();
+        //Constants.ZOHO_CRUD_UPDATE,DELETE,ADD
+        int crudKey=Constants.ZOHO_CRUD_ADD;
+        //commonPostMethodForSepRuun(url,id,xmlData,moduleName,crudKey);
+        System.out.println(reEncodeXML(xmlData));
+    }
+
+    private static String getXmlData(){
+        String xmlData = "<response>\n" +
+                "    <result>\n" +
+                "        <Quotes>\n" +
+                "            <row no=\"1\">\n" +
+                "                <FL val=\"API Import\"><![CDATA[true]]></FL>\n" +
+                "                <FL val=\"Discount\"><![CDATA[0E-16]]></FL>\n" +
+                "                <FL val=\"Payment Method\"><![CDATA[]]></FL>\n" +
+                "                <FL val=\"Payment Terms\"><![CDATA[40 percent Deposit  and  Balance before delivery]]></FL>\n" +
+                "                <FL val=\"ERP Currency\"><![CDATA[HKD]]></FL>\n" +
+                "                <FL val=\"Subject\"><![CDATA[AQ277016]]></FL>\n" +
+                "                <FL val=\"ACCOUNTID\"><![CDATA[80487000000594779]]></FL>\n" +
+                "                <FL val=\"Quotation No.\"><![CDATA[AQ277016]]></FL>\n" +
+                "                <FL val=\"Customer No.\"><![CDATA[Cus5336]]></FL>\n" +
+                "                <FL val=\"Quote Owner\"><![CDATA[Kenny Leung]]></FL>\n" +
+                "                <FL val=\"ERP ExchangeRate\"><![CDATA[1.00000000]]></FL>\n" +
+                "                <FL val=\"Sub Total\"><![CDATA[0]]></FL>\n" +
+                "                <FL val=\"LatestEditTime\"><![CDATA[2016-04-05 12:07:25]]></FL>\n" +
+                "                <FL val=\"ERP ID\"><![CDATA[4862]]></FL>\n" +
+                "                <FL val=\"Remarks\"><![CDATA[]]></FL>\n" +
+                "                <FL val=\"Grand Total\"><![CDATA[0]]></FL>\n" +
+                "                <FL val=\"Contact person\"><![CDATA[Ms. Melissa Ong]]></FL>\n" +
+                "                <FL val=\"Customer name\"><![CDATA[The Leading Hotels of The World Ltd]]></FL>\n" +
+                "                <FL val=\"SMOWNERID\"><![CDATA[80487000000169025]]></FL>\n" +
+                "                <FL val=\"Customer Discount\"><![CDATA[0E-16]]></FL>\n" +
+                "                <FL val=\"LatestEditBy\"><![CDATA[Kenny Leung]]></FL>\n" +
+                "                <FL val=\"Customer Name_ID\"><![CDATA[80487000000594779]]></FL>\n" +
+                "                <FL val=\"Product Details\">\n" +
+                "                    <product no=\"3\">\n" +
+                "                        <FL val=\"Total\"><![CDATA[16600.00000000000000000000]]></FL>\n" +
+                "                        <FL val=\"Net Total\"><![CDATA[16600.000000000000000000000000]]></FL>\n" +
+                "                        <FL val=\"List Price\"><![CDATA[166.0000000000000000]]></FL>\n" +
+                "                        <FL val=\"Discount\"><![CDATA[0.0000]]></FL>\n" +
+                "                        <FL val=\"Total After Discount\"><![CDATA[]]></FL>\n" +
+                "                        <FL val=\"Tax\"><![CDATA[0]]></FL>\n" +
+                "                        <FL val=\"Product Description\"><![CDATA[Description \n" +
+                "Donut USB Ultrasonic Aroma Humidifier\n" +
+                "product size: 13x13x7cm\n" +
+                "material:PP\n" +
+                "standard color:Dark wood, wood, black, white\n" +
+                "1c logo is included\u000Bstandard color box]]></FL>\n" +
+                "                        <FL val=\"Unit Price\"><![CDATA[166.0000000000000000]]></FL>\n" +
+                "                        <FL val=\"Product Name\"><![CDATA[Water Brush Pen]]></FL>\n" +
+                "                        <FL val=\"Product Id\"><![CDATA[80487000000606835]]></FL>\n" +
+                "                        <FL val=\"Quantity\"><![CDATA[100.0000]]></FL>\n" +
+                "                    </product>\n" +
+                "                    <product no=\"2\">\n" +
+                "                        <FL val=\"Total\"><![CDATA[400.00000000000000000000]]></FL>\n" +
+                "                        <FL val=\"Net Total\"><![CDATA[400.000000000000000000000000]]></FL>\n" +
+                "                        <FL val=\"List Price\"><![CDATA[400.0000000000000000]]></FL>\n" +
+                "                        <FL val=\"Discount\"><![CDATA[0.0000]]></FL>\n" +
+                "                        <FL val=\"Total After Discount\"><![CDATA[]]></FL>\n" +
+                "                        <FL val=\"Tax\"><![CDATA[0]]></FL>\n" +
+                "                        <FL val=\"Product Description\"><![CDATA[setup charge  per set HK$ 400.00 (order refund)]]></FL>\n" +
+                "                        <FL val=\"Unit Price\"><![CDATA[400.0000000000000000]]></FL>\n" +
+                "                        <FL val=\"Product Name\"><![CDATA[Water Brush Pen]]></FL>\n" +
+                "                        <FL val=\"Product Id\"><![CDATA[80487000000606835]]></FL>\n" +
+                "                        <FL val=\"Quantity\"><![CDATA[1.0000]]></FL>\n" +
+                "                    </product>\n" +
+                "                    <product no=\"1\">\n" +
+                "                        <FL val=\"Total\"><![CDATA[5200.00000000000000000000]]></FL>\n" +
+                "                        <FL val=\"Net Total\"><![CDATA[5200.000000000000000000000000]]></FL>\n" +
+                "                        <FL val=\"List Price\"><![CDATA[5200.0000000000000000]]></FL>\n" +
+                "                        <FL val=\"Discount\"><![CDATA[0.0000]]></FL>\n" +
+                "                        <FL val=\"Total After Discount\"><![CDATA[]]></FL>\n" +
+                "                        <FL val=\"Tax\"><![CDATA[0]]></FL>\n" +
+                "                        <FL val=\"Product Description\"><![CDATA[DHL charge]]></FL>\n" +
+                "                        <FL val=\"Unit Price\"><![CDATA[5200.0000000000000000]]></FL>\n" +
+                "                        <FL val=\"Product Name\"><![CDATA[Water Brush Pen]]></FL>\n" +
+                "                        <FL val=\"Product Id\"><![CDATA[80487000000606835]]></FL>\n" +
+                "                        <FL val=\"Quantity\"><![CDATA[1.0000]]></FL>\n" +
+                "                    </product>\n" +
+                "                    <product no=\"4\">\n" +
+                "                        <FL val=\"Total\"><![CDATA[2500.00000000000000000000]]></FL>\n" +
+                "                        <FL val=\"Net Total\"><![CDATA[2500.000000000000000000000000]]></FL>\n" +
+                "                        <FL val=\"List Price\"><![CDATA[25.0000000000000000]]></FL>\n" +
+                "                        <FL val=\"Discount\"><![CDATA[0.0000]]></FL>\n" +
+                "                        <FL val=\"Total After Discount\"><![CDATA[]]></FL>\n" +
+                "                        <FL val=\"Tax\"><![CDATA[0]]></FL>\n" +
+                "                        <FL val=\"Product Description\"><![CDATA[additional Packing:\n" +
+                "Hard cover gift box  with hot stamp sliver logo (EVA mold is included)\n" +
+                "尺寸：26x26x23cm]]></FL>\n" +
+                "                        <FL val=\"Unit Price\"><![CDATA[25.0000000000000000]]></FL>\n" +
+                "                        <FL val=\"Product Name\"><![CDATA[Water Brush Pen]]></FL>\n" +
+                "                        <FL val=\"Product Id\"><![CDATA[80487000000606835]]></FL>\n" +
+                "                        <FL val=\"Quantity\"><![CDATA[100.0000]]></FL>\n" +
+                "                    </product>\n" +
+                "                </FL>\n" +
+                "            </row>\n" +
+                "        </Quotes>\n" +
+                "    </result>\n" +
+                "</response>\n";
+        return  xmlData;
+        /**
+         *  String xmlData = "<response>\n" +
+         "    <result>\n" +
+         "        <Quotes>\n" +
+         "            <row no=\"1\">\n" +
+         "                <FL val=\"API Import\"><![CDATA[true]]></FL>\n" +
+         "                <FL val=\"Subject\"><![CDATA[MQ092916]]></FL>\n" +
+         "                <FL val=\"ACCOUNTID\"><![CDATA[80487000000733601]]></FL>\n" +
+         "                <FL val=\"Quote Owner\"><![CDATA[Brian]]></FL>\n" +
+         "                <FL val=\"ERP ID\"><![CDATA[6091]]></FL>\n" +
+         "                <FL val=\"Contact person\"><![CDATA[Joyee Lau]]></FL>\n" +
+         "                <FL val=\"Customer name\"><![CDATA[HKU School of Nursing]]></FL>\n" +
+         "                <FL val=\"SMOWNERID\"><![CDATA[80487000000169013]]></FL>\n" +
+         "                <FL val=\"Customer Name_ID\"><![CDATA[80487000000733601]]></FL>\n" +
+         "                <FL val=\"Product Details\">\n" +
+         "                    <product no=\"1\">\n" +
+         "                        <FL val=\"Product Name\"><![CDATA[Transparent Calculator]]></FL>\n" +
+         "                        <FL val=\"Product Id\"><![CDATA[80487000000605216]]></FL>\n" +
+         "                        <FL val=\"Quantity\"><![CDATA[4000.0000]]></FL>\n" +
+         "                    </product>\n" +
+         "                </FL>\n" +
+         "            </row>\n" +
+         "        </Quotes>\n" +
+         "    </result>\n" +
+         "</response>\n";
+         */
     }
 
 
