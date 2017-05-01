@@ -389,7 +389,7 @@ public class InvoicesHandler extends AbstractModule {
      * @return
      * @throws Exception
      */
-    private List<String> buildAdd2ZohoXml(Map accountMap,String className,Properties fieldMappingProps) throws Exception {
+    public List<String> buildAdd2ZohoXml(Map accountMap,String className,Properties fieldMappingProps) throws Exception {
         logger.info("# 4.2 InvoicesHandler [buildAdd2ZohoXml]...");
         List<String> addZohoXmlList= new ArrayList<String>();
         Response response = new Response();
