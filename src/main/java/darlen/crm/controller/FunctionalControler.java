@@ -353,7 +353,7 @@ public class FunctionalControler {
      *  @param  latestEditTime
      * @return
      */
-    private static String getDetailSql(String module,String erpIDs,String latestEditTime) throws IOException, ConfigurationException {
+    public static String getDetailSql(String module,String erpIDs,String latestEditTime) throws IOException, ConfigurationException {
         String sql = "";
         String erpIDName = "";
         if(ModuleNameKeys.Accounts.toString() .equals(module)){

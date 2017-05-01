@@ -535,8 +535,48 @@ public class DBUtils {
                 //}
             }
         }
+        setGrandTotal(ModuleNameKeys.Quotes.toString(),dbIDModuleObjMap);
         return dbModuleList;
 //        return moduleList;
+    }
+
+    /**
+     * 设置SO/Quotes中的总额
+     * @param moduleName
+     * @param dbIDModuleObjMap
+     */
+    private static void setGrandTotal(String moduleName, Map<String,Object> dbIDModuleObjMap){
+        if(ModuleNameKeys.Quotes.toString().equals(moduleName)){
+            for(Map.Entry entry:dbIDModuleObjMap.entrySet()){
+                Quotes quotes = (Quotes)entry.getValue() ;
+                List<ProductDetails> pds = quotes.getPds();
+                BigDecimal grandTotal = getAllPdsTotal(pds);
+                quotes.setGrandTotal(StringUtils.nullToString(grandTotal));
+            }
+        }
+        if(ModuleNameKeys.SalesOrders.toString().equals(moduleName)){
+            for(Map.Entry entry:dbIDModuleObjMap.entrySet()){
+                SO so = (SO)entry.getValue() ;
+                List<ProductDetails> pds = so.getPds();
+                BigDecimal grandTotal = getAllPdsTotal(pds);
+                so.setGrandTotal(StringUtils.nullToString(grandTotal));
+            }
+        }
+    }
+
+    /**
+     * 获取所有价格的总额
+     * @param pds
+     * @return
+     */
+    private static BigDecimal getAllPdsTotal(List<ProductDetails> pds){
+        BigDecimal grandTotal = new BigDecimal("0");
+        for(int i = 0; i< pds.size(); i++){
+            ProductDetails pd = pds.get(i);
+            BigDecimal netTotal = new BigDecimal(pd.getPd_Net_Total());
+            grandTotal = grandTotal.add(netTotal);
+        }
+        return  grandTotal;
     }
 
     /**
@@ -728,8 +768,8 @@ public class DBUtils {
                 //}
             }
         }
+        setGrandTotal(ModuleNameKeys.SalesOrders.toString(),dbIDModuleObjMap);
         return dbModuleList;
-//        return moduleList;
     }
 
     /**

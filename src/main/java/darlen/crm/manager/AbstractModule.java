@@ -975,6 +975,14 @@ public abstract  class AbstractModule  implements IModuleHandler {
         return execFailNum;
     }
 
+    /**
+     * 手动跑的时候注意AutoToken这个字段，必需换为有效的真是的Real Token ID
+     * @param url
+     * @param id
+     * @param xmlData
+     * @param moduleName
+     * @param crudKey
+     */
     public static void commonPostMethodForSepRuun(String url, String id,String xmlData,String moduleName,int crudKey){
         Map<String,String> postParams = new HashMap<String, String>();
         if(!StringUtils.isEmptyString(id)){
@@ -986,7 +994,8 @@ public abstract  class AbstractModule  implements IModuleHandler {
         if(!StringUtils.isEmptyString(xmlData)){
             postParams.put(Constants.HTTP_POST_PARAM_XMLDATA,reEncodeXML(xmlData));
         }
-        postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,"ADD Real Token");
+        //TODO : when use main method ,  this place should be replace as Real Token ID
+        postParams.put(Constants.HTTP_POST_PARAM_AUTHTOKEN,"Real Token ID");
         postParams.put(Constants.HTTP_POST_PARAM_SCOPE, "crmapi");
         postParams.put(Constants.HTTP_POST_PARAM_NEW_FORMAT, "1");
         try {
@@ -1016,8 +1025,8 @@ public abstract  class AbstractModule  implements IModuleHandler {
         String moduleName=ModuleNameKeys.Quotes.toString();
         //Constants.ZOHO_CRUD_UPDATE,DELETE,ADD
         int crudKey=Constants.ZOHO_CRUD_ADD;
-        //commonPostMethodForSepRuun(url,id,xmlData,moduleName,crudKey);
-        System.out.println(reEncodeXML(xmlData));
+        commonPostMethodForSepRuun(url,id,xmlData,moduleName,crudKey);
+        //System.out.println(reEncodeXML(xmlData));
     }
 
     private static String getXmlData(){
@@ -1030,7 +1039,7 @@ public abstract  class AbstractModule  implements IModuleHandler {
                 "                <FL val=\"Payment Method\"><![CDATA[]]></FL>\n" +
                 "                <FL val=\"Payment Terms\"><![CDATA[40 percent Deposit  and  Balance before delivery]]></FL>\n" +
                 "                <FL val=\"ERP Currency\"><![CDATA[HKD]]></FL>\n" +
-                "                <FL val=\"Subject\"><![CDATA[AQ277016]]></FL>\n" +
+                "                <FL val=\"Subject\"><![CDATA[AQ277016_tree]]></FL>\n" +
                 "                <FL val=\"ACCOUNTID\"><![CDATA[80487000000594779]]></FL>\n" +
                 "                <FL val=\"Quotation No.\"><![CDATA[AQ277016]]></FL>\n" +
                 "                <FL val=\"Customer No.\"><![CDATA[Cus5336]]></FL>\n" +
@@ -1040,7 +1049,7 @@ public abstract  class AbstractModule  implements IModuleHandler {
                 "                <FL val=\"LatestEditTime\"><![CDATA[2016-04-05 12:07:25]]></FL>\n" +
                 "                <FL val=\"ERP ID\"><![CDATA[4862]]></FL>\n" +
                 "                <FL val=\"Remarks\"><![CDATA[]]></FL>\n" +
-                "                <FL val=\"Grand Total\"><![CDATA[0]]></FL>\n" +
+                "                <FL val=\"Grand Total\"><![CDATA[10]]></FL>\n" +
                 "                <FL val=\"Contact person\"><![CDATA[Ms. Melissa Ong]]></FL>\n" +
                 "                <FL val=\"Customer name\"><![CDATA[The Leading Hotels of The World Ltd]]></FL>\n" +
                 "                <FL val=\"SMOWNERID\"><![CDATA[80487000000169025]]></FL>\n" +
